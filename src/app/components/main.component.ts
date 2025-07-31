@@ -15,7 +15,7 @@ import { AuthService } from '../services/auth.service';
         <div class="nav-container">
           <!-- Logo -->
           <div class="nav-logo">
-            <h2>{{ title() }}</h2>
+            <img src="New Logo.png" alt="{{ title() }}" class="logo-image">
           </div>
           
           <!-- Search Bar -->

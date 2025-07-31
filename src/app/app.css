@@ -5,7 +5,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -30,7 +31,7 @@ body {
 .navbar {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 1rem 0;
+    padding: 1px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
@@ -53,6 +54,24 @@ body {
     font-size: 1.75rem;
     font-weight: bold;
     margin: 0;
+}
+
+.nav-logo .logo-image {
+    height: calc(100% - 2rem); /* Fill navbar height minus padding */
+    width: auto; /* Auto width based on height */
+    max-height: 60px; /* Prevent it from getting too large */
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    /* Remove white/colored backgrounds */
+    mix-blend-mode: multiply;
+    filter: drop-shadow(0 0 0 transparent);
+    background: transparent;
+    /* Alternative: If background is white, this will make white transparent */
+    /* filter: brightness(0) invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); */
+}
+
+.nav-logo .logo-image:hover {
+    transform: scale(1.05);
 }
 
 .search-container {
@@ -546,13 +565,20 @@ section {
     width: 100%;
 }
 
-.hero, .categories, .featured-products, .footer {
+.hero,
+.categories,
+.featured-products,
+.footer {
     margin: 0;
     width: 100%;
 }
 
 /* Ensure no browser default margins on main structural elements */
-main, nav, section, footer, div {
+main,
+nav,
+section,
+footer,
+div {
     margin: 0;
 }
 
