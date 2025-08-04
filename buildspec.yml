@@ -40,7 +40,7 @@ phases:
 artifacts:
   files:
     - "**/*"
-  base-directory: "dist"
+  base-directory: "dist/capstone-front-end/browser"
   discard-paths: no
 
 cache:
