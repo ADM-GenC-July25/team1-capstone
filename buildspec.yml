@@ -35,7 +35,7 @@ phases:
       - echo "Starting post-build phase"
       - echo "Checking for build artifacts"
       - if [ -d "dist/capstone-front-end/browser" ]; then echo "Build directory exists"; find dist/capstone-front-end/browser -name "index.html"; else echo "Build directory not found - build may have failed"; fi
-      - echo "Post-build phase completed"
+      - echo "Post-build phase completed "
 
 artifacts:
   files:
