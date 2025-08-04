@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 18
+      nodejs: 20.x
   pre_build:
     commands:
       - echo "Starting pre-build phase"
@@ -27,20 +27,20 @@ phases:
       - ng build --configuration=production || echo "Build failed, checking directory structure"
       - echo "Checking if build succeeded and directory exists"
       - ls -la dist/ || echo "No dist directory found"
-      - ls -la dist/admang-july25/ || echo "No admang-july25 directory found"
-      - ls -la dist/admang-july25/browser/ || echo "No browser directory found"
+      - ls -la dist/capstone-front-end/ || echo "No capstone-front-end directory found"
+      - ls -la dist/capstone-front-end/browser/ || echo "No browser directory found"
       - echo "Build phase completed"
   post_build:
     commands:
       - echo "Starting post-build phase"
       - echo "Checking for build artifacts"
-      - if [ -d "dist/admang-july25/browser" ]; then echo "Build directory exists"; find dist/admang-july25/browser -name "index.html"; else echo "Build directory not found - build may have failed"; fi
+      - if [ -d "dist/capstone-front-end/browser" ]; then echo "Build directory exists"; find dist/capstone-front-end/browser -name "index.html"; else echo "Build directory not found - build may have failed"; fi
       - echo "Post-build phase completed"
 
 artifacts:
   files:
     - "**/*"
-  base-directory: "dist/admang-july25/browser"
+  base-directory: "dist/capstone-front-end/browser"
   discard-paths: no
 
 cache:
