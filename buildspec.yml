@@ -1,0 +1,44 @@
+version: 0.2
+
+phases:
+
+  install:
+
+    runtime-versions:
+
+      nodejs: 18.x
+
+  pre_build:
+
+    commands:
+
+      - echo In the pre_build phase...
+
+      - npm install
+
+      - npm install -g @angular/cli
+
+  build:
+
+    commands:
+
+      - echo Build started on `date`
+
+      - ng build
+
+  post_build:
+
+    commands:
+
+      - echo Build completed on `date`
+
+artifacts:
+
+  files:
+
+    - "**/*"
+
+  base-directory: "dist/admang-july25"
+
+  discard-paths: no
+ 
