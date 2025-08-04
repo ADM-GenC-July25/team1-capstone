@@ -1,48 +1,21 @@
 version: 0.2
-
 phases:
   install:
     runtime-versions:
       nodejs: 20.x
   pre_build:
     commands:
-      - echo "Starting pre-build phase"
-      - echo "Node version $(node --version)"
-      - echo "NPM version $(npm --version)"
-      - echo "Clearing npm cache and removing lock file to fix optional dependencies bug"
-      - npm cache clean --force
-      - rm -f package-lock.json
-      - echo "Installing dependencies with fresh package-lock.json"
+      - echo In the pre_build phase...
       - npm install
-      - echo "Installing Angular CLI version 18.2.20 (compatible with Node 18)"
-      - npm install -g @angular/cli@18.2.20
-      - echo "Angular CLI installed, proceeding to build"
   build:
     commands:
-      - echo "Starting build phase"
-      - echo "Current directory $(pwd)"
-      - echo "Checking npm list for rollup dependencies"
-      - npm list @rollup/rollup-linux-x64-gnu || echo "Rollup dependency not found, continuing"
-      - echo "Building Angular application"
-      - ng build --configuration=production || echo "Build failed, checking directory structure"
-      - echo "Checking if build succeeded and directory exists"
-      - ls -la dist/ || echo "No dist directory found"
-      - ls -la dist/capstone-front-end/ || echo "No capstone-front-end directory found"
-      - ls -la dist/capstone-front-end/browser/ || echo "No browser directory found"
-      - echo "Build phase completed"
+      - echo Build started on `date`
+      - npm run build
   post_build:
     commands:
-      - echo "Starting post-build phase"
-      - echo "Checking for build artifacts"
-      - if [ -d "dist/capstone-front-end/browser" ]; then echo "Build directory exists"; find dist/capstone-front-end/browser -name "index.html"; else echo "Build directory not found - build may have failed"; fi
-      - echo "Post-build phase completed"
-
+      - echo Build completed on `date`
 artifacts:
   files:
-    - "**/*"
-  base-directory: "dist"
+    - '**/*'
+  base-directory: 'dist'
   discard-paths: no
-
-cache:
-  paths:
-    - node_modules/**/*
