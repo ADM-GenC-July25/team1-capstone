@@ -54,6 +54,20 @@ export class AuthService {
         if (isLoggedIn === 'true' && currentUser) {
             this.isLoggedIn.set(true);
             this.currentUser.set(currentUser);
+        } else {
+            // If no valid session, ensure user is logged out
+            this.logout();
         }
+    }
+
+    // Force logout with history clearing
+    forceLogout(): void {
+        this.logout();
+        // Clear all storage to be extra sure
+        sessionStorage.clear();
+        localStorage.removeItem('darkMode'); // Preserve dark mode setting
+        const darkMode = localStorage.getItem('darkMode');
+        localStorage.clear();
+        if (darkMode) localStorage.setItem('darkMode', darkMode);
     }
 }

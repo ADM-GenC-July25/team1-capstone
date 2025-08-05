@@ -1,18 +1,81 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, signal } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { ThemeService } from './services/theme.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Navbar } from './navbar/navbar';
+import { Footer } from './footer/footer';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  template: `<router-outlet></router-outlet>`,
-  styleUrl: './app.css'
+  imports: [RouterOutlet, CommonModule, FormsModule, Navbar, Footer],
+  templateUrl: './app.html',
+  styleUrl: '../styles.css'
 })
 export class App implements OnInit {
-  constructor(private authService: AuthService) { }
+  authorized: boolean = false;
+  protected searchQuery = signal('');
+
+  // Use shared theme service
+  protected get isDarkMode() {
+    return this.themeService.isDarkMode;
+  }
+
+  constructor(
+    public authService: AuthService,
+    private router: Router,
+    private themeService: ThemeService
+  ) { }
 
   ngOnInit(): void {
     // Initialize auth status on app start
     this.authService.checkAuthStatus();
+    this.authorized = this.authService.isAuthenticated();
+    console.log(this.authorized);
+
+    // Theme service automatically initializes dark mode preference
+
+    // Listen for route changes to update authorization status
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.authorized = this.authService.isAuthenticated();
+        console.log('Route changed, auth status:', this.authorized);
+      });
+  }
+
+  ngOnChanges(): void {
+    // React to any changes if necessary
+    this.authService.checkAuthStatus();
+    this.authorized = this.authService.isAuthenticated();
+  }
+
+  onSearch() {
+    console.log('Searching for:', this.searchQuery());
+    // Implement search functionality here
+  }
+
+  onLogout(): void {
+    this.authService.logout();
+
+    // Clear browser history and navigate to login
+    this.router.navigate(['/login'], { replaceUrl: true });
+
+    // Additional security: clear any cached data
+    sessionStorage.clear();
+
+    // Update local state immediately
+    this.authorized = false;
+  }
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
+  }
+
+  private checkDarkMode(): void {
+    // Theme service handles initialization, no need to do it here
+    // But we can force a check if needed
   }
 }
