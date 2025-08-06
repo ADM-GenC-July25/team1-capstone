@@ -1,8 +1,10 @@
-<div [attr.data-theme]="isDarkMode() ? 'dark' : null">
-  <ng-container *ngIf="this.authService.isAuthenticated()">
-    <app-navbar></app-navbar>
-  </ng-container>
+<!-- Navbar outside theme wrapper - always consistent -->
+<ng-container *ngIf="this.authService.isAuthenticated()">
+  <app-navbar></app-navbar>
+</ng-container>
 
+<!-- Main content with theme wrapper -->
+<div [attr.data-theme]="isDarkMode() ? 'dark' : null">
   <!-- Main Content Area -->
   <router-outlet></router-outlet>
 

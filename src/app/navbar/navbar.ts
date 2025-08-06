@@ -20,9 +20,9 @@ export class Navbar {
     return this.themeService.isDarkMode;
   }
 
-  // Dynamic logo path - different images for light and dark modes
+  // Static logo path - navbar stays consistent across all themes
   protected get logoPath() {
-    return this.isDarkMode() ? 'LightModeLogo.png' : 'New Logo.png';
+    return 'New Logo.png';
   }
 
   constructor(

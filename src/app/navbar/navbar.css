@@ -13,13 +13,3 @@
 .logo-image:hover {
     transform: scale(1.05);
 }
-[data-theme="dark"] .nav-logo .logo-image {
-    filter: none !important;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-}
-.nav-logo .logo-image {
-    filter: none !important;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-}
