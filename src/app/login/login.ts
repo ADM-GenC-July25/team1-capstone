@@ -14,7 +14,7 @@ import { AuthService } from '../services/auth.service';
 export class LoginComponent {
     username = '';
     password = '';
-    appTitle = 'ShopMart';
+    appTitle = 'ByteBazaar';
 
     loginError = signal<string>('');
     isLoading = signal(false);

@@ -8,7 +8,7 @@ import { ThemeService } from '../services/theme.service';
   styleUrl: './footer.css'
 })
 export class Footer {
-  protected readonly title = signal('ShopMart');
+  protected readonly title = signal('ByteBazaar');
 
   // Use shared theme service
   protected get isDarkMode() {

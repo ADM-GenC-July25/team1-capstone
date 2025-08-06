@@ -10,7 +10,7 @@ import { ThemeService } from '../services/theme.service';
     styleUrls: ['../app.css', './main.css']
 })
 export class MainComponent implements OnInit {
-    protected readonly title = signal('ShopMart');
+    protected readonly title = signal('ByteBazaar');
 
     // Use the shared theme service instead of local state
     protected get isDarkMode() {
