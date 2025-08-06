@@ -27,7 +27,7 @@ body {
     width: 100%;
 }
 
-/* Navigation Bar */
+/* Navigation Bar - Always consistent (outside theme wrapper) */
 .navbar {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -56,25 +56,23 @@ body {
     margin: 0;
 }
 
+/* Logo styles - consistent across all themes */
 .nav-logo .logo-image {
-    height: calc(100% - 2rem); /* Fill navbar height minus padding */
-    width: auto; /* Auto width based on height */
-    max-height: 40px; /* Prevent it from getting too large */
+    height: calc(100% - 2rem);
+    width: auto;
+    max-height: 40px;
     object-fit: contain;
-    transition: transform 0.3s ease;
-    /* Remove white/colored backgrounds */
-    mix-blend-mode: multiply;
-    filter: drop-shadow(0 0 0 transparent);
+    transition: all 0.3s ease;
     background: transparent;
     float: left;
     margin-left: 0px;
-    /* Alternative: If background is white, this will make white transparent */
-    /* filter: brightness(0) invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); */
 }
 
 .nav-logo .logo-image:hover {
     transform: scale(1.05);
 }
+
+
 
 .search-container {
     flex: 1;
@@ -455,10 +453,7 @@ body {
     background: #dc2626;
 }
 
-/* Dark Theme Styles */
-[data-theme="dark"] {
-    color-scheme: dark;
-}
+/* Dark Theme Styles - removed color-scheme: dark to prevent automatic image color adjustments */
 
 [data-theme="dark"] .app-container {
     background-color: #111827;
@@ -542,11 +537,6 @@ body {
     color: #9ca3af;
 }
 
-/* Dark theme navbar adjustments */
-[data-theme="dark"] .navbar {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-}
-
 /* Dark theme button adjustments */
 [data-theme="dark"] .theme-toggle {
     background: #6366f1;
@@ -555,6 +545,8 @@ body {
 [data-theme="dark"] .theme-toggle:hover {
     background: #5b56e8;
 }
+
+/* Logo and navbar remain consistent across all themes */
 
 /* Additional margin/padding fixes */
 section {

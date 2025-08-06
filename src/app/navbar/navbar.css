@@ -1,0 +1,15 @@
+/* Logo styles for the navbar component */
+.logo-image {
+    height: calc(100% - 2rem);
+    width: auto;
+    max-height: 40px;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    background: transparent;
+    float: left;
+    margin-left: 0px;
+}
+
+.logo-image:hover {
+    transform: scale(1.05);
+}

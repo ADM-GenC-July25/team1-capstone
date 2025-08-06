@@ -1,26 +1,21 @@
-      <nav class="navbar">
-        <div class="nav-container">
-          <!-- Logo -->
-          <div class="nav-logo">
-            <img src="New Logo.png" alt="{{ title() }}" class="logo-image">
-          </div>
-          
-          <!-- Search Bar -->
-          <div class="search-container">
-            <input 
-              type="text" 
-              [(ngModel)]="searchQuery" 
-              placeholder="Search products..."
-              class="search-input"
-              (keyup.enter)="onSearch()"
-            >
+<nav class="navbar">
+    <div class="nav-container">
+        <!-- Logo with dynamic image switching -->
+        <div class="nav-logo">
+            <img [src]="logoPath" [alt]="title()" class="logo-image">
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Search products..." class="search-input"
+                (keyup.enter)="onSearch()">
             <button class="search-btn" (click)="onSearch()">
-              <i class="search-icon">🔍</i>
+                <i class="search-icon">🔍</i>
             </button>
-          </div>
-          
-          <!-- Navigation Links -->
-          <div class="nav-links">
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="nav-links">
             <span class="welcome-text">Welcome, {{ authService.user() }}!</span>
             <a href="#" class="nav-link">Home</a>
             <a href="#" class="nav-link">Categories</a>
@@ -28,6 +23,6 @@
             <a href="#" class="nav-link">Contact</a>
             <button class="cart-btn">🛒 Cart</button>
             <button class="logout-btn" (click)="onLogout()">Logout</button>
-          </div>
         </div>
-      </nav>
+    </div>
+</nav>

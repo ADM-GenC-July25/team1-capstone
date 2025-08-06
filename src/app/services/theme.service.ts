@@ -1,4 +1,4 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
     providedIn: 'root'
@@ -14,11 +14,6 @@ export class ThemeService {
     constructor() {
         // Check for saved theme preference on service initialization
         this.loadThemePreference();
-
-        // Effect to apply theme changes to the document
-        effect(() => {
-            this.applyTheme(this.darkMode());
-        });
     }
 
     toggleTheme(): void {
@@ -41,12 +36,5 @@ export class ThemeService {
     private saveThemePreference(): void {
         localStorage.setItem('darkMode', this.darkMode().toString());
     }
-
-    private applyTheme(isDark: boolean): void {
-        if (isDark) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-    }
 }
+
