@@ -56,25 +56,9 @@ body {
     margin: 0;
 }
 
-.nav-logo .logo-image {
-    height: calc(100% - 2rem); /* Fill navbar height minus padding */
-    width: auto; /* Auto width based on height */
-    max-height: 40px; /* Prevent it from getting too large */
-    object-fit: contain;
-    transition: transform 0.3s ease;
-    /* Remove white/colored backgrounds */
-    mix-blend-mode: multiply;
-    filter: drop-shadow(0 0 0 transparent);
-    background: transparent;
-    float: left;
-    margin-left: 0px;
-    /* Alternative: If background is white, this will make white transparent */
-    /* filter: brightness(0) invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); */
-}
+/* Logo styles moved to navbar component CSS to avoid conflicts */
 
-.nav-logo .logo-image:hover {
-    transform: scale(1.05);
-}
+
 
 .search-container {
     flex: 1;
@@ -455,10 +439,7 @@ body {
     background: #dc2626;
 }
 
-/* Dark Theme Styles */
-[data-theme="dark"] {
-    color-scheme: dark;
-}
+/* Dark Theme Styles - removed color-scheme: dark to prevent automatic image color adjustments */
 
 [data-theme="dark"] .app-container {
     background-color: #111827;
@@ -554,6 +535,20 @@ body {
 
 [data-theme="dark"] .theme-toggle:hover {
     background: #5b56e8;
+}
+
+/* Prevent any automatic image color adjustments on logos */
+.nav-logo .logo-image {
+    filter: none !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+/* Ensure logo images display with original colors in all themes */
+[data-theme="dark"] .nav-logo .logo-image {
+    filter: none !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
 }
 
 /* Additional margin/padding fixes */

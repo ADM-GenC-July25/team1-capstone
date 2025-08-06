@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
     selector: 'app-login',
@@ -18,15 +19,14 @@ export class LoginComponent {
 
     loginError = signal<string>('');
     isLoading = signal(false);
-    isDarkMode = signal(false);
-
+protected get isDarkMode() {
+        return this.themeService.isDarkMode;
+    }
     constructor(
         private authService: AuthService,
-        private router: Router
-    ) {
-        // Check if dark mode was previously set
-        this.checkDarkMode();
-    }
+        private router: Router,
+        private themeService: ThemeService
+    ) {}
 
     onLogin(): void {
         if (!this.username.trim() || !this.password.trim()) {
@@ -56,25 +56,8 @@ export class LoginComponent {
         this.password = password;
         this.onLogin();
     }
+     toggleTheme() {
+    this.themeService.toggleTheme();
+  }
 
-    toggleTheme(): void {
-        this.isDarkMode.set(!this.isDarkMode());
-
-        // Apply theme to document root
-        if (this.isDarkMode()) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('darkMode', 'true');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-            localStorage.setItem('darkMode', 'false');
-        }
-    }
-
-    private checkDarkMode(): void {
-        const darkMode = localStorage.getItem('darkMode');
-        if (darkMode === 'true') {
-            this.isDarkMode.set(true);
-            document.documentElement.setAttribute('data-theme', 'dark');
-        }
-    }
 }
