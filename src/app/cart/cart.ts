@@ -19,7 +19,7 @@ interface CartItem {
   styleUrls: ['../app.css', './cart.css']
 })
 export class CartComponent {
-  protected readonly title = signal('ShopMart');
+  protected readonly title = signal('ByteBazaar');
 
   protected get isDarkMode() {
     return this.themeService.isDarkMode;
