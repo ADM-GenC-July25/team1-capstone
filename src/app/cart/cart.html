@@ -1,1 +1,102 @@
-<p>cart works!</p>
+<div [attr.data-theme]="isDarkMode() ? 'dark' : null">
+  <!-- Cart Header Section -->
+  <section class="cart-header">
+    <div class="container">
+      <h1 class="page-title">Shopping Cart</h1>
+      <p class="page-subtitle">Review your items before checkout</p>
+    </div>
+  </section>
+
+  <!-- Cart Content -->
+  <section class="cart-content">
+    <div class="container">
+      @if (cartItems().length > 0) {
+        <div class="cart-layout">
+          <!-- Cart Items -->
+          <div class="cart-items">
+            <h2 class="section-title">Your Items ({{ cartItems().length }})</h2>
+            
+            @for (item of cartItems(); track item.id) {
+              <div class="cart-item">
+                <img [src]="item.image" [alt]="item.name" class="item-image">
+                
+                <div class="item-details">
+                  <h3 class="item-name">{{ item.name }}</h3>
+                  <div class="item-rating">
+                    <span class="stars">⭐⭐⭐⭐⭐</span>
+                    <span class="rating-text">({{ item.rating }})</span>
+                  </div>
+                  <div class="item-price">${{ item.price }}</div>
+                </div>
+                
+                <div class="item-controls">
+                  <div class="quantity-controls">
+                    <button 
+                      class="quantity-btn" 
+                      (click)="updateQuantity(item.id, item.quantity - 1)"
+                      [disabled]="item.quantity <= 1">
+                      -
+                    </button>
+                    <span class="quantity">{{ item.quantity }}</span>
+                    <button 
+                      class="quantity-btn" 
+                      (click)="updateQuantity(item.id, item.quantity + 1)">
+                      +
+                    </button>
+                  </div>
+                  
+                  <div class="item-total">${{ (item.price * item.quantity).toFixed(2) }}</div>
+                  
+                  <button 
+                    class="remove-btn" 
+                    (click)="removeItem(item.id)"
+                    title="Remove item">
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Order Summary -->
+          <div class="order-summary">
+            <h2 class="summary-title">Order Summary</h2>
+            
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span>${{ subtotal.toFixed(2) }}</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Tax (8%):</span>
+              <span>${{ tax.toFixed(2) }}</span>
+            </div>
+            
+            <div class="summary-row total-row">
+              <span>Total:</span>
+              <span>${{ total.toFixed(2) }}</span>
+            </div>
+            
+            <button class="checkout-btn" (click)="checkout()">
+              Proceed to Checkout
+            </button>
+            
+            <button class="continue-shopping-btn" routerLink="/">
+              Continue Shopping
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- Empty Cart -->
+        <div class="empty-cart">
+          <div class="empty-cart-icon">🛒</div>
+          <h2>Your cart is empty</h2>
+          <p>Add some items to get started!</p>
+          <button class="shop-now-btn" routerLink="/">
+            Start Shopping
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+</div>
