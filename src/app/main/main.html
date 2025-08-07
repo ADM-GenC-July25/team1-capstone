@@ -1,4 +1,8 @@
 <div [attr.data-theme]="isDarkMode() ? 'dark' : null">
+  <button class="theme-toggle-floating" (click)="toggleTheme()" type="button">
+    <span class="theme-icon">{{ isDarkMode() ? '☀️' : '🌙' }}</span>
+    <span class="theme-text">{{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
+  </button>
   <!-- Hero Section -->
   <app-search-page></app-search-page>
 
@@ -41,3 +45,4 @@
       </div>
     </div>
   </section>
+</div>

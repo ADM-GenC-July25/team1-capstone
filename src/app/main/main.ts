@@ -8,7 +8,7 @@ import { SearchPage } from '../search-page/search-page';
     standalone: true,
     imports: [CommonModule, SearchPage],
     templateUrl: 'main.html',
-    styleUrls: ['../app.css', './main.css']
+    styleUrls: ['../app.css', './main.css', './theme-toggle.css']
 })
 export class MainComponent implements OnInit {
     protected readonly title = signal('ByteBazaar');
@@ -69,5 +69,9 @@ export class MainComponent implements OnInit {
     addToCart(productId: number) {
         console.log('Added product to cart:', productId);
         // Implement add to cart functionality here
+    }
+
+    toggleTheme() {
+        this.themeService.toggleTheme();
     }
 }

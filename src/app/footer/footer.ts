@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-footer',
@@ -9,15 +8,4 @@ import { ThemeService } from '../services/theme.service';
 })
 export class Footer {
   protected readonly title = signal('ByteBazaar');
-
-  // Use shared theme service
-  protected get isDarkMode() {
-    return this.themeService.isDarkMode;
-  }
-
-  constructor(private themeService: ThemeService) { }
-
-  toggleTheme() {
-    this.themeService.toggleTheme();
-  }
 }
