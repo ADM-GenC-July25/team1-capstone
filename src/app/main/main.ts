@@ -1,11 +1,12 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../services/theme.service';
+import { SearchPage } from '../search-page/search-page';
 
 @Component({
     selector: 'app-main',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, SearchPage],
     templateUrl: 'main.html',
     styleUrls: ['../app.css', './main.css']
 })

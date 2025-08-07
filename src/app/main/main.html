@@ -1,12 +1,6 @@
 <div [attr.data-theme]="isDarkMode() ? 'dark' : null">
   <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1 class="hero-title">Welcome to {{ title() }}</h1>
-      <p class="hero-subtitle">Discover amazing products at unbeatable prices</p>
-      <button class="cta-button">Shop Now</button>
-    </div>
-  </section>
+  <app-search-page></app-search-page>
 
   <!-- Categories Section -->
   <section class="categories">
@@ -47,4 +41,3 @@
       </div>
     </div>
   </section>
-</div>
