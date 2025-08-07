@@ -25,6 +25,15 @@ export class Navbar {
     return 'New Logo.png';
   }
 
+  // Get user display information
+  protected get userDisplayName() {
+    return this.authService.userDisplayName;
+  }
+
+  protected get userInitials() {
+    return this.authService.userInitials;
+  }
+
   constructor(
     public authService: AuthService,
     private router: Router,

@@ -11,7 +11,7 @@ export interface User {
   updatedAt: Date;
   
   // Computed properties that might be useful in the frontend
-  get fullName(): string;
+
 }
 
 export interface UserProfile extends User {

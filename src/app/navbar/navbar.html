@@ -16,7 +16,14 @@
 
         <!-- Navigation Links -->
         <div class="nav-links">
-            <span class="welcome-text">Welcome, {{ authService.user() }}!</span>
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ userInitials() }}
+                </div>
+                <span class="welcome-text">{{ userDisplayName() || 'User' }}</span>
+            </div>
+
             <a href="#" class="nav-link">Home</a>
             <a href="#" class="nav-link">Categories</a>
             <a href="#" class="nav-link">Deals</a>
