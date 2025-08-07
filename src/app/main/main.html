@@ -1,6 +1,10 @@
 <div [attr.data-theme]="isDarkMode() ? 'dark' : null">
   <!-- Hero Section -->
-  <app-search-page></app-search-page>
+  @if (isDarkMode()) {
+    <app-welcome-page></app-welcome-page>
+  } @else {
+    <app-search-page [featuredProducts]="featuredProducts()" [addToCart]="addToCart.bind(this)"></app-search-page>
+  }
 
   <!-- Categories Section -->
   <section class="categories">
@@ -41,3 +45,4 @@
       </div>
     </div>
   </section>
+</div>
