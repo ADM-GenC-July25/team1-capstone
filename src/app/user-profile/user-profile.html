@@ -41,19 +41,19 @@
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="email" class="form-label">Email Address</label>
-                        <input id="email" formControlName="email" class="form-input"
-                            placeholder="Enter your email address" type="email" />
-                        <div class="input-error" *ngIf="Person.get('email')?.invalid && Person.get('email')?.touched">
-                            Please enter a valid email address
+                        <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                        <input id="dateOfBirth" formControlName="dateOfBirth" class="form-input" type="date" />
+                        <div class="input-error"
+                            *ngIf="Person.get('dateOfBirth')?.invalid && Person.get('dateOfBirth')?.touched">
+                            Please enter a valid date of birth
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Additional Information Section -->
+            <!-- Contact Information Section -->
             <section class="form-section">
-                <h2 class="section-title">Additional Information</h2>
+                <h2 class="section-title">Contact Information</h2>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="phone" class="form-label">Phone Number</label>
@@ -62,8 +62,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                        <input id="dateOfBirth" formControlName="dateOfBirth" class="form-input" type="date" />
+                        <label for="email" class="form-label">Email Address:</label>
+                        <input id="email" formControlName="email" class="form-input" type="email" />
                     </div>
 
                     <div class="form-group full-width">
@@ -71,6 +71,83 @@
                             <input type="checkbox" formControlName="isActive" class="checkbox-input">
                             <span class="checkbox-custom"></span>
                             Account Active
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Shipping Address Section -->
+            <section class="form-section">
+                <h2 class="section-title">Shipping Address</h2>
+                <div class="form-grid" [formGroup]="shippingAddressForm">
+                    <div class="form-group full-width">
+                        <label for="addressLine1" class="form-label">Address Line 1</label>
+                        <input id="addressLine1" formControlName="addressLine1" class="form-input"
+                            placeholder="123 Main Street" type="text" />
+                        <div class="input-error"
+                            *ngIf="shippingAddressForm.get('addressLine1')?.invalid && shippingAddressForm.get('addressLine1')?.touched">
+                            Address Line 1 is required
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="addressLine2" class="form-label">Address Line 2 (Optional)</label>
+                        <input id="addressLine2" formControlName="addressLine2" class="form-input"
+                            placeholder="Apt, Suite, Unit, Building, Floor, etc." type="text" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city" class="form-label">City</label>
+                        <input id="city" formControlName="city" class="form-input" placeholder="New York" type="text" />
+                        <div class="input-error"
+                            *ngIf="shippingAddressForm.get('city')?.invalid && shippingAddressForm.get('city')?.touched">
+                            City is required
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state" class="form-label">State/Province</label>
+                        <input id="state" formControlName="state" class="form-input" placeholder="NY" type="text" />
+                        <div class="input-error"
+                            *ngIf="shippingAddressForm.get('state')?.invalid && shippingAddressForm.get('state')?.touched">
+                            State is required
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="postalCode" class="form-label">Postal Code</label>
+                        <input id="postalCode" formControlName="postalCode" class="form-input" placeholder="10001"
+                            type="text" />
+                        <div class="input-error"
+                            *ngIf="shippingAddressForm.get('postalCode')?.invalid && shippingAddressForm.get('postalCode')?.touched">
+                            Postal code is required
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country" class="form-label">Country</label>
+                        <select id="country" formControlName="country" class="form-input">
+                            <option value="USA">United States</option>
+                            <option value="CAN">Canada</option>
+                            <option value="MEX">Mexico</option>
+                            <option value="GBR">United Kingdom</option>
+                            <option value="FRA">France</option>
+                            <option value="DEU">Germany</option>
+                            <option value="ITA">Italy</option>
+                            <option value="ESP">Spain</option>
+                            <option value="AUS">Australia</option>
+                            <option value="JPN">Japan</option>
+                            <option value="CHN">China</option>
+                            <option value="IND">India</option>
+                            <option value="BRA">Brazil</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="checkbox-label">
+                            <input type="checkbox" formControlName="isDefault" class="checkbox-input">
+                            <span class="checkbox-custom"></span>
+                            Set as default shipping address
                         </label>
                     </div>
                 </div>
