@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { User, Address } from '../models';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -49,7 +50,12 @@ export class UserProfile implements OnInit {
     return this.authService.userInitials;
   }
 
-  constructor(private authService: AuthService) { }
+  // Theme service integration
+  get isDarkMode() {
+    return this.themeService.isDarkMode;
+  }
+
+  constructor(private authService: AuthService, private themeService: ThemeService) { }
   ngOnInit() {
     // Load current user data into the form
     const user = this.currentUser();
