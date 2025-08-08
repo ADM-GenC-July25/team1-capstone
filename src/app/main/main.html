@@ -1,6 +1,6 @@
 <div [attr.data-theme]="isDarkMode() ? 'dark' : null">
   <!-- Hero Section -->
-  <app-search-page></app-search-page>
+  <app-search-page [featuredProducts]="featuredProducts()"></app-search-page>
 
   <!-- Categories Section -->
   <section class="categories">
