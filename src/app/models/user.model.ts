@@ -9,9 +9,10 @@ export interface User {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-  
+  shippingAddress?: Address;
+  PaymentMethods?: PaymentMethod[];
   // Computed properties that might be useful in the frontend
-  get fullName(): string;
+
 }
 
 export interface UserProfile extends User {
@@ -34,11 +35,7 @@ export interface UserPreferences {
 }
 
 export interface Address {
-  id: string;
   type: 'shipping' | 'billing';
-  firstName: string;
-  lastName: string;
-  company?: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -82,4 +79,11 @@ export interface LoginResponse {
   token: string;
   refreshToken?: string;
   expiresIn: number;
+}
+export interface PaymentMethod {
+  id: string;
+  cardNumber: string;
+  cardHolderName: string;
+  expirationDate: Date;
+  isDefault: boolean;
 }

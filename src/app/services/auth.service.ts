@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { AuthUser, LoginRequest, LoginResponse } from '../models';
 
 @Injectable({
@@ -16,6 +16,37 @@ export class AuthService {
     get user() {
         return this.currentUser.asReadonly();
     }
+
+    // Computed signal for user's full name
+    get userDisplayName() {
+        return computed(() => {
+            const user = this.currentUser();
+            if (user) {
+                return `${user.firstName} ${user.lastName}`;
+            }
+            return null;
+        });
+    }
+
+    // Computed signal for user's initials (for avatars)
+    get userInitials() {
+        return computed(() => {
+            const user = this.currentUser();
+            if (user) {
+                return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+            }
+            return 'U';
+        });
+    }
+
+    // Get current user's email
+    get userEmail() {
+        return computed(() => {
+            const user = this.currentUser();
+            return user?.email || null;
+        });
+    }
+
     // Template login - accepts any credentials
     login(username: string, password: string): boolean {
         // Template implementation - always succeeds if both fields have values
@@ -51,19 +82,19 @@ export class AuthService {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         const currentUserJson = sessionStorage.getItem('currentUser');
 
-    if(isLoggedIn === 'true' && currentUserJson) {
-    try {
-        const currentUser = JSON.parse(currentUserJson) as AuthUser;
-        this.isLoggedIn.set(true);
-        this.currentUser.set(currentUser);
-    } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        this.logout();
-    }
-} else {
-    // If no valid session, ensure user is logged out
-    this.logout();
-}
+        if (isLoggedIn === 'true' && currentUserJson) {
+            try {
+                const currentUser = JSON.parse(currentUserJson) as AuthUser;
+                this.isLoggedIn.set(true);
+                this.currentUser.set(currentUser);
+            } catch (error) {
+                console.error('Error parsing stored user data:', error);
+                this.logout();
+            }
+        } else {
+            // If no valid session, ensure user is logged out
+            this.logout();
+        }
     }
 
     // Logout method to clear user session and signals
@@ -74,14 +105,14 @@ export class AuthService {
         sessionStorage.removeItem('currentUser');
     }
 
-// Force logout with history clearing
-forceLogout(): void {
-    this.logout();
-    // Clear all storage to be extra sure
-    sessionStorage.clear();
-    localStorage.removeItem('darkMode'); // Preserve dark mode setting
-    const darkMode = localStorage.getItem('darkMode');
-    localStorage.clear();
-    if(darkMode) localStorage.setItem('darkMode', darkMode);
-}
+    // Force logout with history clearing
+    forceLogout(): void {
+        this.logout();
+        // Clear all storage to be extra sure
+        sessionStorage.clear();
+        localStorage.removeItem('darkMode'); // Preserve dark mode setting
+        const darkMode = localStorage.getItem('darkMode');
+        localStorage.clear();
+        if (darkMode) localStorage.setItem('darkMode', darkMode);
+    }
 }

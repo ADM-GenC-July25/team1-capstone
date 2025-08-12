@@ -1,14 +1,9 @@
 <div [attr.data-theme]="isDarkMode() ? 'dark' : null">
     <div class="profile-container">
         <div class="profile-header">
-            <div class="profile-avatar-placeholder">
-                <div class="avatar-circle">
-                    {{ userInitials() }}
-                </div>
-            </div>
             <div class="profile-info">
-                <h1 class="profile-title">{{ userDisplayName() || 'User Profile' }}</h1>
-                <p class="profile-subtitle">Manage your personal information</p>
+                <h1 class="profile-title">User Registration</h1>
+                <p class="profile-subtitle">Create your new user account!</p>
                 @if (currentUser()) {
                 <p class="profile-email">{{ currentUser()?.email }}</p>
                 }
@@ -58,7 +53,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="phone" class="form-label">Phone Number</label>
-                            <input id="phone" formControlName="phone" class="form-input" placeholder="+1 (555) 123-4567"
+                            <input id="phone" formControlName="phone" class="form-input" placeholder="+1 (234) 567-8910"
                                 type="tel" />
                         </div>
 
@@ -66,27 +61,19 @@
                             <label for="email" class="form-label">Email Address:</label>
                             <input id="email" formControlName="email" class="form-input" type="email" />
                         </div>
-
-                        <div class="form-group full-width">
-                            <label class="checkbox-label">
-                                <input type="checkbox" formControlName="isActive" class="checkbox-input">
-                                <span class="checkbox-custom"></span>
-                                Account Active
-                            </label>
-                        </div>
                     </div>
                 </section>
 
                 <!-- Shipping Address Section -->
                 <section class="form-section">
                     <h2 class="section-title">Shipping Address</h2>
-                    <div class="form-grid" [formGroup]="shippingAddressForm">
+                    <div class="form-grid" [formGroup]="$any(Person.get('shippingAddress'))">
                         <div class="form-group full-width">
                             <label for="addressLine1" class="form-label">Address Line 1</label>
                             <input id="addressLine1" formControlName="addressLine1" class="form-input"
                                 placeholder="123 Main Street" type="text" />
                             <div class="input-error"
-                                *ngIf="shippingAddressForm.get('addressLine1')?.invalid && shippingAddressForm.get('addressLine1')?.touched">
+                                *ngIf="Person.get('shippingAddress')?.get('addressLine1')?.invalid && Person.get('shippingAddress')?.get('addressLine1')?.touched">
                                 Address Line 1 is required
                             </div>
                         </div>
@@ -102,7 +89,7 @@
                             <input id="city" formControlName="city" class="form-input" placeholder="New York"
                                 type="text" />
                             <div class="input-error"
-                                *ngIf="shippingAddressForm.get('city')?.invalid && shippingAddressForm.get('city')?.touched">
+                                *ngIf="Person.get('shippingAddress')?.get('city')?.invalid && Person.get('shippingAddress')?.get('city')?.touched">
                                 City is required
                             </div>
                         </div>
@@ -111,7 +98,7 @@
                             <label for="state" class="form-label">State/Province</label>
                             <input id="state" formControlName="state" class="form-input" placeholder="NY" type="text" />
                             <div class="input-error"
-                                *ngIf="shippingAddressForm.get('state')?.invalid && shippingAddressForm.get('state')?.touched">
+                                *ngIf="Person.get('shippingAddress')?.get('state')?.invalid && Person.get('shippingAddress')?.get('state')?.touched">
                                 State is required
                             </div>
                         </div>
@@ -121,7 +108,7 @@
                             <input id="postalCode" formControlName="postalCode" class="form-input" placeholder="10001"
                                 type="text" />
                             <div class="input-error"
-                                *ngIf="shippingAddressForm.get('postalCode')?.invalid && shippingAddressForm.get('postalCode')?.touched">
+                                *ngIf="Person.get('shippingAddress')?.get('postalCode')?.invalid && Person.get('shippingAddress')?.get('postalCode')?.touched">
                                 Postal code is required
                             </div>
                         </div>
@@ -144,22 +131,14 @@
                                 <option value="BRA">Brazil</option>
                             </select>
                         </div>
-
-                        <div class="form-group full-width">
-                            <label class="checkbox-label">
-                                <input type="checkbox" formControlName="isDefault" class="checkbox-input">
-                                <span class="checkbox-custom"></span>
-                                Set as default shipping address
-                            </label>
-                        </div>
                     </div>
                 </section>
             </div>
 
             <!-- Form Actions -->
             <div class="form-actions">
-                <button type="button" (click)="onCancel()" class="btn-secondary">Cancel</button>
-                <button type="submit" [disabled]="Person.invalid" class="btn-primary">Save Changes</button>
+                <button type="button" [routerLink]="['/']" class="btn-secondary">Cancel</button>
+                <button type="submit" [disabled]="Person.invalid" class="btn-primary">Register</button>
             </div>
         </form>
     </div>

@@ -1,13 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
@@ -23,6 +23,15 @@ export class Navbar {
   // Static logo path - navbar stays consistent across all themes
   protected get logoPath() {
     return 'New Logo.png';
+  }
+
+  // Get user display information
+  protected get userDisplayName() {
+    return this.authService.userDisplayName;
+  }
+
+  protected get userInitials() {
+    return this.authService.userInitials;
   }
 
   constructor(
