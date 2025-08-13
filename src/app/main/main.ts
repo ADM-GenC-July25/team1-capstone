@@ -3,16 +3,18 @@ import { CommonModule } from '@angular/common';
 import { ThemeService } from '../services/theme.service';
 import { WelcomePage } from '../welcome-page/welcome-page';
 import { SearchPage } from '../search-page/search-page';
+import { CartComponent } from '../cart/cart';
 
 @Component({
     selector: 'app-main',
     standalone: true,
-    imports: [CommonModule, WelcomePage, SearchPage],
+    imports: [CommonModule, WelcomePage, SearchPage, CartComponent],
     templateUrl: 'main.html',
     styleUrls: ['../app.css', './main.css', './theme-toggle.css']
 })
 export class MainComponent implements OnInit {
     protected readonly title = signal('ByteBazaar');
+    protected isCartOpen = signal(false);
 
     // Use the shared theme service instead of local state
     protected get isDarkMode() {
@@ -27,7 +29,9 @@ export class MainComponent implements OnInit {
         'Books',
         'Beauty'
     ]);
-
+    protected closeCart(isOpen: boolean) {
+        this.isCartOpen.set(isOpen);
+    }
     protected featuredProducts = signal([
         {
             id: 1,

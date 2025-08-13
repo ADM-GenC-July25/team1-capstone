@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
 import { Router, RouterLink } from '@angular/router';
@@ -15,6 +15,10 @@ import { SearchService } from '../services/search-service';
 export class Navbar {
   protected readonly title = signal('ByteBazaar');
   protected searchQuery = signal('');
+  @Output() cartToggled = new EventEmitter<boolean>();
+  onCartClick() {
+    this.cartToggled.emit(!this.cartToggled);
+  }
 
   // Access to theme service for conditional logo
   protected get isDarkMode() {
