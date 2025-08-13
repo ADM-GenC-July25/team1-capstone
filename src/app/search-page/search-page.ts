@@ -13,11 +13,9 @@ export class SearchPage {
   @Input() addToCart!: (productId: any) => void;
   currProducts!: any[];
   searchTerm!: string;
-  firstRun!: boolean;
   
   constructor(private searchService: SearchService) {
     this.searchService.searchTerm.subscribe(term => {
-      this.firstRun = false;
       this.searchTerm = term;
       this.currProducts = [];
       for (let product of this.featuredProducts) {
@@ -29,7 +27,6 @@ export class SearchPage {
   }
 
   ngOnInit() {
-    this.firstRun = true;
     this.currProducts = this.featuredProducts;
     this.searchTerm = '';
   }

@@ -4,11 +4,7 @@
     <span class="theme-text">{{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
   </button>
   <!-- Hero Section -->
-  @if (isDarkMode()) {
-    <app-welcome-page></app-welcome-page>
-  } @else {
-    <app-search-page [featuredProducts]="featuredProducts()" [addToCart]="addToCart.bind(this)"></app-search-page>
-  }
+  <app-search-page [featuredProducts]="featuredProducts()" [addToCart]="addToCart.bind(this)"></app-search-page>
 
   <!-- Categories Section -->
   <section class="categories">
