@@ -4,6 +4,7 @@ import { ThemeService } from '../services/theme.service';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { SearchService } from '../services/search-service';
 
 @Component({
   selector: 'app-navbar',
@@ -37,7 +38,8 @@ export class Navbar {
   constructor(
     public authService: AuthService,
     private router: Router,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private searchService: SearchService
   ) {
     this.router.events.subscribe(() => {
       // Close any open menus or reset states on route change if needed
@@ -49,7 +51,11 @@ export class Navbar {
     this.router.navigate(['/login']);
   }
   onSearch() {
-    console.log('Searching for:', this.searchQuery());
-    // Implement search functionality here
+    this.searchService.updateSearchTerm(this.searchQuery());
+  }
+
+  onButtonClick() {
+    console.log('Button clicked!');
+    // Implement button click functionality here
   }
 }
