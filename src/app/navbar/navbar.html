@@ -8,8 +8,8 @@
         <!-- Search Bar -->
         <div class="search-container">
             <input type="text" [(ngModel)]="searchQuery" placeholder="Search products..." class="search-input"
-                (keyup.enter)="onSearch()">
-            <button class="search-btn" (click)="onSearch()">
+                (ngModelChange)="onSearch()">
+            <button class="search-btn" (click)="onButtonClick()">
                 <i class="search-icon">🔍</i>
             </button>
         </div>
