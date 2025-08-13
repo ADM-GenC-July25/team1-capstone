@@ -12,7 +12,7 @@ export class SearchPage implements OnInit {
   @Input() featuredProducts: any[] = [];
   @Input() addToCart!: (productId: any) => void;
   currProducts!: any[];
-  searchTerm!: string;
+  searchTerm: string = '';
   
   constructor(private searchService: SearchService) {
     this.searchService.searchTerm.subscribe(term => {
@@ -28,7 +28,6 @@ export class SearchPage implements OnInit {
 
   ngOnInit() {
     this.currProducts = this.featuredProducts;
-    this.searchTerm = '';
   }
 }
 
