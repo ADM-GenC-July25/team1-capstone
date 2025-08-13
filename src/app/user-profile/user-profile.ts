@@ -24,17 +24,14 @@ export class UserProfile implements OnInit {
     isActive: new FormControl(true),
     createdAt: new FormControl(new Date()),
     updatedAt: new FormControl(new Date()),
-  });
-
-  // Separate form for shipping address
-  shippingAddressForm = new FormGroup({
-    addressLine1: new FormControl('', Validators.required),
-    addressLine2: new FormControl(''),
-    city: new FormControl('', Validators.required),
-    state: new FormControl('', Validators.required),
-    postalCode: new FormControl('', Validators.required),
-    country: new FormControl('USA', Validators.required),
-    isDefault: new FormControl(false)
+    address: new FormGroup({
+      addressLine1: new FormControl('', Validators.required),
+      addressLine2: new FormControl(''),
+      city: new FormControl('', Validators.required),
+      state: new FormControl('', Validators.required),
+      postalCode: new FormControl('', Validators.required),
+      country: new FormControl('USA', Validators.required)
+    })
   });
 
   // Get user display information from AuthService
@@ -65,44 +62,29 @@ export class UserProfile implements OnInit {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        phone: '', // These would come from a more complete user profile
-        dateOfBirth: '',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-
-      // Pre-fill shipping address with default values
-      this.shippingAddressForm.patchValue({
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: 'USA',
-        isDefault: false
+        phone: user.phone, // These would come from a more complete user profile
+        dateOfBirth: user.dateOfBirth,
+        address: user.address ? {
+          addressLine1: user.address.addressLine1,
+          addressLine2: user.address.addressLine2,
+          city: user.address.city,
+          state: user.address.state,
+          postalCode: user.address.postalCode,
+          country: user.address.country
+        } : {}
       });
     }
   }
 
+      // Pre-fill shipping address with default values
+
   onSubmit() {
-    if (this.Person.valid && this.shippingAddressForm.valid) {
+    if (this.Person.valid) {
       const formData = this.Person.value;
 
       // Construct shipping address object from form values
-      const shippingAddress: Address = {
-        type: 'shipping',
-        addressLine1: this.shippingAddressForm.get('addressLine1')?.value || '',
-        addressLine2: this.shippingAddressForm.get('addressLine2')?.value || '',
-        city: this.shippingAddressForm.get('city')?.value || '',
-        state: this.shippingAddressForm.get('state')?.value || '',
-        postalCode: this.shippingAddressForm.get('postalCode')?.value || '',
-        country: this.shippingAddressForm.get('country')?.value || 'USA',
-        isDefault: this.shippingAddressForm.get('isDefault')?.value || false
-      };
 
       console.log('Saving user profile:', formData);
-      console.log('Saving shipping address:', shippingAddress);
 
       // Here you would typically call a service to save the user data
       // this.userService.updateProfile(formData).subscribe(...)
@@ -115,7 +97,18 @@ export class UserProfile implements OnInit {
           ...currentUser,
           firstName: formData.firstName,
           lastName: formData.lastName,
-          email: formData.email
+          email: formData.email,
+          dateOfBirth: formData.dateOfBirth,
+          phone: formData.phone,
+          address: {
+            ...currentUser.address,
+            addressLine1: formData.address.addressLine1,
+            addressLine2: formData.address.addressLine2,
+            city: formData.address.city,
+            state: formData.address.state,
+            postalCode: formData.address.postalCode,
+            country: formData.address.country
+          }
         };
         sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
         console.log('Profile updated successfully!');
@@ -123,9 +116,8 @@ export class UserProfile implements OnInit {
     } else {
       console.log('Form validation failed');
       this.markFormGroupTouched(this.Person);
-      this.markFormGroupTouched(this.shippingAddressForm);
-    }
   }
+}
 
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.keys(formGroup.controls).forEach(key => {

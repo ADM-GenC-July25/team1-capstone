@@ -3,8 +3,8 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  phone?: string;
-  dateOfBirth?: Date;
+  phone: string;
+  dateOfBirth: Date;
   profileImage?: string;
   isActive: boolean;
   createdAt: Date;
@@ -51,10 +51,13 @@ export interface AuthUser {
   email: string;
   firstName: string;
   lastName: string;
+  phone?: string;
+  dateOfBirth?: Date;
   token: string;
   refreshToken?: string;
   roles: string[];
   permissions: string[];
+  address?: Address;
 }
 
 // For user registration
