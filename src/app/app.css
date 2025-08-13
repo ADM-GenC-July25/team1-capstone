@@ -213,7 +213,7 @@ body {
 /* Categories Section */
 .categories {
     padding: 4rem 0;
-    background: white;
+    background: hsla(0, 0%, 100%, 1);
     margin: 0;
     width: 100%;
 }
@@ -225,18 +225,19 @@ body {
 }
 
 .category-card {
-    background: #f8fafc;
+    background: white;
     border-radius: 15px;
     padding: 2rem;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
     border: 2px solid transparent;
+    box-shadow: 0 0px 15px rgba(0, 0, 0, 0.20);
 }
 
 .category-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0px 25px rgba(0, 0, 0, 0.30);
     border-color: #667eea;
 }
 
@@ -254,7 +255,7 @@ body {
 /* Featured Products Section */
 .featured-products {
     padding: 4rem 0;
-    background: #f8fafc;
+    background: hsla(0, 0%, 93%, 1);
     margin: 0;
     width: 100%;
 }
@@ -266,16 +267,16 @@ body {
 }
 
 .product-card {
-    background: white;
+    background: hsla(0, 0%, 93%, 1);
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 0px 15px rgba(0, 0, 0, 0.25);
     transition: all 0.3s ease;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0px 25px rgba(0, 0, 0, 0.35);
 }
 
 .product-image {
@@ -463,30 +464,30 @@ body {
 }
 
 [data-theme="dark"] .categories {
-    background: #1f2937;
+    background: hsla(220, 22%, 17%, 1);
 }
 
 [data-theme="dark"] .featured-products {
-    background: #111827;
+    background: hsla(220, 22%, 14%, 1);
 }
 
 [data-theme="dark"] .category-card {
-    background: #374151;
+    background: hsla(220, 22%, 20%, 1);
     color: #f9fafb;
 }
 
 [data-theme="dark"] .category-card:hover {
-    background: #4b5563;
     border-color: #6366f1;
 }
 
 [data-theme="dark"] .product-card {
-    background: #374151;
+    background: hsla(220, 22%, 17%, 1);
     color: #f9fafb;
 }
 
 [data-theme="dark"] .product-card:hover {
-    background: #4b5563;
+    background: hsla(220, 22%, 17%, 1);
+    border-color: #6366f1;
 }
 
 [data-theme="dark"] .product-name {
@@ -544,6 +545,14 @@ body {
 
 [data-theme="dark"] .theme-toggle:hover {
     background: #5b56e8;
+}
+
+[data-theme="dark"] .category-card h3 {
+    color: white;
+}
+
+[data-theme="dark"] .product-rating .rating-text {
+    color: hsla(0, 0%, 85%, 1);
 }
 
 /* Logo and navbar remain consistent across all themes */
