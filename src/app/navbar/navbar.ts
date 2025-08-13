@@ -47,6 +47,7 @@ export class Navbar {
     });
   }
   onLogout(): void {
+    this.searchService.updateSearchTerm('');
     this.authService.logout();
     this.router.navigate(['/login']);
   }
