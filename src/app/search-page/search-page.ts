@@ -11,9 +11,12 @@ import { SearchService } from '../services/search-service';
 export class SearchPage {
   @Input() featuredProducts: any[] = [];
   @Input() addToCart!: (productId: any) => void;
+  currProducts!: any[];
+  searchTerm!: string;
   
   constructor(private searchService: SearchService) {
     this.searchService.searchTerm.subscribe(term => {
+      this.searchTerm = term;
       this.currProducts = [];
       for (let product of this.featuredProducts) {
         if (product.name.toLowerCase().includes(term.toLowerCase())) {
@@ -25,6 +28,7 @@ export class SearchPage {
 
   ngOnInit() {
     this.currProducts = this.featuredProducts;
+    this.searchTerm = '';
   }
 }
 
