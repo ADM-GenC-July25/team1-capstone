@@ -1,7 +1,7 @@
 <div class="products-container">
   <h2 class="search-info">You Searched: </h2>
   <div class="products-grid">
-    @for (product of currProducts; track product.id) {
+    @for (product of featuredProducts; track product.id) {
       <div class="product-card">
         <img [src]="product.image" [alt]="product.name" class="product-image">
         <div class="product-info">
@@ -11,7 +11,7 @@
             <span class="rating-text">({{ product.rating }})</span>
           </div>
           <div class="product-price">${{ product.price }}</div>
-          <button class="add-to-cart-btn">
+          <button class="add-to-cart-btn" (click)="addToCart(product.id)">
             Add to Cart
           </button>
         </div>

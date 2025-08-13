@@ -10,8 +10,8 @@ import { SearchService } from '../services/search-service';
 })
 export class SearchPage {
   @Input() featuredProducts: any[] = [];
-  currProducts!: any[];
-
+  @Input() addToCart!: (productId: any) => void;
+  
   constructor(private searchService: SearchService) {
     this.searchService.searchTerm.subscribe(term => {
       this.currProducts = [];
@@ -26,5 +26,5 @@ export class SearchPage {
   ngOnInit() {
     this.currProducts = this.featuredProducts;
   }
-
 }
+

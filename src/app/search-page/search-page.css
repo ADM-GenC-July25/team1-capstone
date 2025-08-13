@@ -1,0 +1,50 @@
+.products-grid {
+    width: 59vw;
+    margin: auto;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 1.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: white transparent;
+    -ms-overflow-style: none; /* IE and Edge: hide arrows */
+    padding-bottom: 8px; /* Add space between items and scrollbar */
+}
+
+.products-grid::-webkit-scrollbar {
+    height: 10px;
+    background: transparent;
+    border-radius: 8px;
+}
+.products-grid::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+}
+.products-grid::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #4751b8 0%, #5d397f 100%);
+}
+.products-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.product-card {
+    flex: 0 0 auto;
+    width: 250px;
+}
+
+.products-container {
+    margin: auto;
+    padding: 20px;
+    padding-bottom: 30px;
+    background: linear-gradient(135deg, #4751b8 0%, #5d397f 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search-info {
+    width: 59vw;
+    margin: auto;
+    margin-bottom: 1rem;
+    color: white;
+}
