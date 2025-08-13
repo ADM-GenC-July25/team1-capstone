@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { SearchService } from '../services/search-service';
 
 @Component({
@@ -8,7 +8,7 @@ import { SearchService } from '../services/search-service';
   templateUrl: './search-page.html',
   styleUrl: './search-page.css'
 })
-export class SearchPage {
+export class SearchPage implements OnInit {
   @Input() featuredProducts: any[] = [];
   @Input() addToCart!: (productId: any) => void;
   currProducts!: any[];
