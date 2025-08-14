@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../services/theme.service';
+import { CartService } from '../services/cart.service';
 
 interface CartItem {
   id: number;
@@ -20,7 +21,9 @@ interface CartItem {
 })
 export class CartComponent {
   protected readonly title = signal('ByteBazaar');
-
+  onCartClick() {
+    this.cartService.toggleCart();
+  }
   protected get isDarkMode() {
     return this.themeService.isDarkMode;
   }
@@ -52,7 +55,7 @@ export class CartComponent {
     }
   ]);
 
-  constructor(private themeService: ThemeService) {}
+  constructor(private themeService: ThemeService, private cartService: CartService) {}
 
   get subtotal(): number {
     return this.cartItems().reduce((sum, item) => sum + (item.price * item.quantity), 0);
