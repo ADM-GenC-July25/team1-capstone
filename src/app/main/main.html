@@ -4,6 +4,12 @@
     <span class="theme-text">{{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
   </button>
   <!-- Hero Section -->
+   <!-- Cart Modal Overlay -->
+   <div class="cart-modal-overlay" *ngIf="isCartOpen()" (click)="closeCart()">
+  <div class="cart-modal-content" (click)="$event.stopPropagation()">
+    <app-cart></app-cart>
+  </div>
+</div>
   <app-search-page [featuredProducts]="featuredProducts()" [addToCart]="addToCart.bind(this)"></app-search-page>
 
   <!-- Categories Section -->

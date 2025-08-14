@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ThemeService } from '../services/theme.service';
 import { WelcomePage } from '../welcome-page/welcome-page';
 import { SearchPage } from '../search-page/search-page';
+import { CartComponent } from '../cart/cart';
+import { CartService } from '../services/cart.service';
 
 @Component({
     selector: 'app-main',
     standalone: true,
-    imports: [CommonModule, WelcomePage, SearchPage],
+    imports: [CommonModule, WelcomePage, SearchPage, CartComponent],
     templateUrl: 'main.html',
     styleUrls: ['../app.css', './main.css', './theme-toggle.css']
 })
@@ -87,9 +89,16 @@ export class MainComponent implements OnInit {
         }
     ]);
 
-    constructor(private themeService: ThemeService) {
+    constructor(private themeService: ThemeService, private cartService: CartService) {
 
     }
+    get isCartOpen() {
+  return this.cartService.isCartOpen;
+}
+
+closeCart() {
+  this.cartService.closeCart();
+}
 
     ngOnInit(): void {
         // Component initialization if needed

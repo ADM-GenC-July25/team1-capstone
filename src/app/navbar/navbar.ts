@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../services/search-service';
+import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,6 +16,8 @@ import { SearchService } from '../services/search-service';
 export class Navbar {
   protected readonly title = signal('ByteBazaar');
   protected searchQuery = signal('');
+  @Output() cartToggled = new EventEmitter<boolean>();
+
 
   // Access to theme service for conditional logo
   protected get isDarkMode() {
@@ -39,12 +42,16 @@ export class Navbar {
     public authService: AuthService,
     private router: Router,
     private themeService: ThemeService,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private cartService: CartService
   ) {
     this.router.events.subscribe(() => {
       // Close any open menus or reset states on route change if needed
 
     });
+  }
+  onCartClick() {
+    this.cartService.openCart();
   }
   onLogout(): void {
     this.searchService.updateSearchTerm('');
