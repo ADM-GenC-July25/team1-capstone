@@ -5,7 +5,7 @@ import { AuthUser, LoginRequest, LoginResponse } from '../models';
     providedIn: 'root'
 })
 export class AuthService {
-    private isLoggedIn = signal(false);
+    private isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' ? signal(true) : signal(false);
     private currentUser = signal<AuthUser | null>(null);
 
     // Getter signals for components to access
@@ -101,6 +101,7 @@ export class AuthService {
     logout(): void {
         this.isLoggedIn.set(false);
         this.currentUser.set(null);
+        localStorage.removeItem('authToken'); // Clear any auth token
         sessionStorage.removeItem('isLoggedIn');
         sessionStorage.removeItem('currentUser');
     }
