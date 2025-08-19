@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, signal } from '@angular/core';
 import { Address, User } from '../models';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { EmailValidator, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -13,9 +14,13 @@ import { RouterLink } from '@angular/router';
   styleUrl: './register.css'
 })
 export class Register implements OnInit {
+  isLoading = signal(false);
+  registrationError = signal<string>('');
   @Input()
   Person: FormGroup = new FormGroup({
+    username: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', Validators.required),
     firstName: new FormControl('', Validators.required),
     lastName: new FormControl('', Validators.required),
     phone: new FormControl(''),
@@ -29,8 +34,7 @@ export class Register implements OnInit {
       city: new FormControl('', Validators.required),
       state: new FormControl('', Validators.required),
       postalCode: new FormControl('', Validators.required),
-      country: new FormControl('USA', Validators.required),
-      isDefault: new FormControl(false)
+      country: new FormControl('USA', Validators.required)
     }),
   });
 
@@ -52,7 +56,10 @@ export class Register implements OnInit {
     return this.themeService.isDarkMode;
   }
 
-  constructor(private authService: AuthService, private themeService: ThemeService) { }
+  constructor(private authService: AuthService,
+        private router: Router,
+        private themeService: ThemeService,
+        private http: HttpClient) { }
 
   ngOnInit(): void {
   }
@@ -88,8 +95,63 @@ export class Register implements OnInit {
           lastName: formData.lastName,
           email: formData.email
         };
-        sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
-        console.log('Profile updated successfully!');
+
+        this.isLoading.set(true);
+
+        // Prepare login request payload
+        const registrationData = {
+            email : this.Person.get('email')?.value || '',
+            username: this.Person.get('username')?.value || '',
+            password: this.Person.get('password')?.value || 'test',
+            firstName: this.Person.get('firstName')?.value || '',
+            lastName: this.Person.get('lastName')?.value || '',
+            phoneNumber: this.Person.get('phone')?.value || '',
+            addressLineOne: this.Person.get('shippingAddress')?.get('addressLine1')?.value || '',
+            addressLine2: this.Person.get('shippingAddress')?.get('addressLine2')?.value || '',
+            city: this.Person.get('shippingAddress')?.get('city')?.value || '',
+            state: this.Person.get('shippingAddress')?.get('state')?.value || '',
+            zipCode: this.Person.get('shippingAddress')?.get('postalCode')?.value || '',
+            country: this.Person.get('shippingAddress')?.get('country')?.value || 'USA'
+
+        };
+
+        // Send login request to backend
+        
+          this.http.post<any>('http://localhost:8080/auth/register', registrationData, { observe: 'response' })
+          .subscribe({
+
+            next: (response:HttpResponse<any>) => {
+              console.log(response.status)
+              console.log(registrationData.password)
+              console.log(registrationData.username)
+              console.log(registrationData.email)
+                this.isLoading.set(false);
+
+                // Handle successful login
+                if (response && (response.status == 201)) {
+                    // Store authentication token if provided
+                    this.router.navigate(['/login'])
+                } else {
+                    this.registrationError.set('Invalid response from server');
+                }
+            },
+            error: (error) => {
+                this.isLoading.set(false);
+
+                // Handle login errors
+                if (error.status === 401) {
+                    this.registrationError.set('Invalid username or password');
+                } else if (error.status === 400) {
+                    this.registrationError.set('Please check your input and try again');
+                } else if (error.status === 0) {
+                    this.registrationError.set('Unable to connect to server. Please check your connection.');
+                } else {
+                    this.registrationError.set('Login failed. Please try again later.');
+                }
+
+                console.error('Login error:', error);
+            }
+        });
       }
     } else {
       console.log('Form validation failed');
