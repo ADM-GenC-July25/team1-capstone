@@ -35,7 +35,12 @@ export class Navbar {
   }
 
   protected get userInitials() {
-    return this.authService.userInitials;
+
+    if(this.authService.userDisplayName !== null) {
+      const initials: string = this.authService.userDisplayName.toString();
+      return initials[11].toUpperCase() as string;
+    }
+    return 'U';
   }
 
   constructor(

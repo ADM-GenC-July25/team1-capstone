@@ -51,6 +51,7 @@ export interface AuthUser {
   email: string;
   firstName: string;
   lastName: string;
+  username: string;
   phone?: string;
   dateOfBirth?: Date;
   token: string;

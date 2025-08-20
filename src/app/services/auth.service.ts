@@ -17,12 +17,12 @@ export class AuthService {
         return this.currentUser.asReadonly();
     }
 
-    // Computed signal for user's full name
+    // Computed signal for user's display name (username)
     get userDisplayName() {
         return computed(() => {
             const user = this.currentUser();
             if (user) {
-                return `${user.firstName} ${user.lastName}`;
+                return user.username;
             }
             return null;
         });
@@ -32,8 +32,10 @@ export class AuthService {
     get userInitials() {
         return computed(() => {
             const user = this.currentUser();
-            if (user) {
+            if (user && user.firstName && user.lastName) {
                 return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+            } else if (user && user.username) {
+                return user.username.charAt(0).toUpperCase();
             }
             return 'U';
         });
@@ -47,6 +49,31 @@ export class AuthService {
         });
     }
 
+    // Method to handle successful login response from backend
+    handleLoginSuccess(loginResponse: { token: string; username: string; email: string; accessLevel: string }): void {
+        // Create AuthUser from backend response
+        const authUser: AuthUser = {
+            id: loginResponse.username, // Using username as ID since backend doesn't provide separate ID
+            email: loginResponse.email,
+            username: loginResponse.username,
+            firstName: '', // Backend doesn't provide this, will be empty
+            lastName: '', // Backend doesn't provide this, will be empty
+            token: loginResponse.token,
+            roles: [loginResponse.accessLevel], // Using accessLevel as role
+            permissions: [] // Backend doesn't provide permissions
+        };
+
+        this.isLoggedIn.set(true);
+        this.currentUser.set(authUser);
+
+        // Store in sessionStorage for persistence during session
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('currentUser', JSON.stringify(authUser));
+        sessionStorage.setItem('authToken', loginResponse.token);
+
+        console.log('Login successful:', authUser);
+    }
+
     // Template login - accepts any credentials
     login(username: string, password: string): boolean {
         // Template implementation - always succeeds if both fields have values
@@ -55,6 +82,7 @@ export class AuthService {
             const mockUser: AuthUser = {
                 id: '1',
                 email: username,
+                username: username, // Use the provided username
                 firstName: 'Template',
                 lastName: 'User',
                 token: 'mock-jwt-token',
@@ -101,9 +129,10 @@ export class AuthService {
     logout(): void {
         this.isLoggedIn.set(false);
         this.currentUser.set(null);
-        localStorage.removeItem('authToken'); // Clear any auth token
+        localStorage.removeItem('authToken');
         sessionStorage.removeItem('isLoggedIn');
         sessionStorage.removeItem('currentUser');
+        sessionStorage.removeItem('authToken');
     }
 
     // Force logout with history clearing
