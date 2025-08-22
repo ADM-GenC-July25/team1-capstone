@@ -1,0 +1,17 @@
+<table>
+    <tr>
+        <th>Shipment ID</th>
+        <th>Destination</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    <tr *ngFor="let shipment of shipments">
+        <td>{{ shipment.id }}</td>
+        <td>{{ shipment.destination }}</td>
+        <td>{{ shipment.status }}</td>
+        <td>
+            <button (click)="viewDetails(shipment.id)">View Details</button>
+            <button (click)="editShipment(shipment.id)">Edit</button>
+        </td>
+    </tr>
+</table>
