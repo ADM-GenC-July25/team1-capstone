@@ -111,7 +111,8 @@ export class Register implements OnInit {
             city: this.Person.get('shippingAddress')?.get('city')?.value || '',
             state: this.Person.get('shippingAddress')?.get('state')?.value || '',
             zipCode: this.Person.get('shippingAddress')?.get('postalCode')?.value || '',
-            country: this.Person.get('shippingAddress')?.get('country')?.value || 'USA'
+            country: this.Person.get('shippingAddress')?.get('country')?.value || 'USA',
+            dateOfBirth: this.Person.get('dateOfBirth')?.value || '',
 
         };
 
