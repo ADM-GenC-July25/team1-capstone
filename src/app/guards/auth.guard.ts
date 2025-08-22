@@ -12,6 +12,7 @@ export class AuthGuard implements CanActivate {
     ) { }
 
     canActivate(): boolean {
+        // Use signal value instead of calling as function
         if (this.authService.isAuthenticated()) {
             return true;
         } else {

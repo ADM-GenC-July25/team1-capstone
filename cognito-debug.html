@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cognito Configuration Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .info {
+            color: blue;
+            font-weight: bold;
+        }
+
+        pre {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #007acc;
+            overflow-x: auto;
+        }
+
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #005a9e;
+        }
+
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #ccc;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔍 AWS Cognito Configuration Checker</h1>
+        <p><strong>Your Cognito Domain:</strong>
+            <code>https://us-west-2aisdobluq.auth.us-west-2.amazoncognito.com</code></p>
+        <p><strong>Your Client ID:</strong> <code>3nte1afuliiln27dspmofnaqkc</code></p>
+
+        <button onclick="checkOpenIdConfig()">1. Check OpenID Configuration</button>
+        <button onclick="checkCors()">2. Check CORS</button>
+        <button onclick="generateAuthUrl()">3. Generate Auth URL</button>
+        <button onclick="showFixSteps()">4. Show Fix Steps</button>
+
+        <div id="results"></div>
+
+        <div id="fix-steps" style="display: none;">
+            <h2>🔧 Fix Steps for Blank Authorization URL</h2>
+            <div class="step">
+                <h3>Step 1: Go to AWS Cognito Console</h3>
+                <p>Navigate to: <a href="https://us-west-2.console.aws.amazon.com/cognito/v2/idp/user-pools"
+                        target="_blank">AWS Cognito Console</a></p>
+            </div>
+            <div class="step">
+                <h3>Step 2: Find Your User Pool</h3>
+                <p>Look for User Pool: <strong>us-west-2_AiSDoBLuq</strong></p>
+            </div>
+            <div class="step">
+                <h3>Step 3: Edit App Client</h3>
+                <p>1. Click "App integration" → "App clients and analytics"</p>
+                <p>2. Click on: <strong>3nte1afuliiln27dspmofnaqkc</strong></p>
+                <p>3. Click "Edit"</p>
+            </div>
+            <div class="step">
+                <h3>Step 4: Fix Identity Providers (MOST IMPORTANT)</h3>
+                <p class="error">✅ Check "Cognito user pool" - THIS IS USUALLY MISSING!</p>
+                <p>If this is unchecked, your authorization URL will be blank.</p>
+            </div>
+            <div class="step">
+                <h3>Step 5: Fix OAuth Settings</h3>
+                <p><strong>OAuth 2.0 grant types:</strong></p>
+                <p>✅ Authorization code grant - CHECKED</p>
+                <p>❌ Implicit grant - UNCHECKED</p>
+                <p><strong>OpenID Connect scopes:</strong></p>
+                <p>✅ email, openid, phone, profile - ALL CHECKED</p>
+            </div>
+            <div class="step">
+                <h3>Step 6: Verify Callback URLs</h3>
+                <p><strong>Allowed callback URLs:</strong></p>
+                <pre>http://localhost:4200/callback
+http://localhost:4200/</pre>
+                <p><strong>Allowed sign-out URLs:</strong></p>
+                <pre>http://localhost:4200/
+http://localhost:4200/login</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const COGNITO_DOMAIN = 'https://us-west-2aisdobluq.auth.us-west-2.amazoncognito.com';
+        const CLIENT_ID = '3nte1afuliiln27dspmofnaqkc';
+        const REDIRECT_URI = 'http://localhost:4200/callback';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+            results.innerHTML += `<div class="${className}">${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function checkOpenIdConfig() {
+            clearResults();
+            log('<h3>🔍 Checking OpenID Configuration...</h3>');
+
+            try {
+                const url = `${COGNITO_DOMAIN}/.well-known/openid-configuration`;
+                log(`Fetching: ${url}`);
+
+                const response = await fetch(url);
+
+                if (response.ok) {
+                    const config = await response.json();
+                    log('✅ OpenID Configuration is accessible!', 'success');
+                    log(`<pre>${JSON.stringify(config, null, 2)}</pre>`);
+
+                    // Check critical endpoints
+                    if (config.authorization_endpoint) {
+                        log('✅ Authorization endpoint found', 'success');
+                    } else {
+                        log('❌ Authorization endpoint missing', 'error');
+                    }
+                } else {
+                    log(`❌ Failed to fetch OpenID config: ${response.status} ${response.statusText}`, 'error');
+                    log('This means your Cognito domain is not configured or Hosted UI is disabled.', 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+                log('This could be a CORS issue or network connectivity problem.', 'error');
+            }
+        }
+
+        async function checkCors() {
+            clearResults();
+            log('<h3>🔍 Checking CORS...</h3>');
+
+            try {
+                const url = `${COGNITO_DOMAIN}/.well-known/openid-configuration`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    log('✅ CORS is working for OpenID configuration', 'success');
+                } else {
+                    log(`❌ CORS issue detected: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                if (error.message.includes('CORS')) {
+                    log('❌ CORS error detected!', 'error');
+                    log('This means callback URLs are not configured in Cognito.', 'error');
+                } else {
+                    log(`❌ Network error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function generateAuthUrl() {
+            clearResults();
+            log('<h3>🔍 Generating Authorization URL...</h3>');
+
+            try {
+                // First check if we can get the OpenID config
+                const configResponse = await fetch(`${COGNITO_DOMAIN}/.well-known/openid-configuration`);
+
+                if (!configResponse.ok) {
+                    log('❌ Cannot access OpenID configuration', 'error');
+                    return;
+                }
+
+                const config = await configResponse.json();
+
+                if (!config.authorization_endpoint) {
+                    log('❌ No authorization endpoint in configuration', 'error');
+                    return;
+                }
+
+                // Generate the authorization URL manually
+                const authUrl = new URL(config.authorization_endpoint);
+                authUrl.searchParams.set('client_id', CLIENT_ID);
+                authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
+                authUrl.searchParams.set('response_type', 'code');
+                authUrl.searchParams.set('scope', 'openid email phone profile');
+                authUrl.searchParams.set('state', 'test-state-' + Date.now());
+
+                const finalUrl = authUrl.toString();
+
+                if (finalUrl && finalUrl.includes('authorize')) {
+                    log('✅ Authorization URL generated successfully!', 'success');
+                    log(`<pre>${finalUrl}</pre>`);
+                    log('<strong>This means your Cognito OAuth is configured correctly!</strong>', 'success');
+                    log('<a href="' + finalUrl + '" target="_blank">Click here to test authorization (will redirect to Cognito)</a>');
+                } else {
+                    log('❌ Authorization URL is invalid or empty', 'error');
+                    log('This suggests OAuth configuration issues in Cognito.', 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Error generating auth URL: ${error.message}`, 'error');
+            }
+        }
+
+        function showFixSteps() {
+            const fixSteps = document.getElementById('fix-steps');
+            fixSteps.style.display = fixSteps.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+
+</html>

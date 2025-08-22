@@ -8,12 +8,17 @@ import { CartComponent } from './cart/cart';
 import { UserProfile } from './user-profile/user-profile';
 import { Register } from './register/register';
 import { ShipmentTracking } from './shipment-tracking/shipment-tracking';
+import { CallbackComponent } from './auth/callback.component';
 
 export const routes: Routes = [
     {
         path: 'login',
         component: LoginComponent,
         canActivate: [LoginGuard]
+    },
+    {
+        path: 'callback',
+        component: CallbackComponent
     },
     {
         path: '',

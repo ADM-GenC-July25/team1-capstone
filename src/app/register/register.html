@@ -11,29 +11,26 @@
         </div>
 
         <form [formGroup]="Person" (ngSubmit)="onSubmit()" class="profile-form">
+            <!-- Registration Messages -->
+            @if (registrationError()) {
+            <div class="alert alert-error">
+                {{ registrationError() }}
+            </div>
+            }
+            @if (registrationSuccess()) {
+            <div class="alert alert-success">
+                {{ registrationSuccess() }}
+            </div>
+            }
+
             <div class="form-sections">
                 <!-- Personal Information Section -->
                 <section class="form-section">
                     <h2 class="section-title">Personal Information</h2>
+                    <p class="section-description">
+                        Fill out your profile information. You'll complete the account creation through AWS Cognito.
+                    </p>
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label for="username" class="form-label">Username</label>
-                            <input id="username" formControlName="username" class="form-input"
-                                placeholder="Enter your username" type="text" />
-                            <div class="input-error"
-                                *ngIf="Person.get('username')?.invalid && Person.get('username')?.touched">
-                                Username is required
-                        </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="password" class="form-label">Password</label>
-                            <input id="password" formControlName="password" class="form-input"
-                                placeholder="Enter your password" type="password" />
-                            <div class="input-error"
-                                *ngIf="Person.get('password')?.invalid && Person.get('password')?.touched">
-                                Password is required
-                        </div>
-                        </div>
                         <div class="form-group">
                             <label for="firstName" class="form-label">First Name</label>
                             <input id="firstName" formControlName="firstName" class="form-input"
@@ -156,7 +153,11 @@
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" [routerLink]="['/']" class="btn-secondary">Cancel</button>
-                <button type="submit" [disabled]="Person.invalid" (onClick)="onSubmit()" class="btn-primary">Register</button>
+                <button type="button" (click)="testDirectLogin()" class="btn-secondary" style="background-color: #007acc; color: white;">
+                    🧪 Test Direct Cognito Login
+                </button>
+                <button type="submit" [disabled]="Person.invalid" (onClick)="onSubmit()"
+                    class="btn-primary">Register</button>
             </div>
         </form>
     </div>

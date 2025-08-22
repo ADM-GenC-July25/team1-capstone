@@ -16,18 +16,15 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 export class Register implements OnInit {
   isLoading = signal(false);
   registrationError = signal<string>('');
+  registrationSuccess = signal<string>('');
+
   @Input()
   Person: FormGroup = new FormGroup({
-    username: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', Validators.required),
     firstName: new FormControl('', Validators.required),
     lastName: new FormControl('', Validators.required),
     phone: new FormControl(''),
     dateOfBirth: new FormControl(''),
-    isActive: new FormControl(true),
-    createdAt: new FormControl(new Date()),
-    updatedAt: new FormControl(new Date()),
     shippingAddress: new FormGroup({
       addressLine1: new FormControl('', Validators.required),
       addressLine2: new FormControl(''),
@@ -57,103 +54,61 @@ export class Register implements OnInit {
   }
 
   constructor(private authService: AuthService,
-        private router: Router,
-        private themeService: ThemeService,
-        private http: HttpClient) { }
+    private router: Router,
+    private themeService: ThemeService,
+    private http: HttpClient) { }
 
   ngOnInit(): void {
+    // Clear any previous messages
+    this.registrationError.set('');
+    this.registrationSuccess.set('');
   }
+
   onSubmit() {
     if (this.Person.valid && (this.Person.get('shippingAddress') as FormGroup)?.valid) {
-      const formData = this.Person.value;
+      this.isLoading.set(true);
+      this.registrationError.set('');
+      this.registrationSuccess.set('');
 
-      // Construct shipping address object from form values
-      const shippingAddress: Address = {
-        type: 'shipping',
-        addressLine1: this.Person.get('shippingAddress')?.get('addressLine1')?.value || '',
+      console.log('=== Registration Process Started ===');
+      console.log('Form data:', this.Person.value);
+
+      // For Cognito integration, redirect to Cognito sign-up
+      this.registrationSuccess.set('Preparing registration with AWS Cognito...');
+
+      // Save user profile data to backend after successful Cognito registration
+      const profileData = {
+        email: this.Person.get('email')?.value || '',
+        firstName: this.Person.get('firstName')?.value || '',
+        lastName: this.Person.get('lastName')?.value || '',
+        phoneNumber: this.Person.get('phone')?.value || '',
+        addressLineOne: this.Person.get('shippingAddress')?.get('addressLine1')?.value || '',
         addressLine2: this.Person.get('shippingAddress')?.get('addressLine2')?.value || '',
         city: this.Person.get('shippingAddress')?.get('city')?.value || '',
         state: this.Person.get('shippingAddress')?.get('state')?.value || '',
-        postalCode: this.Person.get('shippingAddress')?.get('postalCode')?.value || '',
+        zipCode: this.Person.get('shippingAddress')?.get('postalCode')?.value || '',
         country: this.Person.get('shippingAddress')?.get('country')?.value || 'USA',
-        isDefault: this.Person.get('shippingAddress')?.get('isDefault')?.value || false
+        dateOfBirth: this.Person.get('dateOfBirth')?.value || '',
       };
 
-      console.log('Saving user profile:', formData);
-      console.log('Saving shipping address:', shippingAddress);
+      console.log('Profile data to save:', profileData);
 
-      // Here you would typically call a service to save the user data
-      // this.userService.updateProfile(formData).subscribe(...)
-      // this.addressService.saveAddress(shippingAddress).subscribe(...)
+      // Store profile data temporarily
+      sessionStorage.setItem('pendingProfile', JSON.stringify(profileData));
 
-      // For now, just update the session storage with the new data
-      const currentUser = this.Person.value;
-      if (currentUser) {
-        const updatedUser = {
-          ...currentUser,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email
-        };
+      setTimeout(() => {
+        this.isLoading.set(false);
+        this.registrationSuccess.set('Redirecting to authentication...');
 
-        this.isLoading.set(true);
-
-        // Prepare login request payload
-        const registrationData = {
-            email : this.Person.get('email')?.value || '',
-            username: this.Person.get('username')?.value || '',
-            password: this.Person.get('password')?.value || 'test',
-            firstName: this.Person.get('firstName')?.value || '',
-            lastName: this.Person.get('lastName')?.value || '',
-            phoneNumber: this.Person.get('phone')?.value || '',
-            addressLineOne: this.Person.get('shippingAddress')?.get('addressLine1')?.value || '',
-            addressLine2: this.Person.get('shippingAddress')?.get('addressLine2')?.value || '',
-            city: this.Person.get('shippingAddress')?.get('city')?.value || '',
-            state: this.Person.get('shippingAddress')?.get('state')?.value || '',
-            zipCode: this.Person.get('shippingAddress')?.get('postalCode')?.value || '',
-            country: this.Person.get('shippingAddress')?.get('country')?.value || 'USA',
-            dateOfBirth: this.Person.get('dateOfBirth')?.value || '',
-
-        };
-
-        // Send login request to backend
-        
-          this.http.post<any>('http://localhost:8080/auth/register', registrationData, { observe: 'response' })
-          .subscribe({
-
-            next: (response:HttpResponse<any>) => {
-              console.log(response.status)
-              console.log(registrationData.password)
-              console.log(registrationData.username)
-              console.log(registrationData.email)
-                this.isLoading.set(false);
-
-                // Handle successful login
-                if (response && (response.status == 201)) {
-                    // Store authentication token if provided
-                    this.router.navigate(['/login'])
-                } else {
-                    this.registrationError.set('Invalid response from server');
-                }
-            },
-            error: (error) => {
-                this.isLoading.set(false);
-
-                // Handle login errors
-                if (error.status === 401) {
-                    this.registrationError.set('Invalid username or password');
-                } else if (error.status === 400) {
-                    this.registrationError.set('Please check your input and try again');
-                } else if (error.status === 0) {
-                    this.registrationError.set('Unable to connect to server. Please check your connection.');
-                } else {
-                    this.registrationError.set('Login failed. Please try again later.');
-                }
-
-                console.error('Login error:', error);
-            }
-        });
-      }
+        console.log('=== Attempting Cognito Login ===');
+        try {
+          // Redirect to Cognito login page
+          this.authService.login();
+        } catch (error) {
+          console.error('Error during Cognito redirect:', error);
+          this.registrationError.set('Failed to redirect to authentication. Please check console for details.');
+        }
+      }, 2000);
     } else {
       console.log('Form validation failed');
       this.markFormGroupTouched(this.Person);
@@ -171,6 +126,19 @@ export class Register implements OnInit {
   onCancel() {
     // Reset form to original values
     this.ngOnInit();
+  }
+
+  // Test method to try direct manual Cognito login
+  testDirectLogin() {
+    console.log('🧪 Testing direct manual Cognito login...');
+    console.log('This bypasses the OIDC library completely and constructs the URL manually.');
+    
+    try {
+      this.authService.directManualLogin();
+    } catch (error) {
+      console.error('❌ Direct manual login failed:', error);
+      this.registrationError.set('Direct manual login failed. Check console for details.');
+    }
   }
 
 }

@@ -1,0 +1,42 @@
+<div class="login-container" [attr.data-theme]="isDarkMode() ? 'dark' : null">
+    <div class="login-card">
+        <div class="login-header">
+            <h1 class="login-title">Welcome to {{ appTitle }}</h1>
+            <p class="login-subtitle">Sign in with AWS Cognito to continue shopping</p>
+        </div>
+
+        <div class="login-content">
+            <div class="cognito-login">
+                <p class="cognito-info">
+                    We use AWS Cognito for secure authentication. Click the button below to sign in or create a new
+                    account.
+                </p>
+
+                <button type="button" class="btn btn-primary btn-large" (click)="onLogin()">
+                    <span class="btn-icon">🔐</span>
+                    Sign in with AWS Cognito
+                </button>
+
+                <div class="login-benefits">
+                    <h4>Why AWS Cognito?</h4>
+                    <ul>
+                        <li>✅ Secure multi-factor authentication</li>
+                        <li>✅ Password reset and recovery</li>
+                        <li>✅ Social login options</li>
+                        <li>✅ Industry-standard security</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <p>Don't have an account? <a href="/register" class="register-link">Register here</a></p>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" (click)="toggleTheme()" type="button">
+            <span *ngIf="!isDarkMode()">🌙</span>
+            <span *ngIf="isDarkMode()">☀️</span>
+        </button>
+    </div>
+</div>
