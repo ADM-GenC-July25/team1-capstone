@@ -1,17 +1,85 @@
-<table>
-    <tr>
-        <th>Shipment ID</th>
-        <th>Destination</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
-    <tr *ngFor="let shipment of shipments">
-        <td>{{ shipment.id }}</td>
-        <td>{{ shipment.destination }}</td>
-        <td>{{ shipment.status }}</td>
-        <td>
-            <button (click)="viewDetails(shipment.id)">View Details</button>
-            <button (click)="editShipment(shipment.id)">Edit</button>
-        </td>
-    </tr>
-</table>
+<div [attr.data-theme]="isDarkMode() ? 'dark' : null">
+    <div class="shipment-container">
+        <div class="shipment-header">
+            <h1 class="shipment-title">Shipment Tracking</h1>
+            <p class="shipment-subtitle">Track and manage your shipments</p>
+        </div>
+
+        <div class="table-container">
+            
+
+            <div class="table-wrapper">
+                <table class="shipments-table">
+                    <thead>
+                        <tr>
+                            <th>Shipment ID</th>
+                            <th>Tracking Number</th>
+                            <th>Destination</th>
+                            <th>Status</th>
+                            <th>Carrier</th>
+                            <th>Est. Delivery</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for(shipment of shipments; track shipment.id) {
+                        <tr class="shipment-row" [class]="'status-' + shipment.status.toLowerCase().replace(' ', '-')">
+                            <td class="shipment-id">
+                                <span class="id-text">{{ shipment.id }}</span>
+                            </td>
+                            <td class="tracking-number">
+                                <span class="tracking-text">{{ shipment.trackingNumber }}</span>
+                            </td>
+                            <td class="route">
+                                <div class="route-container">
+                                    
+                                    <span class="destination">{{ shipment.destination }}</span>
+                                </div>
+                            </td>
+                            <td class="status">
+                                <span class="status-badge"
+                                    [class]="'status-' + shipment.status.toLowerCase().replace(' ', '-')">
+                                    {{ shipment.status }}
+                                </span>
+                            </td>
+                            <td class="carrier">
+                                <div class="carrier-info">
+                                    <span class="carrier-name">{{ shipment.carrier }}</span>
+                                    <span class="package-type">{{ shipment.packageType }}</span>
+                                </div>
+                            </td>
+                            <td class="delivery-date">
+                                <div class="date-info">
+                                    <span class="date">{{ shipment.estimatedDelivery | date:'MMM dd' }}</span>
+                                    <span class="year">{{ shipment.estimatedDelivery | date:'yyyy' }}</span>
+                                </div>
+                            </td>
+                            <td class="actions">
+                                <div class="action-buttons">
+                                    <button class="btn btn-secondary btn-sm" (click)="viewDetails(shipment.id)"
+                                        title="View Details">
+                                        <span class="btn-icon">👁</span>
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" (click)="editShipment(shipment.id)"
+                                        title="Edit Shipment">
+                                        <span class="btn-icon">✏️</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (shipments.length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <h3>No shipments found</h3>
+                <p>You don't have any shipments to track yet.</p>
+                <button class="btn btn-primary">Create Your First Shipment</button>
+            </div>
+            }
+        </div>
+    </div>
+</div>
