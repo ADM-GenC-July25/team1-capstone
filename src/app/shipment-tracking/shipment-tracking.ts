@@ -13,6 +13,11 @@ export class ShipmentTracking {
   get isDarkMode() {
     return this.themeService.isDarkMode;
   }
+
+  // Overlay state management
+  showDetailsOverlay = false;
+  selectedShipment: any = null;
+
   // Placeholder for shipment tracking logic
   // This component will handle the display and management of shipment tracking information
   shipments = [
@@ -145,19 +150,46 @@ export class ShipmentTracking {
   trackShipment(shipmentId: string) {
     // Logic to track a shipment by its ID
   }
+
   viewDetails(shipmentId: string) {
-    // Logic to view details of a specific shipment
+    // Find the shipment and show details overlay
+    const shipment = this.shipments.find(s => s.id === shipmentId);
+    if (shipment) {
+      this.selectedShipment = shipment;
+      this.showDetailsOverlay = true;
+    }
   }
+
+  closeDetailsOverlay() {
+    this.showDetailsOverlay = false;
+    this.selectedShipment = null;
+  }
+
   getShipmentDetails(shipmentId: string) {
     // Logic to retrieve shipment details
+    return this.shipments.find(s => s.id === shipmentId);
   }
-  editShipment(shipmentId: string) {
-    // Logic to update the details of a shipment
+
+  cancelShipment(shipmentId: string) {
+    // Logic to cancel a shipment (only if status is 'Processing')
+    const shipment = this.shipments.find(s => s.id === shipmentId);
+    if (shipment && shipment.status === 'Processing') {
+      // Update status to cancelled
+      shipment.status = 'Cancelled';
+      shipment.lastUpdate = new Date().toISOString().slice(0, 16).replace('T', ' ');
+      console.log(`Shipment ${shipmentId} has been cancelled`);
+    }
   }
+
+  canCancelShipment(shipment: any): boolean {
+    return shipment.status === 'Processing';
+  }
+
   // Additional methods as needed for shipment tracking
   ngOnInit() {
     // Logic to run when the component initializes
   }
+
   ngOnDestroy() {
     // Cleanup logic when the component is destroyed
   }
