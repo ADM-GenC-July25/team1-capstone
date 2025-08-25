@@ -17,29 +17,65 @@ export class AuthService {
     }
 
     private initializeAuthState(): void {
+        console.log('🔄 Initializing authentication state...');
+
         // Subscribe to authentication state changes
         this.oidcSecurityService.checkAuth().subscribe({
             next: ({ isAuthenticated, userData, accessToken, errorMessage }) => {
-                console.log('Auth check result:', { isAuthenticated, userData, errorMessage });
+                console.log('✅ Auth check completed successfully');
+                console.log('Auth check result:', {
+                    isAuthenticated,
+                    userData: userData ? 'Present' : 'Null',
+                    accessToken: accessToken ? 'Present (length: ' + accessToken.length + ')' : 'Null',
+                    errorMessage
+                });
 
                 this.isAuthenticatedSignal.set(isAuthenticated);
 
                 if (isAuthenticated && userData) {
-                    const user: AuthUser = {
-                        id: userData.sub || userData.username || '',
-                        email: userData.email || '',
-                        username: userData.preferred_username || userData.email || userData.sub || '',
-                        firstName: userData.given_name || '',
-                        lastName: userData.family_name || '',
-                        token: accessToken || '',
-                        roles: userData.groups || ['user'],
-                        permissions: []
-                    };
-                    this.currentUser.set(user);
+                    console.log('✅ User is authenticated, processing user data...');
+                    console.log('Raw user data:', userData);
+
+                    try {
+                        const user: AuthUser = {
+                            id: userData.sub || userData.username || '',
+                            email: userData.email || '',
+                            username: userData.preferred_username || userData.email || userData.sub || '',
+                            firstName: userData.given_name || '',
+                            lastName: userData.family_name || '',
+                            token: accessToken || '',
+                            roles: userData.groups || ['user'],
+                            permissions: []
+                        };
+
+                        console.log('✅ User object created successfully:', {
+                            id: user.id,
+                            email: user.email,
+                            username: user.username,
+                            firstName: user.firstName,
+                            lastName: user.lastName,
+                            hasToken: !!user.token
+                        });
+
+                        this.currentUser.set(user);
+
+                        // Handle any pending profile data from registration
+                        this.handlePostAuthProfile();
+
+                        console.log('✅ Authentication state initialized successfully');
+
+                    } catch (userProcessingError) {
+                        console.error('❌ Error processing user data:', userProcessingError);
+                        this.currentUser.set(null);
+                        this.isAuthenticatedSignal.set(false);
+                    }
                 } else {
+                    console.log('❌ User not authenticated or no user data');
                     this.currentUser.set(null);
+
                     if (errorMessage) {
-                        console.error('Authentication error:', errorMessage);
+                        console.error('Authentication error details:', errorMessage);
+
                         // Check for CORS-related errors
                         if (errorMessage.toLowerCase().includes('cors') ||
                             errorMessage.toLowerCase().includes('network') ||
@@ -49,11 +85,30 @@ export class AuthService {
                             console.error('- http://localhost:4200/callback');
                             console.error('- http://localhost:4200/');
                         }
+
+                        // Check for specific OAuth/Token errors
+                        if (errorMessage.toLowerCase().includes('token') ||
+                            errorMessage.toLowerCase().includes('invalid_grant') ||
+                            errorMessage.toLowerCase().includes('code')) {
+                            console.error('🚨 OAuth Token Error Detected!');
+                            console.error('This might indicate:');
+                            console.error('1. Authorization code was used more than once');
+                            console.error('2. Callback URL mismatch');
+                            console.error('3. Client ID mismatch');
+                            console.error('4. Timeout in token exchange');
+                        }
+                    } else if (!isAuthenticated) {
+                        console.log('ℹ️ No authentication error - user simply not authenticated yet');
                     }
                 }
             },
             error: (error) => {
-                console.error('OIDC initialization error:', error);
+                console.error('❌ OIDC initialization error:', error);
+                console.error('Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
 
                 // Enhanced CORS error detection
                 if (error.message && (
@@ -62,18 +117,29 @@ export class AuthService {
                     error.message.includes('Failed to fetch') ||
                     error.name === 'TypeError'
                 )) {
-                    console.error('🚨 CORS/Network Error detected!');
+                    console.error('🚨 CORS/Network Error detected during auth initialization!');
                     console.error('This usually means:');
                     console.error('1. Callback URLs not configured in AWS Cognito');
                     console.error('2. Incorrect Cognito domain');
                     console.error('3. Network connectivity issues');
-                    console.warn('⚡ Falling back to mock authentication for development');
-                    this.mockLogin();
-                    return;
+                    console.error('4. Token exchange endpoint not accessible');
+                    console.warn('⚡ This might be a callback handling issue - not falling back to mock auth');
+                } else if (error.message && error.message.includes('token')) {
+                    console.error('🚨 Token-related error during initialization!');
+                    console.error('This might indicate:');
+                    console.error('1. Invalid authorization code from Cognito');
+                    console.error('2. Client configuration mismatch');
+                    console.error('3. Token endpoint issues');
+                } else {
+                    console.error('🚨 Unknown error during OIDC initialization');
                 }
 
                 this.isAuthenticatedSignal.set(false);
                 this.currentUser.set(null);
+
+                // Don't automatically fall back to mock login during callback processing
+                // as this might be a legitimate callback error that needs to be handled
+                console.warn('🔄 Authentication failed - user will need to try logging in again');
             }
         });
     }

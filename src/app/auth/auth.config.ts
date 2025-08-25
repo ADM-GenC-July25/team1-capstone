@@ -17,8 +17,14 @@ export const authConfig: PassedInitialConfig = {
     secureRoutes: ['http://localhost:8080'],
     // Additional settings to help with configuration issues
     triggerAuthorizationResultEvent: true,
-    logLevel: 1, // Enable detailed logging
+    logLevel: 0, // Enable ALL logging (most verbose)
     customParamsAuthRequest: {},
-    customParamsRefreshTokenRequest: {}
+    customParamsRefreshTokenRequest: {},
+    // Additional debugging settings
+    renewTimeBeforeTokenExpiresInSeconds: 30,
+    ignoreNonceAfterRefresh: true,
+    // Help with callback processing
+    historyCleanupOff: false,
+    autoCleanStateAfterAuthentication: true
   }
 }
