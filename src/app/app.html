@@ -3,6 +3,12 @@
   <app-navbar></app-navbar>
 </ng-container>
 
+<!-- Floating Dark Mode Toggle (global) -->
+<button class="theme-toggle-floating" (click)="toggleTheme()" type="button">
+  <span class="theme-icon">{{ isDarkMode() ? '☀️' : '🌙' }}</span>
+  <span class="theme-text">{{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
+</button>
+
 <!-- Main content with theme wrapper -->
 <div [attr.data-theme]="isDarkMode() ? 'dark' : null">
   <!-- Main Content Area -->

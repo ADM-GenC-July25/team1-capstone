@@ -12,7 +12,7 @@ import { filter } from 'rxjs/operators';
   selector: 'app-root',
   imports: [RouterOutlet, CommonModule, FormsModule, Navbar, Footer],
   templateUrl: './app.html',
-  styleUrl: '../styles.css'
+  styleUrls: ['../styles.css', './app.css']
 })
 export class App implements OnInit {
   authorized: boolean = false;
@@ -21,6 +21,10 @@ export class App implements OnInit {
   // Use shared theme service
   protected get isDarkMode() {
     return this.themeService.isDarkMode;
+  }
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 
   constructor(
@@ -68,14 +72,5 @@ export class App implements OnInit {
 
     // Update local state immediately
     this.authorized = false;
-  }
-
-  toggleTheme() {
-    this.themeService.toggleTheme();
-  }
-
-  private checkDarkMode(): void {
-    // Theme service handles initialization, no need to do it here
-    // But we can force a check if needed
   }
 }

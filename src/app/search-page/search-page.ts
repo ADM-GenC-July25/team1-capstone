@@ -1,10 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { SearchService } from '../services/search-service';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-search-page',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './search-page.html',
   styleUrl: './search-page.css'
 })
@@ -13,8 +15,7 @@ export class SearchPage implements OnInit {
   @Input() addToCart!: (productId: any) => void;
   currProducts!: any[];
   searchTerm: string = '';
-  
-  constructor(private searchService: SearchService) {
+  constructor(private searchService: SearchService, private themeService: ThemeService) {
     this.searchService.searchTerm.subscribe(term => {
       this.searchTerm = term;
       this.currProducts = [];
@@ -25,7 +26,9 @@ export class SearchPage implements OnInit {
       }
     });
   }
-
+  protected get isDarkMode() {
+    return this.themeService.isDarkMode;
+  }
   ngOnInit() {
     this.currProducts = this.featuredProducts;
   }
