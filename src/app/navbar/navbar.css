@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 /* Logo styles for the navbar component */
 .logo-image {
     height: calc(100% - 2rem);
