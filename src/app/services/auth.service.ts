@@ -165,10 +165,10 @@ export class AuthService {
                                         if (!authUrl || authUrl.trim() === '') {
                                             console.warn('⚠️ OIDC library failed to generate authorization URL');
                                             console.log('🔧 Attempting manual authorization URL construction...');
-                                            
+
                                             // Manually construct the authorization URL
                                             const manualAuthUrl = this.constructManualAuthUrl(config);
-                                            
+
                                             if (manualAuthUrl) {
                                                 console.log('✅ Manual authorization URL constructed:', manualAuthUrl);
                                                 console.log('🔄 Redirecting to manually constructed URL...');
@@ -192,10 +192,10 @@ export class AuthService {
                                         console.error('❌ Error getting authorization URL:', authUrlError);
                                         console.error('This suggests a network/CORS issue or OAuth configuration problem');
                                         console.log('🔧 Trying manual authorization URL construction as fallback...');
-                                        
+
                                         // Try manual construction as fallback
                                         const manualAuthUrl = this.constructManualAuthUrl(config);
-                                        
+
                                         if (manualAuthUrl) {
                                             console.log('✅ Manual authorization URL constructed as fallback:', manualAuthUrl);
                                             console.log('🔄 Redirecting to manually constructed URL...');
@@ -260,20 +260,20 @@ export class AuthService {
     // Direct manual login - bypasses OIDC library completely
     directManualLogin(): void {
         console.log('🚀 Starting direct manual Cognito login...');
-        
+
         try {
             // Hardcoded values for your specific Cognito setup
             const authority = 'https://us-west-2aisdobluq.auth.us-west-2.amazoncognito.com';
             const clientId = '3nte1afuliiln27dspmofnaqkc';
             const redirectUri = window.location.origin + '/callback';
             const scopes = 'openid email phone profile';
-            
+
             // Generate a random state parameter for security
             const state = 'state-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            
+
             // Generate a random nonce for security
             const nonce = 'nonce-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            
+
             // Construct the authorization URL manually
             const authUrl = new URL(`${authority}/oauth2/authorize`);
             authUrl.searchParams.set('response_type', 'code');
@@ -282,19 +282,19 @@ export class AuthService {
             authUrl.searchParams.set('scope', scopes);
             authUrl.searchParams.set('state', state);
             authUrl.searchParams.set('nonce', nonce);
-            
+
             const finalUrl = authUrl.toString();
-            
+
             // Store state in session storage for validation on callback
             sessionStorage.setItem('oidc_state', state);
             sessionStorage.setItem('oidc_nonce', nonce);
-            
+
             console.log('✅ Direct manual authorization URL:', finalUrl);
             console.log('🔄 Redirecting to Cognito...');
-            
+
             // Redirect to Cognito
             window.location.href = finalUrl;
-            
+
         } catch (error) {
             console.error('❌ Error in direct manual login:', error);
             this.mockLogin();
@@ -462,19 +462,19 @@ export class AuthService {
     private constructManualAuthUrl(config: OpenIdConfiguration): string | null {
         try {
             console.log('🔧 Constructing manual authorization URL...');
-            
+
             // Your Cognito domain and settings
             const authority = config.authority || 'https://us-west-2aisdobluq.auth.us-west-2.amazoncognito.com';
             const clientId = config.clientId || '3nte1afuliiln27dspmofnaqkc';
             const redirectUri = config.redirectUrl || window.location.origin + '/callback';
             const scopes = config.scope || 'openid email phone profile';
-            
+
             // Generate a random state parameter for security
             const state = 'state-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            
+
             // Generate a random nonce for security
             const nonce = 'nonce-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            
+
             // Construct the authorization URL manually
             const authUrl = new URL(`${authority}/oauth2/authorize`);
             authUrl.searchParams.set('response_type', 'code');
@@ -483,13 +483,13 @@ export class AuthService {
             authUrl.searchParams.set('scope', scopes);
             authUrl.searchParams.set('state', state);
             authUrl.searchParams.set('nonce', nonce);
-            
+
             const finalUrl = authUrl.toString();
-            
+
             // Store state in session storage for validation on callback
             sessionStorage.setItem('oidc_state', state);
             sessionStorage.setItem('oidc_nonce', nonce);
-            
+
             console.log('✅ Manual authorization URL constructed successfully');
             console.log('Parameters used:', {
                 authority,
@@ -499,9 +499,9 @@ export class AuthService {
                 state: state.substring(0, 10) + '...',
                 nonce: nonce.substring(0, 10) + '...'
             });
-            
+
             return finalUrl;
-            
+
         } catch (error) {
             console.error('❌ Error constructing manual authorization URL:', error);
             return null;

@@ -132,7 +132,7 @@ export class Register implements OnInit {
   testDirectLogin() {
     console.log('🧪 Testing direct manual Cognito login...');
     console.log('This bypasses the OIDC library completely and constructs the URL manually.');
-    
+
     try {
       this.authService.directManualLogin();
     } catch (error) {

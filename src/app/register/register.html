@@ -153,7 +153,8 @@
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="button" [routerLink]="['/']" class="btn-secondary">Cancel</button>
-                <button type="button" (click)="testDirectLogin()" class="btn-secondary" style="background-color: #007acc; color: white;">
+                <button type="button" (click)="testDirectLogin()" class="btn-secondary"
+                    style="background-color: #007acc; color: white;">
                     🧪 Test Direct Cognito Login
                 </button>
                 <button type="submit" [disabled]="Person.invalid" (onClick)="onSubmit()"
