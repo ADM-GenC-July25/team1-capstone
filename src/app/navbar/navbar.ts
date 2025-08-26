@@ -71,4 +71,11 @@ export class Navbar {
     console.log('Button clicked!');
     // Implement button click functionality here
   }
+
+  scrollToFooter() {
+    const footer = document.querySelector('footer.footer');
+    if (footer) {
+      footer.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 }
