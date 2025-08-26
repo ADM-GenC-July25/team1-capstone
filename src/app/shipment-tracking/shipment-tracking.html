@@ -1,0 +1,176 @@
+<div [attr.data-theme]="isDarkMode() ? 'dark' : null">
+    <div class="shipment-container">
+        <div class="shipment-header">
+            <h1 class="shipment-title">Shipment Tracking</h1>
+            <p class="shipment-subtitle">Track and manage your shipments</p>
+        </div>
+
+        <div class="table-container">
+
+
+            <div class="table-wrapper">
+                <table class="shipments-table">
+                    <thead>
+                        <tr>
+                            <th>Shipment ID</th>
+                            <th>Tracking Number</th>
+                            <th>Destination</th>
+                            <th>Status</th>
+                            <th>Carrier</th>
+                            <th>Est. Delivery</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for(shipment of shipments; track shipment.id) {
+                        <tr class="shipment-row" [class]="'status-' + shipment.status.toLowerCase().replace(' ', '-')">
+                            <td class="shipment-id">
+                                <span class="id-text">{{ shipment.id }}</span>
+                            </td>
+                            <td class="tracking-number">
+                                <span class="tracking-text">{{ shipment.trackingNumber }}</span>
+                            </td>
+                            <td class="route">
+                                <div class="route-container">
+
+                                    <span class="destination">{{ shipment.destination }}</span>
+                                </div>
+                            </td>
+                            <td class="status">
+                                <span class="status-badge"
+                                    [class]="'status-' + shipment.status.toLowerCase().replace(' ', '-')">
+                                    {{ shipment.status }}
+                                </span>
+                            </td>
+                            <td class="carrier">
+                                <div class="carrier-info">
+                                    <span class="carrier-name">{{ shipment.carrier }}</span>
+                                </div>
+                            </td>
+                            <td class="delivery-date">
+                                <div class="date-info">
+                                    <span class="date">{{ shipment.estimatedDelivery | date:'MMM dd' }}</span>
+                                    <span class="year">{{ shipment.estimatedDelivery | date:'yyyy' }}</span>
+                                </div>
+                            </td>
+                            <td class="actions">
+                                <div class="action-buttons">
+                                    <button class="btn btn-secondary btn-sm" (click)="viewDetails(shipment.id)"
+                                        title="View Details">
+                                        <span class="btn-icon">👁</span>
+                                    </button>
+                                    <button class="btn btn-sm cancel-btn"
+                                        [class.btn-cancel-active]="canCancelShipment(shipment)"
+                                        [class.btn-cancel-disabled]="!canCancelShipment(shipment)"
+                                        [disabled]="!canCancelShipment(shipment)" (click)="cancelShipment(shipment.id)"
+                                        title="Cancel Shipment">
+                                        <span class="btn-icon">✕</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (shipments.length === 0) {
+            <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <h3>No shipments found</h3>
+                <p>You don't have any shipments to track yet.</p>
+                <button class="btn btn-primary">Create Your First Shipment</button>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Details Overlay -->
+    @if (showDetailsOverlay && selectedShipment) {
+    <div class="overlay-backdrop" (click)="closeDetailsOverlay()">
+        <div class="details-overlay" (click)="$event.stopPropagation()">
+            <div class="overlay-header">
+                <h2 class="overlay-title">Shipment Details</h2>
+                <button class="close-btn" (click)="closeDetailsOverlay()" title="Close">
+                    <span class="close-icon">✕</span>
+                </button>
+            </div>
+
+            <div class="overlay-content">
+                <div class="detail-section">
+                    <h3 class="section-title">Basic Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Shipment ID:</label>
+                            <span>{{ selectedShipment.id }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Tracking Number:</label>
+                            <span>{{ selectedShipment.trackingNumber }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Status:</label>
+                            <span class="status-badge"
+                                [class]="'status-' + selectedShipment.status.toLowerCase().replace(' ', '-')">
+                                {{ selectedShipment.status }}
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Carrier:</label>
+                            <span>{{ selectedShipment.carrier }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="section-title">Route Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Origin:</label>
+                            <span>{{ selectedShipment.origin }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Destination:</label>
+                            <span>{{ selectedShipment.destination }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Estimated Delivery:</label>
+                            <span>{{ selectedShipment.estimatedDelivery | date:'MMM dd, yyyy' }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Last Update:</label>
+                            <span>{{ selectedShipment.lastUpdate }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="section-title">Package Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Package Type:</label>
+                            <span>{{ selectedShipment.packageType }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Weight:</label>
+                            <span>{{ selectedShipment.weight }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overlay-actions">
+                @if (canCancelShipment(selectedShipment)) {
+                <button class="btn btn-cancel-active"
+                    (click)="cancelShipment(selectedShipment.id); closeDetailsOverlay()">
+                    Cancel Shipment
+                </button>
+                }
+                <button class="btn btn-secondary" (click)="closeDetailsOverlay()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+</div>
