@@ -8,6 +8,7 @@ import { CartComponent } from './cart/cart';
 import { UserProfile } from './user-profile/user-profile';
 import { Register } from './register/register';
 import { ShipmentTracking } from './shipment-tracking/shipment-tracking';
+import { ProductPage } from './product-page/product-page';
 
 export const routes: Routes = [
     {
@@ -38,6 +39,12 @@ export const routes: Routes = [
     {
         path: 'shipments',
         component: ShipmentTracking,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'product/:id',
+        component: ProductPage,
+
         canActivate: [AuthGuard]
     },
     { path: '**', redirectTo: '' }
