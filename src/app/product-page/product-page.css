@@ -1,0 +1,67 @@
+.product-page-container {
+  height: 80vh;
+  padding: 2rem;
+}
+
+.product-form {
+  width: 50%;
+  margin: auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0px 15px rgba(0, 0, 0, 0.25);
+}
+.product-form h2 {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.product-image-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.product-image {
+  max-width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.product-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.product-form input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* No theme-toggle-floating styles here; those are in app.css */
+
+/* Dark mode styles */
+[data-theme="dark"] .product-page-container {
+  background: #111827;
+}
+[data-theme="dark"] .product-form {
+  color: #f9fafb;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+[data-theme="dark"] .product-form label {
+  color: #f9fafb;
+}
+[data-theme="dark"] .product-form input {
+  background: hsla(220, 22%, 17%, 1);
+  color: #f9fafb;
+  border: 1px solid #6366f1;
+}
+
+[data-theme="dark"] .product-form {
+  max-width: 400px;
+  margin: auto;
+  padding: 2rem;
+  background: yellow;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}

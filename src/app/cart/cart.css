@@ -77,6 +77,27 @@
     margin-bottom: 0.5rem;
 }
 
+/* Cart product links */
+.item-image-link {
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.item-image-link:hover {
+    transform: scale(1.05);
+}
+
+.product-link {
+    color: #4f46e5;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.product-link:hover {
+    color: #3730a3;
+    text-decoration: underline;
+}
+
 .item-rating {
     display: flex;
     align-items: center;
@@ -299,6 +320,15 @@
 [data-theme="dark"] .item-name,
 [data-theme="dark"] .empty-cart h2 {
     color: #f9fafb;
+}
+
+/* Dark mode cart product links */
+[data-theme="dark"] .product-link {
+    color: #8b5cf6;
+}
+
+[data-theme="dark"] .product-link:hover {
+    color: #a78bfa;
 }
 
 [data-theme="dark"] .cart-item {

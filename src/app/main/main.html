@@ -1,8 +1,4 @@
 <div [attr.data-theme]="isDarkMode() ? 'dark' : null">
-  <button class="theme-toggle-floating" (click)="toggleTheme()" type="button">
-    <span class="theme-icon">{{ isDarkMode() ? '☀️' : '🌙' }}</span>
-    <span class="theme-text">{{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}</span>
-  </button>
   <!-- Hero Section -->
    <!-- Cart Modal Overlay -->
    <div class="cart-modal-overlay" *ngIf="isCartOpen()" (click)="closeCart()">
@@ -34,9 +30,13 @@
       <div class="products-grid">
         @for (product of featuredProducts(); track product.id) {
         <div class="product-card">
-          <img [src]="product.image" [alt]="product.name" class="product-image">
+          <a [routerLink]="['/product', product.id]" class="product-link" [style.color]="isDarkMode() ? 'white' : 'black'">
+            <img [src]="product.image" [alt]="product.name" class="product-image">
+          </a>
           <div class="product-info">
-            <h3 class="product-name">{{ product.name }}</h3>
+            <h3 class="product-name">
+              <a [routerLink]="['/product', product.id]" class="product-link" [style.color]="isDarkMode() ? 'white' : 'black'">{{ product.name }}</a>
+            </h3>
             <div class="product-rating">
               <span class="stars">⭐⭐⭐⭐⭐</span>
               <span class="rating-text">({{ product.rating }})</span>

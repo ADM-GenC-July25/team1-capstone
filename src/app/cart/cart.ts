@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ThemeService } from '../services/theme.service';
 import { CartService } from '../services/cart.service';
 
@@ -15,7 +16,7 @@ interface CartItem {
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './cart.html',
   styleUrls: ['../app.css', './cart.css']
 })
