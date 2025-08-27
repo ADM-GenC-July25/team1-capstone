@@ -82,4 +82,11 @@ export class Navbar {
   test() {
     console.log('test');
   }
+
+  scrollToFooter() {
+    const footer = document.querySelector('footer.footer');
+    if (footer) {
+      footer.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 }

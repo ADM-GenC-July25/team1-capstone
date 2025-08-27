@@ -649,3 +649,56 @@ div {
         font-size: 1.75rem;
     }
 }
+
+/* Floating Theme Toggle Button */
+.theme-toggle-floating {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  z-index: 2000;
+  background: hsla(245, 74%, 59%, 1);
+  color: #fff;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.theme-toggle-floating:hover {
+  background: hsla(245, 74%, 39%, 1);
+}
+
+[data-theme="dark"] .theme-toggle-floating {
+  background: hsla(0, 0%, 90%, 1);
+  color: #222;
+}
+
+[data-theme="dark"] .theme-toggle-floating:hover {
+  background: hsla(0, 0%, 70%, 1);
+}
+
+.theme-toggle-floating .theme-icon {
+  font-size: 1.3rem;
+}
+
+/* Prevent visited links from turning purple and keep other styles as before */
+.product-link:visited,
+.item-image-link:visited {
+  color: inherit !important;
+}
+
+.product-link,
+.item-image-link {
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.product-link:hover,
+.item-image-link:hover {
+  text-decoration: underline;
+}

@@ -18,10 +18,14 @@
             
             @for (item of cartItems(); track item.id) {
               <div class="cart-item">
-                <img [src]="item.image" [alt]="item.name" class="item-image">
+                <a [routerLink]="['/product', item.id]" class="item-image-link" [style.color]="isDarkMode() ? 'white' : 'black'">
+                  <img [src]="item.image" [alt]="item.name" class="item-image">
+                </a>
                 
                 <div class="item-details">
-                  <h3 class="item-name">{{ item.name }}</h3>
+                  <h3 class="item-name">
+                    <a [routerLink]="['/product', item.id]" class="product-link" [style.color]="isDarkMode() ? 'white' : 'black'">{{ item.name }}</a>
+                  </h3>
                   <div class="item-rating">
                     <span class="stars">⭐⭐⭐⭐⭐</span>
                     <span class="rating-text">({{ item.rating }})</span>

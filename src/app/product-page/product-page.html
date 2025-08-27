@@ -1,0 +1,35 @@
+<div class="product-page-container" [style.background]="isDarkMode() ? 'hsla(220, 22%, 17%, 1)' : 'hsla(0, 0%, 97%, 1)'">
+    <div class="product-form" 
+         [style.background]="isDarkMode() ? 'hsla(220, 22%, 20%, 1)' : 'hsla(0, 0%, 100%, 1)'"
+         *ngIf="product; else productNotFound">
+        <h2 [style.color]="isDarkMode() ? 'white' : 'black'">{{ product.name }}</h2>
+        
+        <!-- Product Image -->
+        <div class="product-image-container">
+            <img [src]="product.image" [alt]="product.name" class="product-image" [style.color]="isDarkMode() ? 'white' : 'black'"/>
+        </div>
+        
+        <!-- Product Information Form -->
+        <form>
+            <label for="productId" [style.color]="isDarkMode() ? 'white' : 'black'">Product ID:</label>
+            <input id="productId" type="text" [value]="product.id" readonly [style.background]="isDarkMode() ? 'hsla(220, 22%, 15%, 1)' : 'hsla(0, 0%, 95%, 1)'"/>
+
+            <label for="productName" [style.color]="isDarkMode() ? 'white' : 'black'">Product Name:</label>
+            <input id="productName" type="text" [value]="product.name" readonly [style.background]="isDarkMode() ? 'hsla(220, 22%, 15%, 1)' : 'hsla(0, 0%, 95%, 1)'"/>
+
+            <label for="productPrice" [style.color]="isDarkMode() ? 'white' : 'black'">Price:</label>
+            <input id="productPrice" type="text" [value]="'$' + product.price.toFixed(2)" readonly [style.background]="isDarkMode() ? 'hsla(220, 22%, 15%, 1)' : 'hsla(0, 0%, 95%, 1)'"/>
+
+            <label for="productRating" [style.color]="isDarkMode() ? 'white' : 'black'">Rating:</label>
+            <input id="productRating" type="text" [value]="product.rating + '/5'" readonly [style.background]="isDarkMode() ? 'hsla(220, 22%, 15%, 1)' : 'hsla(0, 0%, 95%, 1)'"/>
+        </form>
+    </div>
+    
+    <ng-template #productNotFound>
+        <div class="product-form" 
+             [style.background]="isDarkMode() ? 'hsla(220, 22%, 17%, 1)' : '#fff'">
+            <h2>Product Not Found</h2>
+            <p>The product "{{ productName }}" could not be found.</p>
+        </div>
+    </ng-template>
+</div>

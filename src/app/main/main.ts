@@ -8,11 +8,12 @@ import { CartService } from '../services/cart.service';
 import { Router } from '@angular/router';
 import { ProductService } from '../services/product-service';
 import { SearchService } from '../services/search-service';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-main',
     standalone: true,
-    imports: [CommonModule, SearchPage, CartComponent],
+    imports: [CommonModule, WelcomePage, SearchPage, CartComponent, RouterLink],
     templateUrl: 'main.html',
     styleUrls: ['../app.css', './main.css', './theme-toggle.css']
 })

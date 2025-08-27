@@ -8,6 +8,9 @@ import { CartComponent } from './cart/cart';
 import { UserProfile } from './user-profile/user-profile';
 import { Register } from './register/register';
 import { SearchedItems } from './searched-items/searched-items';
+import { ShipmentTracking } from './shipment-tracking/shipment-tracking';
+import { ProductPage } from './product-page/product-page';
+import { NewProductPage } from './new-product-page/new-product-page';
 
 export const routes: Routes = [
     {
@@ -38,6 +41,21 @@ export const routes: Routes = [
     {
         path: 'search',
         component: SearchedItems,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'shipments',
+        component: ShipmentTracking,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'product/:id',
+        component: ProductPage,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'new-product',
+        component: NewProductPage,
         canActivate: [AuthGuard]
     },
     { path: '**', redirectTo: '' }
