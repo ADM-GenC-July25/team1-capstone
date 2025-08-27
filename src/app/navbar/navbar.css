@@ -61,3 +61,31 @@ html {
         display: none;
     }
 }
+.dropdown {
+  float: left;
+  overflow: hidden;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+.dropdown-content a {
+  float: none;
+  color: white;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 8px 8px;
+  text-decoration: none;
+  display: grid;
+  text-align: center;
+}
+.dropdown-content a:hover {
+  background-color: #9e9797;
+}
+.dropdown:hover .dropdown-content {
+  display: block;
+}

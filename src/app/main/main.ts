@@ -5,8 +5,10 @@ import { WelcomePage } from '../welcome-page/welcome-page';
 import { SearchPage } from '../search-page/search-page';
 import { CartComponent } from '../cart/cart';
 import { CartService } from '../services/cart.service';
+import { Router } from '@angular/router';
+import { ProductService } from '../services/product-service';
+import { SearchService } from '../services/search-service';
 import { RouterLink } from '@angular/router';
-import { ProductService } from '../services/product.service';
 
 @Component({
     selector: 'app-main',
@@ -17,6 +19,7 @@ import { ProductService } from '../services/product.service';
 })
 export class MainComponent implements OnInit {
     protected readonly title = signal('ByteBazaar');
+    protected featuredProducts: any;
 
     // Use the shared theme service instead of local state
     protected get isDarkMode() {
@@ -32,11 +35,7 @@ export class MainComponent implements OnInit {
         'Beauty'
     ]);
 
-    protected featuredProducts = signal<any[]>([]);
-
-    constructor(private themeService: ThemeService, private cartService: CartService, private productService: ProductService) {
-        // Initialize featured products from the service
-        this.featuredProducts.set(this.productService.getAllProducts());
+    constructor(private themeService: ThemeService, private cartService: CartService, private router: Router, private productService: ProductService, private searchService: SearchService) {
     }
     get isCartOpen() {
   return this.cartService.isCartOpen;
@@ -47,7 +46,8 @@ closeCart() {
 }
 
     ngOnInit(): void {
-        // Component initialization if needed
+        this.featuredProducts = this.productService.getFeaturedProducts();
+        this.searchService.updateSearchTerm('');
     }
 
     addToCart(productId: number) {
@@ -57,5 +57,9 @@ closeCart() {
 
     toggleTheme() {
         this.themeService.toggleTheme();
+    }
+
+    categoryClicked(category: string) {
+        this.router.navigate(['/search'], { queryParams: { category } });
     }
 }

@@ -7,6 +7,7 @@ import { App as AppComponent } from './app';
 import { CartComponent } from './cart/cart';
 import { UserProfile } from './user-profile/user-profile';
 import { Register } from './register/register';
+import { SearchedItems } from './searched-items/searched-items';
 import { ShipmentTracking } from './shipment-tracking/shipment-tracking';
 import { ProductPage } from './product-page/product-page';
 import { NewProductPage } from './new-product-page/new-product-page';
@@ -38,6 +39,11 @@ export const routes: Routes = [
         canActivate: [LoginGuard]
     },
     {
+        path: 'search',
+        component: SearchedItems,
+        canActivate: [AuthGuard]
+    },
+    {
         path: 'shipments',
         component: ShipmentTracking,
         canActivate: [AuthGuard]
@@ -45,7 +51,6 @@ export const routes: Routes = [
     {
         path: 'product/:id',
         component: ProductPage,
-
         canActivate: [AuthGuard]
     },
     {

@@ -14,7 +14,7 @@
       <h2 class="section-title">Shop by Category</h2>
       <div class="categories-grid">
         @for (category of categories(); track category) {
-        <div class="category-card">
+        <div class="category-card" (click)="categoryClicked(category)">
           <div class="category-icon">📦</div>
           <h3>{{ category }}</h3>
         </div>
