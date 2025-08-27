@@ -22,7 +22,7 @@ export class SearchPage implements OnInit, OnDestroy {
       this.searchTerm = term;
       this.currProducts = [];
       for (let product of this.featuredProducts) {
-        if (product.name.toLowerCase().includes(term.toLowerCase())) {
+        if (product.productName && product.productName.toLowerCase().includes(term.toLowerCase())) {
           this.currProducts.push(product);
         }
       }

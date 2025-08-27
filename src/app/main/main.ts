@@ -19,7 +19,7 @@ import { RouterLink } from '@angular/router';
 })
 export class MainComponent implements OnInit {
     protected readonly title = signal('ByteBazaar');
-    protected featuredProducts: any;
+    protected featuredProducts = signal<any[]>([]);
 
     // Use the shared theme service instead of local state
     protected get isDarkMode() {
@@ -46,7 +46,16 @@ closeCart() {
 }
 
     ngOnInit(): void {
-        this.featuredProducts = this.productService.getFeaturedProducts();
+        console.log('MainComponent ngOnInit called');
+        this.productService.getFeaturedProducts().subscribe({
+            next: (products) => {
+                console.log('Products received:', products);
+                this.featuredProducts.set(products);
+            },
+            error: (error) => {
+                console.error('Error fetching products:', error);
+            }
+        });
         this.searchService.updateSearchTerm('');
     }
 
