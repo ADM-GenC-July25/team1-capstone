@@ -9,6 +9,7 @@ import { UserProfile } from './user-profile/user-profile';
 import { Register } from './register/register';
 import { ShipmentTracking } from './shipment-tracking/shipment-tracking';
 import { ProductPage } from './product-page/product-page';
+import { NewProductPage } from './new-product-page/new-product-page';
 
 export const routes: Routes = [
     {
@@ -45,6 +46,11 @@ export const routes: Routes = [
         path: 'product/:id',
         component: ProductPage,
 
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'new-product',
+        component: NewProductPage,
         canActivate: [AuthGuard]
     },
     { path: '**', redirectTo: '' }
