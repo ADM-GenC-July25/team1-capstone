@@ -7,6 +7,7 @@ import { App as AppComponent } from './app';
 import { CartComponent } from './cart/cart';
 import { UserProfile } from './user-profile/user-profile';
 import { Register } from './register/register';
+import { SearchedItems } from './searched-items/searched-items';
 
 export const routes: Routes = [
     {
@@ -33,6 +34,11 @@ export const routes: Routes = [
         path: 'register',
         component: Register,
         canActivate: [LoginGuard]
+    },
+    {
+        path: 'search',
+        component: SearchedItems,
+        canActivate: [AuthGuard]
     },
     { path: '**', redirectTo: '' }
 ];

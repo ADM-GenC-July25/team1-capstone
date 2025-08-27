@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SearchService } from '../services/search-service';
 
 @Component({
@@ -8,14 +8,15 @@ import { SearchService } from '../services/search-service';
   templateUrl: './search-page.html',
   styleUrl: './search-page.css'
 })
-export class SearchPage implements OnInit {
+export class SearchPage implements OnInit, OnDestroy {
   @Input() featuredProducts: any[] = [];
   @Input() addToCart!: (productId: any) => void;
   currProducts!: any[];
   searchTerm: string = '';
+  sub: any;
   
   constructor(private searchService: SearchService) {
-    this.searchService.searchTerm.subscribe(term => {
+    this.sub = this.searchService.searchTerm.subscribe(term => {
       this.searchTerm = term;
       this.currProducts = [];
       for (let product of this.featuredProducts) {
@@ -28,6 +29,9 @@ export class SearchPage implements OnInit {
 
   ngOnInit() {
     this.currProducts = this.featuredProducts;
+  }
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
 }
 

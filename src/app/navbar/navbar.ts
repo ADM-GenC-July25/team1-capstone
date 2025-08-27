@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../services/search-service';
@@ -48,7 +48,8 @@ export class Navbar {
     private router: Router,
     private themeService: ThemeService,
     private searchService: SearchService,
-    private cartService: CartService
+    private cartService: CartService,
+    private route: ActivatedRoute
   ) {
     this.router.events.subscribe(() => {
       // Close any open menus or reset states on route change if needed
@@ -59,7 +60,6 @@ export class Navbar {
     this.cartService.openCart();
   }
   onLogout(): void {
-    this.searchService.updateSearchTerm('');
     this.authService.logout();
     this.router.navigate(['/login']);
   }
@@ -68,7 +68,18 @@ export class Navbar {
   }
 
   onButtonClick() {
-    console.log('Button clicked!');
-    // Implement button click functionality here
+    let params = this.route.snapshot.queryParams;
+    const currentUrl = this.router.url.split('?')[0];
+    if (currentUrl === '/search') {
+      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+        this.router.navigate([currentUrl], { queryParams: params });
+      });
+    }
+    else {
+      this.router.navigate(['/search']);
+    }
+  }
+  test() {
+    console.log('test');
   }
 }
