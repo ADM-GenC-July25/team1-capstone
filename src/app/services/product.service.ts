@@ -1,85 +1,57 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 export interface Product {
-  id: number;
-  name: string;
+  productId: number;
+  productName: string;
+  inventory: number;
   price: number;
-  image: string;
-  rating: number;
+  imageLink: string;
+  description: string;
+  daysToDeliver: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private products: Product[] = [
-    {
-      id: 1,
-      name: 'Wireless Headphones',
-      price: 99.99,
-      image: 'https://via.placeholder.com/300x300/4f46e5/ffffff?text=Headphones',
-      rating: 4.5
-    },
-    {
-      id: 2,
-      name: 'Smart Watch',
-      price: 199.99,
-      image: 'https://via.placeholder.com/300x300/059669/ffffff?text=Smart+Watch',
-      rating: 4.8
-    },
-    {
-      id: 3,
-      name: 'Laptop Stand',
-      price: 39.99,
-      image: 'https://via.placeholder.com/300x300/dc2626/ffffff?text=Laptop+Stand',
-      rating: 4.3
-    },
-    {
-      id: 4,
-      name: 'Coffee Maker',
-      price: 129.99,
-      image: 'https://via.placeholder.com/300x300/7c3aed/ffffff?text=Coffee+Maker',
-      rating: 4.6
-    },
-    {
-      id: 5,
-      name: 'Toaster',
-      price: 99.99,
-      image: 'https://via.placeholder.com/300x300/4f46e5/ffffff?text=Toaster',
-      rating: 4.5
-    },
-    {
-      id: 6,
-      name: 'Wireless Charger',
-      price: 199.99,
-      image: 'https://via.placeholder.com/300x300/059669/ffffff?text=Wireless+Charger',
-      rating: 4.8
-    },
-    {
-      id: 7,
-      name: 'Laptop',
-      price: 600.00,
-      image: 'https://via.placeholder.com/300x300/dc2626/ffffff?text=Laptop',
-      rating: 4.3
-    },
-    {
-      id: 8,
-      name: 'Smart Thermostat',
-      price: 129.99,
-      image: 'https://via.placeholder.com/300x300/7c3aed/ffffff?text=Smart+Thermostat',
-      rating: 4.6
-    }
-  ];
+  private apiUrl = 'http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/products';
+  private productsSubject = new BehaviorSubject<Product[]>([]);
+  public products$ = this.productsSubject.asObservable();
+
+  constructor(private http: HttpClient) {
+    this.loadProducts();
+  }
+
+  private loadProducts(): void {
+    this.http.get<Product[]>(this.apiUrl).subscribe({
+      next: (products) => {
+        this.productsSubject.next(products);
+      },
+      error: (error) => {
+        console.error('Error fetching products:', error);
+        // Fallback to empty array or handle error as needed
+        this.productsSubject.next([]);
+      }
+    });
+  }
 
   getProductByName(name: string): Product | undefined {
-    return this.products.find(product => product.name === name);
+    const products = this.productsSubject.value;
+    return products.find(product => product.productName === name);
   }
 
   getProductById(id: number): Product | undefined {
-    return this.products.find(product => product.id === id);
+    const products = this.productsSubject.value;
+    return products.find(product => product.productId === id);
   }
 
   getAllProducts(): Product[] {
-    return this.products;
+    return this.productsSubject.value;
+  }
+
+  refreshProducts(): void {
+    this.loadProducts();
   }
 }

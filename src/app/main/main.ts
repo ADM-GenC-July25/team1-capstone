@@ -6,7 +6,7 @@ import { SearchPage } from '../search-page/search-page';
 import { CartComponent } from '../cart/cart';
 import { CartService } from '../services/cart.service';
 import { Router } from '@angular/router';
-import { ProductService } from '../services/product-service';
+import { ProductService } from '../services/product.service';
 import { SearchService } from '../services/search-service';
 import { RouterLink } from '@angular/router';
 
@@ -47,15 +47,12 @@ closeCart() {
 
     ngOnInit(): void {
         console.log('MainComponent ngOnInit called');
-        this.productService.getFeaturedProducts().subscribe({
-            next: (products) => {
-                console.log('Products received:', products);
-                this.featuredProducts.set(products);
-            },
-            error: (error) => {
-                console.error('Error fetching products:', error);
-            }
-        });
+        // Use a timeout to ensure the service has loaded products
+        setTimeout(() => {
+            const products = this.productService.getAllProducts();
+            console.log('Products received:', products);
+            this.featuredProducts.set(products);
+        }, 1000);
         this.searchService.updateSearchTerm('');
     }
 
