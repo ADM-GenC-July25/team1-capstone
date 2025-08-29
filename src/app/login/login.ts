@@ -46,7 +46,7 @@ export class LoginComponent {
         };
 
         // Send login request to backend
-        this.http.post<any>('http://localhost:8080/auth/login', loginData).subscribe({
+        this.http.post<any>('http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/login', loginData).subscribe({
             next: (response) => {
                 this.isLoading.set(false);
 

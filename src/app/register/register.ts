@@ -118,7 +118,7 @@ export class Register implements OnInit {
 
         // Send login request to backend
         
-          this.http.post<any>('http://localhost:8080/auth/register', registrationData, { observe: 'response' })
+          this.http.post<any>('http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/register', registrationData, { observe: 'response' })
           .subscribe({
 
             next: (response:HttpResponse<any>) => {
