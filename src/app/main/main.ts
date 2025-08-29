@@ -6,7 +6,7 @@ import { SearchPage } from '../search-page/search-page';
 import { CartComponent } from '../cart/cart';
 import { CartService } from '../services/cart.service';
 import { Router } from '@angular/router';
-import { ProductService } from '../services/product-service';
+import { ProductService } from '../services/product.service';
 import { SearchService } from '../services/search-service';
 import { RouterLink } from '@angular/router';
 
@@ -19,7 +19,7 @@ import { RouterLink } from '@angular/router';
 })
 export class MainComponent implements OnInit {
     protected readonly title = signal('ByteBazaar');
-    protected featuredProducts: any;
+    protected featuredProducts = signal<any[]>([]);
 
     // Use the shared theme service instead of local state
     protected get isDarkMode() {
@@ -46,7 +46,13 @@ closeCart() {
 }
 
     ngOnInit(): void {
-        this.featuredProducts = this.productService.getFeaturedProducts();
+        console.log('MainComponent ngOnInit called');
+        // Use a timeout to ensure the service has loaded products
+        setTimeout(() => {
+            const products = this.productService.getAllProducts();
+            console.log('Products received:', products);
+            this.featuredProducts.set(products);
+        }, 1000);
         this.searchService.updateSearchTerm('');
     }
 

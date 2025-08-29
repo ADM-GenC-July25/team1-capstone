@@ -7,10 +7,12 @@ import { FormsModule } from '@angular/forms';
 import { Navbar } from './navbar/navbar';
 import { Footer } from './footer/footer';
 import { filter } from 'rxjs/operators';
+import { CartComponent } from './cart/cart';
+import { CartService } from './services/cart.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, FormsModule, Navbar, Footer],
+  imports: [RouterOutlet, CommonModule, FormsModule, Navbar, Footer, CartComponent],
   templateUrl: './app.html',
   styleUrls: ['../styles.css', './app.css']
 })
@@ -30,7 +32,8 @@ export class App implements OnInit {
   constructor(
     public authService: AuthService,
     private router: Router,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private cartService: CartService
   ) { }
 
   ngOnInit(): void {
@@ -59,6 +62,14 @@ export class App implements OnInit {
   onSearch() {
     console.log('Searching for:', this.searchQuery());
     // Implement search functionality here
+  }
+    isCartOpen() {
+    return this.cartService.isCartOpen();
+  }
+
+  // Cart actions
+  closeCart() {
+    this.cartService.closeCart();
   }
 
   onLogout(): void {
