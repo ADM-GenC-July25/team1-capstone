@@ -5,11 +5,13 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
 import { HttpClient } from '@angular/common/http';
+import { AddPaymentMethod } from '../add-payment-method/add-payment-method';
+import { PaymentService, PaymentMethod } from '../services/payment.service';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, AddPaymentMethod],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css'
 })
@@ -35,6 +37,10 @@ export class UserProfile implements OnInit {
   isLoading = signal(false);
   userData = signal<User | null>(null); // Store the user data
 
+  // Payment method modal state
+  showPaymentModal = signal(false);
+  paymentMethods = signal<PaymentMethod[]>([]);
+
   // Get user display information from AuthService
   get currentUser() {
     return this.authService.user;
@@ -53,7 +59,7 @@ export class UserProfile implements OnInit {
     return this.themeService.isDarkMode;
   }
 
-  constructor(private authService: AuthService, private themeService: ThemeService, private http: HttpClient) { }
+  constructor(private authService: AuthService, private themeService: ThemeService, private http: HttpClient, private paymentService: PaymentService) { }
 
   ngOnInit() {
     // Load current user data into the form
@@ -125,6 +131,9 @@ export class UserProfile implements OnInit {
         console.error('Profile load error:', error);
       }
     });
+
+    // Load payment methods
+    this.loadPaymentMethods();
   }
 
   onSubmit() {
@@ -233,6 +242,46 @@ export class UserProfile implements OnInit {
           state: '',
           postalCode: '',
           country: 'USA'
+        }
+      });
+    }
+  }
+
+  // Payment Methods functionality
+  loadPaymentMethods() {
+    this.paymentService.getUserPaymentMethods().subscribe({
+      next: (methods: PaymentMethod[]) => {
+        this.paymentMethods.set(methods);
+      },
+      error: (error: any) => {
+        console.error('Failed to load payment methods:', error);
+      }
+    });
+  }
+
+  openPaymentModal() {
+    this.showPaymentModal.set(true);
+  }
+
+  closePaymentModal() {
+    this.showPaymentModal.set(false);
+  }
+
+  onPaymentMethodAdded() {
+    // Refresh payment methods list and close modal
+    this.loadPaymentMethods();
+    this.closePaymentModal();
+  }
+
+  deletePaymentMethod(paymentId: number) {
+    if (confirm('Are you sure you want to delete this payment method?')) {
+      this.paymentService.deletePaymentMethod(paymentId).subscribe({
+        next: () => {
+          this.loadPaymentMethods(); // Refresh the list
+        },
+        error: (error: any) => {
+          console.error('Failed to delete payment method:', error);
+          alert('Failed to delete payment method. Please try again.');
         }
       });
     }
