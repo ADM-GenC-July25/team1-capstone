@@ -10,13 +10,13 @@
   <!-- Cart Content -->
   <section class="cart-content">
     <div class="container">
-      @if (cartItems().length > 0) {
+      @if (cartItems.length > 0) {
         <div class="cart-layout">
           <!-- Cart Items -->
           <div class="cart-items">
-            <h2 class="section-title">Your Items ({{ cartItems().length }})</h2>
+            <h2 class="section-title">Your Items ({{ cartItems.length }})</h2>
             
-            @for (item of cartItems(); track item.id) {
+            @for (item of cartItems; track item.id) {
               <div class="cart-item">
                 <a [routerLink]="['/product', item.id]" class="item-image-link" [style.color]="isDarkMode() ? 'white' : 'black'">
                   <img [src]="item.image" [alt]="item.name" class="item-image">

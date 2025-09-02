@@ -1,17 +1,8 @@
-import { Component, EventEmitter, Output, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { ThemeService } from '../services/theme.service';
 import { CartService } from '../services/cart.service';
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  rating: number;
-}
 
 @Component({
   selector: 'app-cart',
@@ -22,44 +13,23 @@ interface CartItem {
 })
 export class CartComponent {
   protected readonly title = signal('ByteBazaar');
-  onCartClick() {
-    this.cartService.toggleCart();
-  }
+
+  constructor(
+    private themeService: ThemeService, 
+    private cartService: CartService,
+    private router: Router
+  ) {}
+
   protected get isDarkMode() {
     return this.themeService.isDarkMode;
   }
 
-  protected cartItems = signal<CartItem[]>([
-    {
-      id: 1,
-      name: 'Wireless Headphones',
-      price: 99.99,
-      image: 'https://via.placeholder.com/150x150/4f46e5/ffffff?text=Headphones',
-      quantity: 2,
-      rating: 4.5
-    },
-    {
-      id: 2,
-      name: 'Smart Watch',
-      price: 199.99,
-      image: 'https://via.placeholder.com/150x150/059669/ffffff?text=Smart+Watch',
-      quantity: 1,
-      rating: 4.8
-    },
-    {
-      id: 3,
-      name: 'Coffee Maker',
-      price: 129.99,
-      image: 'https://via.placeholder.com/150x150/7c3aed/ffffff?text=Coffee+Maker',
-      quantity: 1,
-      rating: 4.6
-    }
-  ]);
-
-  constructor(private themeService: ThemeService, private cartService: CartService) {}
+  get cartItems() {
+    return this.cartService.cartItems();
+  }
 
   get subtotal(): number {
-    return this.cartItems().reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return this.cartService.subtotal;
   }
 
   get tax(): number {
@@ -70,22 +40,26 @@ export class CartComponent {
     return this.subtotal + this.tax;
   }
 
+  onCartClick() {
+    this.cartService.toggleCart();
+  }
+
   updateQuantity(itemId: number, newQuantity: number): void {
-    if (newQuantity < 1) return;
-    
-    this.cartItems.update(items => 
-      items.map(item => 
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    );
+    this.cartService.updateQuantity(itemId, newQuantity);
   }
 
   removeItem(itemId: number): void {
-    this.cartItems.update(items => items.filter(item => item.id !== itemId));
+    this.cartService.removeItem(itemId);
   }
 
   checkout(): void {
-    console.log('Proceeding to checkout with items:', this.cartItems());
-    // Implement checkout functionality here
+    if (this.cartItems.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+    
+    // Close cart modal and navigate to checkout
+    this.cartService.closeCart();
+    this.router.navigate(['/checkout']);
   }
 }
