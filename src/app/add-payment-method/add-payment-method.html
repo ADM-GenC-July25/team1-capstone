@@ -1,0 +1,203 @@
+<div class="modal-overlay" [attr.data-theme]="isDarkMode() ? 'dark' : null">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Add Payment Method</h2>
+            <button type="button" class="modal-close-btn" (click)="onCancel()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()" class="payment-form">
+
+                <!-- Payment Type Selection -->
+                <div class="form-section">
+                    <h3 class="section-title">Payment Type</h3>
+                    <div class="payment-type-grid">
+                        <label class="payment-type-option" [class.selected]="selectedPaymentType() === 'credit-card'">
+                            <input type="radio" formControlName="paymentType" value="credit-card">
+                            <div class="payment-type-card">
+                                <span class="payment-icon">💳</span>
+                                <span class="payment-label">Credit Card</span>
+                            </div>
+                        </label>
+
+                        <label class="payment-type-option" [class.selected]="selectedPaymentType() === 'debit-card'">
+                            <input type="radio" formControlName="paymentType" value="debit-card">
+                            <div class="payment-type-card">
+                                <span class="payment-icon">💰</span>
+                                <span class="payment-label">Debit Card</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Card Information -->
+                <div class="form-section">
+                    <h3 class="section-title">Card Information</h3>
+
+                    <div class="form-group">
+                        <label for="cardNumber" class="form-label">Card Number *</label>
+                        <input type="text" id="cardNumber" class="form-input card-input"
+                            [class.error]="isFieldInvalid('cardNumber')" placeholder="1234 5678 9012 3456"
+                            (input)="formatCardNumber($event)" maxlength="19">
+                        @if (getFieldError('cardNumber')) {
+                        <span class="error-message">{{ getFieldError('cardNumber') }}</span>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cardholderName" class="form-label">Cardholder Name *</label>
+                        <input type="text" id="cardholderName" formControlName="cardholderName" class="form-input"
+                            [class.error]="isFieldInvalid('cardholderName')" placeholder="John Doe">
+                        @if (getFieldError('cardholderName')) {
+                        <span class="error-message">{{ getFieldError('cardholderName') }}</span>
+                        }
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiryMonth" class="form-label">Expiry Month *</label>
+                            <input type="number" id="expiryMonth" formControlName="expiryMonth" class="form-input"
+                                [class.error]="isFieldInvalid('expiryMonth')" placeholder="MM" min="1" max="12"
+                                (input)="formatExpiryDate($event, 'expiryMonth')">
+                            @if (getFieldError('expiryMonth')) {
+                            <span class="error-message">{{ getFieldError('expiryMonth') }}</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expiryYear" class="form-label">Expiry Year *</label>
+                            <input type="number" id="expiryYear" formControlName="expiryYear" class="form-input"
+                                [class.error]="isFieldInvalid('expiryYear')" placeholder="YYYY"
+                                (input)="formatExpiryDate($event, 'expiryYear')">
+                            @if (getFieldError('expiryYear')) {
+                            <span class="error-message">{{ getFieldError('expiryYear') }}</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cvv" class="form-label">CVV *</label>
+                            <input type="password" id="cvv" formControlName="cvv" class="form-input"
+                                [class.error]="isFieldInvalid('cvv')" placeholder="123" maxlength="4">
+                            @if (getFieldError('cvv')) {
+                            <span class="error-message">{{ getFieldError('cvv') }}</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Address -->
+                <div class="form-section" formGroupName="billingAddress">
+                    <h3 class="section-title">Billing Address</h3>
+
+                    <div class="form-group">
+                        <label for="addressLine1" class="form-label">Address Line 1 *</label>
+                        <input type="text" id="addressLine1" formControlName="addressLine1" class="form-input"
+                            [class.error]="isBillingFieldInvalid('addressLine1')" placeholder="123 Main Street">
+                        @if (getBillingFieldError('addressLine1')) {
+                        <span class="error-message">{{ getBillingFieldError('addressLine1') }}</span>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label for="addressLine2" class="form-label">Address Line 2</label>
+                        <input type="text" id="addressLine2" formControlName="addressLine2" class="form-input"
+                            [class.error]="isBillingFieldInvalid('addressLine2')"
+                            placeholder="Apt, Suite, Unit, etc. (Optional)">
+                        @if (getBillingFieldError('addressLine2')) {
+                        <span class="error-message">{{ getBillingFieldError('addressLine2') }}</span>
+                        }
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city" class="form-label">City *</label>
+                            <input type="text" id="city" formControlName="city" class="form-input"
+                                [class.error]="isBillingFieldInvalid('city')" placeholder="New York">
+                            @if (getBillingFieldError('city')) {
+                            <span class="error-message">{{ getBillingFieldError('city') }}</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label for="state" class="form-label">State *</label>
+                            <input type="text" id="state" formControlName="state" class="form-input"
+                                [class.error]="isBillingFieldInvalid('state')" placeholder="NY">
+                            @if (getBillingFieldError('state')) {
+                            <span class="error-message">{{ getBillingFieldError('state') }}</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label for="zipCode" class="form-label">ZIP Code *</label>
+                            <input type="text" id="zipCode" formControlName="zipCode" class="form-input"
+                                [class.error]="isBillingFieldInvalid('zipCode')" placeholder="12345">
+                            @if (getBillingFieldError('zipCode')) {
+                            <span class="error-message">{{ getBillingFieldError('zipCode') }}</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country" class="form-label">Country *</label>
+                        <select id="country" formControlName="country" class="form-select"
+                            [class.error]="isBillingFieldInvalid('country')">
+                            <option value="United States">United States</option>
+                            <option value="Canada">Canada</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        @if (getBillingFieldError('country')) {
+                        <span class="error-message">{{ getBillingFieldError('country') }}</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="form-section">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" formControlName="isDefault" class="checkbox-input">
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-text">Make this my default payment method</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Success/Error Messages -->
+                @if (submitError()) {
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    {{ submitError() }}
+                </div>
+                }
+
+                @if (submitSuccess()) {
+                <div class="alert alert-success">
+                    <span class="alert-icon">✅</span>
+                    {{ submitSuccess() }}
+                </div>
+                }
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="isLoading()">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="btn btn-primary" [disabled]="isLoading() || paymentForm.invalid">
+                        @if (isLoading()) {
+                        <span class="btn-spinner">⏳</span>
+                        Adding...
+                        } @else {
+                        <span class="btn-icon">💳</span>
+                        Add Payment Method
+                        }
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
