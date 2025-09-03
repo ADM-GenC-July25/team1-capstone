@@ -1,3 +1,4 @@
+
 /* Searched Items Container */
 .searched-items-container {
     padding: 2rem;
@@ -189,4 +190,9 @@
 
 [data-theme="dark"] .rating-text {
     color: #d1d5db;
+
+.product-grid {
+    width: 60%;
+    padding: 2rem;
+
 }

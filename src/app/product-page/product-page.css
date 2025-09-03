@@ -1,6 +1,10 @@
 .product-page-container {
-  height: 100vh;
+  height: auto;
+  min-height: 100vh; /* Account for navbar and footer height */
   padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-form {

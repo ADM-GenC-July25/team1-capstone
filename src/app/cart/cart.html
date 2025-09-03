@@ -17,6 +17,58 @@
         <p>Loading your cart...</p>
       </div>
       }
+      @if (cartItems.length > 0) {
+        <div class="cart-layout">
+          <!-- Cart Items -->
+          <div class="cart-items">
+            <h2 class="section-title">Your Items ({{ cartItems.length }})</h2>
+            
+            @for (item of cartItems; track item.id) {
+              <div class="cart-item">
+                <a [routerLink]="['/product', item.id]" class="item-image-link" [style.color]="isDarkMode() ? 'white' : 'black'">
+                  <img [src]="item.image" [alt]="item.name" class="item-image">
+                </a>
+                
+                <div class="item-details">
+                  <h3 class="item-name">
+                    <a [routerLink]="['/product', item.id]" class="product-link" [style.color]="isDarkMode() ? 'white' : 'black'">{{ item.name }}</a>
+                  </h3>
+                  <div class="item-inventory-info">
+                    <span class="inventory-label">In Stock:</span>
+                    <span class="inventory-count">{{ item.inventory }}</span>
+                  </div>
+                  <div class="item-price">${{ item.price }}</div>
+                </div>
+                
+                <div class="item-controls">
+                  <div class="quantity-controls">
+                    <button 
+                      class="quantity-btn" 
+                      (click)="updateQuantity(item.id, item.quantity - 1)"
+                      [disabled]="item.quantity <= 1">
+                      -
+                    </button>
+                    <span class="quantity">{{ item.quantity }}</span>
+                    <button 
+                      class="quantity-btn" 
+                      (click)="updateQuantity(item.id, item.quantity + 1)">
+                      +
+                    </button>
+                  </div>
+                  
+                  <div class="item-total">${{ (item.price * item.quantity).toFixed(2) }}</div>
+                  
+                  <button 
+                    class="remove-btn" 
+                    (click)="removeItem(item.id)"
+                    title="Remove item">
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
 
       <!-- Error State -->
       @else if (error) {

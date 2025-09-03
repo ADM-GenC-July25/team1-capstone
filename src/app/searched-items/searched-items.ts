@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../services/search-service';
-import { ProductService, Product } from '../services/product.service';
-import { ActivatedRoute } from '@angular/router';
+
+import { ProductService, Product } from '../services/product-service';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CartService } from '../services/cart.service';
 import { CategoryService, Category } from '../services/category.service';
 
 @Component({
   selector: 'app-searched-items',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
+
   templateUrl: './searched-items.html',
   styleUrl: './searched-items.css'
 })
@@ -100,5 +102,9 @@ export class SearchedItems implements OnInit {
         alert('Failed to add product to cart. Please try again.');
       }
     });
+  }
+
+  isDarkMode(): boolean {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
   }
 }

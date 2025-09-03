@@ -12,7 +12,6 @@ interface CartItem {
     rating: number; // product rating
     productId: number; // product ID from backend
 }
-
 interface BackendCartItem {
     cartId: number;
     user: any;
@@ -26,6 +25,7 @@ interface BackendCartItem {
         daysToDeliver: number;
     };
     quantity: number;
+
 }
 
 @Injectable({
@@ -65,6 +65,7 @@ export class CartService {
             if (error.status === 401) {
                 errorMessage = 'Please log in to access your cart';
             }
+
         }
 
         this._error.set(errorMessage);
