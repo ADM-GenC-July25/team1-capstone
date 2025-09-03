@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductService, Product } from '../services/product.service';
 import { ThemeService } from '../services/theme.service';
+import { Subscription, combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-product-page',
@@ -11,19 +12,34 @@ import { ThemeService } from '../services/theme.service';
   templateUrl: './product-page.html',
   styleUrl: './product-page.css'
 })
-export class ProductPage {
+export class ProductPage implements OnInit, OnDestroy {
   productName: string = '';
   product: Product | undefined;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
     private themeService: ThemeService
-  ) {
-    this.route.paramMap.subscribe(params => {
+  ) {}
+
+  ngOnInit() {
+    // Combine route params and products observable to ensure products are loaded
+    const combinedSubscription = combineLatest([
+      this.route.paramMap,
+      this.productService.products$
+    ]).subscribe(([params, products]) => {
       const id = Number(params.get('id'));
-      this.product = this.productService.getProductById(id);
+      if (products.length > 0) {
+        this.product = products.find(product => product.productId === id);
+      }
     });
+
+    this.subscriptions.add(combinedSubscription);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   protected get isDarkMode() {
