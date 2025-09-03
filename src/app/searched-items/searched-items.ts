@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../services/search-service';
-import { ProductService } from '../services/product-service';
+import { ProductService, Product } from '../services/product.service';
 import { ActivatedRoute } from '@angular/router';
 import { CartService } from '../services/cart.service';
+import { CategoryService, Category } from '../services/category.service';
 
 @Component({
   selector: 'app-searched-items',
@@ -12,32 +13,74 @@ import { CartService } from '../services/cart.service';
   styleUrl: './searched-items.css'
 })
 export class SearchedItems implements OnInit {
-  featuredProducts: any[] = [];
-  currProducts: any[] = [];
+  featuredProducts: Product[] = [];
+  currProducts: Product[] = [];
+  categories: Category[] = [];
+  isLoading = false;
+  error = '';
 
-  constructor(private productService: ProductService, private route: ActivatedRoute, private searchService: SearchService, private cartService: CartService) { }
+  constructor(
+    private productService: ProductService,
+    private route: ActivatedRoute,
+    private searchService: SearchService,
+    private cartService: CartService,
+    private categoryService: CategoryService
+  ) { }
 
   ngOnInit() {
-    this.productService.getFeaturedProducts().subscribe(products => {
-      this.featuredProducts = products;
+    this.isLoading = true;
+    this.error = '';
 
-      this.route.queryParams.subscribe(params => {
-        const category = params['category'];
-        if (category) {
-          this.currProducts = this.featuredProducts.filter(product => product.category === category);
-        } else {
-          this.currProducts = this.featuredProducts;
-        }
-      });
-
-      let newArr = [];
-      for (let product of this.currProducts) {
-        if (product.productName.toLowerCase().includes(this.searchService.getSearchTerm().toLowerCase())) {
-          newArr.push(product);
-        }
+    // Load categories first
+    this.categoryService.getAllCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.error = 'Failed to load categories';
       }
-      this.currProducts = newArr;
     });
+
+    // Get all products initially
+    this.featuredProducts = this.productService.getAllProducts();
+    this.currProducts = [...this.featuredProducts];
+
+    // Subscribe to route parameters for category filtering
+    this.route.queryParams.subscribe(params => {
+      const category = params['category'];
+      const searchTerm = this.searchService.getSearchTerm();
+
+      if (category) {
+        // Filter by category using backend API
+        this.productService.getProductsByCategoryName(category).subscribe({
+          next: (products) => {
+            this.currProducts = products;
+            this.applySearchFilter(searchTerm);
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error loading products by category:', error);
+            this.error = 'Failed to load products for this category';
+            this.isLoading = false;
+          }
+        });
+      } else {
+        // Use all products if no category specified
+        this.currProducts = [...this.featuredProducts];
+        this.applySearchFilter(searchTerm);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private applySearchFilter(searchTerm: string) {
+    if (searchTerm && searchTerm.trim() !== '') {
+      this.currProducts = this.currProducts.filter(product =>
+        product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
   }
 
   addToCart(productId: number) {

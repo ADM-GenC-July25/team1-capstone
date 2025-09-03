@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ThemeService } from '../services/theme.service';
 import { ProductService, CreateProductRequest } from '../services/product.service';
+import { CategoryService, Category } from '../services/category.service';
 
 @Component({
   selector: 'app-new-product-page',
@@ -19,12 +20,15 @@ export class NewProductPage implements OnInit {
   submitSuccess = signal<string>('');
   imagePreview = signal<string>('');
   imageError = signal<boolean>(false);
+  categories: Category[] = [];
+  selectedCategories: number[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private themeService: ThemeService,
-    private productService: ProductService
+    private productService: ProductService,
+    private categoryService: CategoryService
   ) { }
 
   // Theme service integration
@@ -34,6 +38,19 @@ export class NewProductPage implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
+    this.loadCategories();
+  }
+
+  private loadCategories() {
+    this.categoryService.getAllCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.submitError.set('Failed to load categories');
+      }
+    });
   }
 
   private initializeForm() {
@@ -83,7 +100,8 @@ export class NewProductPage implements OnInit {
         price: parseFloat(this.productForm.value.price),
         description: this.productForm.value.description,
         daysToDeliver: parseInt(this.productForm.value.daysToDeliver),
-        imageLink: this.productForm.value.imageLink || undefined
+        imageLink: this.productForm.value.imageLink || undefined,
+        categoryIds: this.selectedCategories.length > 0 ? this.selectedCategories : undefined
       };
 
       this.productService.createProduct(productData).subscribe({
@@ -97,9 +115,7 @@ export class NewProductPage implements OnInit {
 
           // Reset form after successful submission
           setTimeout(() => {
-            this.productForm.reset();
-            this.imagePreview.set('');
-            this.submitSuccess.set('');
+            this.resetForm();
             // Optionally navigate to the product page or product list
             this.router.navigate(['/']);
           }, 2000);
@@ -157,5 +173,30 @@ export class NewProductPage implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.productForm.get(fieldName);
     return !!(field?.invalid && field.touched);
+  }
+
+  // Category selection methods
+  onCategoryChange(categoryId: number, isChecked: boolean) {
+    if (isChecked) {
+      if (!this.selectedCategories.includes(categoryId)) {
+        this.selectedCategories.push(categoryId);
+      }
+    } else {
+      this.selectedCategories = this.selectedCategories.filter(id => id !== categoryId);
+    }
+  }
+
+  isCategorySelected(categoryId: number): boolean {
+    return this.selectedCategories.includes(categoryId);
+  }
+
+  // Reset selected categories when form is reset
+  resetForm() {
+    this.productForm.reset();
+    this.selectedCategories = [];
+    this.imagePreview.set('');
+    this.imageError.set(false);
+    this.submitError.set('');
+    this.submitSuccess.set('');
   }
 }

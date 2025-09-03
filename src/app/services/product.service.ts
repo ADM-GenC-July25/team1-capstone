@@ -20,6 +20,7 @@ export interface CreateProductRequest {
   imageLink?: string;
   description: string;
   daysToDeliver: number;
+  categoryIds?: number[]; // Optional array of category IDs
 }
 
 @Injectable({
@@ -98,6 +99,46 @@ export class ProductService {
    */
   createProduct(productData: CreateProductRequest): Observable<Product> {
     return this.http.post<Product>(this.apiUrl, productData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Get products by category ID
+   */
+  getProductsByCategory(categoryId: number): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/category/${categoryId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Get products by category name
+   */
+  getProductsByCategoryName(categoryName: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/category/name/${categoryName}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Add product to category (Admin only)
+   */
+  addProductToCategory(productId: number, categoryId: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${productId}/categories/${categoryId}`, {}, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Remove product from category (Admin only)
+   */
+  removeProductFromCategory(productId: number, categoryId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${productId}/categories/${categoryId}`, {
       headers: this.getAuthHeaders()
     }).pipe(
       catchError(this.handleError)
