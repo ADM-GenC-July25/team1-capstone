@@ -11,16 +11,12 @@
   <section class="categories">
     <div class="container">
       <div class="step-indicator">
-        <div class="step-card" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
-          <div class="step-number">1</div>
-          <h3>Shipping</h3>
-        </div>
         <div class="step-card" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
-          <div class="step-number">2</div>
+          <div class="step-number">1</div>
           <h3>Payment</h3>
         </div>
         <div class="step-card" [class.active]="currentStep >= 3">
-          <div class="step-number">3</div>
+          <div class="step-number">2</div>
           <h3>Review</h3>
         </div>
       </div>
@@ -32,132 +28,37 @@
     <div class="container">
       <div class="checkout-content">
         <div class="checkout-main">
-          <!-- Step 1: Shipping Information -->
-          <div *ngIf="currentStep === 1" class="checkout-step">
-            <h2 class="section-title">Shipping Information</h2>
-            <form [formGroup]="shippingForm" class="checkout-form">
-              
-              <!-- Saved Addresses -->
-              <div class="form-group" *ngIf="savedAddresses.length > 0">
-                <label>Use Saved Address</label>
-                <select formControlName="savedAddressId" (change)="onSavedAddressChange()">
-                  <option value="">Enter new address</option>
-                  <option *ngFor="let address of savedAddresses" [value]="address.id">
-                    {{address.name}} - {{address.address}}, {{address.city}}, {{address.state}}
-                  </option>
-                </select>
-              </div>
 
-              <div class="form-row">
-                <div class="form-group">
-                  <label>First Name *</label>
-                  <input 
-                    type="text" 
-                    formControlName="firstName" 
-                    [class.error]="isFieldInvalid(shippingForm, 'firstName', shippingFormSubmitted)"
-                    required>
-                  <div *ngIf="isFieldInvalid(shippingForm, 'firstName', shippingFormSubmitted)" class="error-message">
-                    {{getFieldError(shippingForm, 'firstName')}}
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>Last Name *</label>
-                  <input 
-                    type="text" 
-                    formControlName="lastName" 
-                    [class.error]="isFieldInvalid(shippingForm, 'lastName', shippingFormSubmitted)"
-                    required>
-                  <div *ngIf="isFieldInvalid(shippingForm, 'lastName', shippingFormSubmitted)" class="error-message">
-                    {{getFieldError(shippingForm, 'lastName')}}
-                  </div>
-                </div>
-              </div>
 
-              <div class="form-group">
-                <label>Street Address *</label>
-                <input 
-                  type="text" 
-                  formControlName="address" 
-                  placeholder="123 Main Street"
-                  [class.error]="isFieldInvalid(shippingForm, 'address', shippingFormSubmitted)"
-                  required>
-                <div *ngIf="isFieldInvalid(shippingForm, 'address', shippingFormSubmitted)" class="error-message">
-                  {{getFieldError(shippingForm, 'address')}}
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Apartment, Suite, Unit (Optional)</label>
-                <input 
-                  type="text" 
-                  formControlName="apartment" 
-                  placeholder="Apt 4B, Suite 100, Unit 5">
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>City *</label>
-                  <input 
-                    type="text" 
-                    formControlName="city" 
-                    [class.error]="isFieldInvalid(shippingForm, 'city', shippingFormSubmitted)"
-                    required>
-                  <div *ngIf="isFieldInvalid(shippingForm, 'city', shippingFormSubmitted)" class="error-message">
-                    {{getFieldError(shippingForm, 'city')}}
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>State *</label>
-                  <input 
-                    type="text" 
-                    formControlName="state" 
-                    [class.error]="isFieldInvalid(shippingForm, 'state', shippingFormSubmitted)"
-                    required>
-                  <div *ngIf="isFieldInvalid(shippingForm, 'state', shippingFormSubmitted)" class="error-message">
-                    {{getFieldError(shippingForm, 'state')}}
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label>ZIP Code *</label>
-                  <input 
-                    type="text" 
-                    formControlName="zipCode" 
-                    [class.error]="isFieldInvalid(shippingForm, 'zipCode', shippingFormSubmitted)"
-                    required>
-                  <div *ngIf="isFieldInvalid(shippingForm, 'zipCode', shippingFormSubmitted)" class="error-message">
-                    {{getFieldError(shippingForm, 'zipCode')}}
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <!-- Step 2: Payment Information -->
+          <!-- Step 1: Payment Information -->
           <div *ngIf="currentStep === 2" class="checkout-step">
             <h2 class="section-title">Payment Information</h2>
             <form [formGroup]="paymentForm" class="checkout-form">
-              
+
+              <!-- Loading indicator for payment methods -->
+              <div *ngIf="isLoadingPaymentMethods" class="loading-message">
+                Loading your saved payment methods...
+              </div>
+
               <!-- Saved Payment Methods -->
-              <div class="form-group" *ngIf="savedPaymentMethods.length > 0">
+              <div class="form-group" *ngIf="savedPaymentMethods.length > 0 && !isLoadingPaymentMethods">
                 <label>Use Saved Payment Method</label>
                 <select formControlName="savedPaymentMethodId" (change)="onSavedPaymentMethodChange()">
                   <option value="">Enter new payment method</option>
                   <option *ngFor="let payment of savedPaymentMethods" [value]="payment.id">
-                    {{payment.name}} - **** {{payment.cardNumber}} ({{payment.expiryMonth}}/{{payment.expiryYear}})
+                    {{payment.name}} (Expires {{payment.expiryMonth}}/{{payment.expiryYear}})
                   </option>
                 </select>
+                <div class="help-text">
+                  <small>Select a saved payment method or choose "Enter new payment method" to add a new one</small>
+                </div>
               </div>
 
               <div class="form-group">
                 <label>Card Number *</label>
-                <input 
-                  type="text" 
-                  formControlName="cardNumber" 
-                  placeholder="1234 5678 9012 3456" 
+                <input type="text" formControlName="cardNumber" placeholder="1234 5678 9012 3456"
                   [class.error]="isFieldInvalid(paymentForm, 'cardNumber', paymentFormSubmitted)"
-                  (focus)="onCardNumberFocus()"
-                  (blur)="onCardNumberBlur()"
-                  (input)="onCardNumberInput($event)"
+                  (focus)="onCardNumberFocus()" (blur)="onCardNumberBlur()" (input)="onCardNumberInput($event)"
                   required>
                 <div *ngIf="isFieldInvalid(paymentForm, 'cardNumber', paymentFormSubmitted)" class="error-message">
                   {{getFieldError(paymentForm, 'cardNumber')}}
@@ -167,10 +68,8 @@
               <div class="form-row">
                 <div class="form-group">
                   <label>Expiry Month *</label>
-                  <select 
-                    formControlName="expiryMonth" 
-                    [class.error]="isFieldInvalid(paymentForm, 'expiryMonth', paymentFormSubmitted)"
-                    required>
+                  <select formControlName="expiryMonth"
+                    [class.error]="isFieldInvalid(paymentForm, 'expiryMonth', paymentFormSubmitted)" required>
                     <option value="">Select Month</option>
                     <option *ngFor="let month of months" [value]="month.value">
                       {{month.label}}
@@ -182,10 +81,8 @@
                 </div>
                 <div class="form-group">
                   <label>Expiry Year *</label>
-                  <select 
-                    formControlName="expiryYear" 
-                    [class.error]="isFieldInvalid(paymentForm, 'expiryYear', paymentFormSubmitted)"
-                    required>
+                  <select formControlName="expiryYear"
+                    [class.error]="isFieldInvalid(paymentForm, 'expiryYear', paymentFormSubmitted)" required>
                     <option value="">Select Year</option>
                     <option *ngFor="let year of years" [value]="year.value">
                       {{year.label}}
@@ -197,16 +94,9 @@
                 </div>
                 <div class="form-group">
                   <label>CVV *</label>
-                  <input 
-                    type="text" 
-                    formControlName="cvv" 
-                    placeholder="123" 
-                    [class.error]="isFieldInvalid(paymentForm, 'cvv', paymentFormSubmitted)"
-                    (focus)="onCvvFocus()"
-                    (blur)="onCvvBlur()"
-                    (input)="onCvvInput($event)"
-                    maxlength="4"
-                    required>
+                  <input type="text" formControlName="cvv" placeholder="123"
+                    [class.error]="isFieldInvalid(paymentForm, 'cvv', paymentFormSubmitted)" (focus)="onCvvFocus()"
+                    (blur)="onCvvBlur()" (input)="onCvvInput($event)" maxlength="4" required>
                   <div *ngIf="isFieldInvalid(paymentForm, 'cvv', paymentFormSubmitted)" class="error-message">
                     {{getFieldError(paymentForm, 'cvv')}}
                   </div>
@@ -215,34 +105,36 @@
 
               <div class="form-group">
                 <label>Name on Card *</label>
-                <input 
-                  type="text" 
-                  formControlName="cardName" 
-                  [class.error]="isFieldInvalid(paymentForm, 'cardName', paymentFormSubmitted)"
-                  required>
+                <input type="text" formControlName="cardName"
+                  [class.error]="isFieldInvalid(paymentForm, 'cardName', paymentFormSubmitted)" required>
                 <div *ngIf="isFieldInvalid(paymentForm, 'cardName', paymentFormSubmitted)" class="error-message">
                   {{getFieldError(paymentForm, 'cardName')}}
                 </div>
               </div>
 
               <!-- Save Payment Method Toggle -->
-              <div class="form-group">
-                <button 
-                  type="button" 
-                  class="toggle-button" 
-                  [class.active]="savePaymentMethod"
+              <div class="form-group" *ngIf="!paymentForm.get('savedPaymentMethodId')?.value">
+                <button type="button" class="toggle-button" [class.active]="savePaymentMethod"
                   (click)="toggleSavePaymentMethod()">
                   <span class="checkbox">{{savePaymentMethod ? '✓' : ''}}</span>
                   Save payment method for future purchases
                 </button>
+                <div class="help-text" *ngIf="savePaymentMethod">
+                  <small>✓ This payment method will be saved securely for future orders</small>
+                </div>
+              </div>
+
+              <!-- Message when using saved payment method -->
+              <div class="form-group" *ngIf="paymentForm.get('savedPaymentMethodId')?.value">
+                <div class="info-message">
+                  <span class="info-icon">ℹ️</span>
+                  Using saved payment method. No need to save again.
+                </div>
               </div>
 
               <div class="billing-header">
                 <h3 class="subsection-title">Billing Address</h3>
-                <button 
-                  type="button" 
-                  class="toggle-button" 
-                  [class.active]="sameAsShipping"
+                <button type="button" class="toggle-button" [class.active]="sameAsShipping"
                   (click)="toggleSameAsShipping()">
                   <span class="checkbox">{{sameAsShipping ? '✓' : ''}}</span>
                   Same as shipping address
@@ -250,60 +142,65 @@
               </div>
 
               <div class="form-group">
-                <label>Address *</label>
-                <input 
-                  type="text" 
-                  formControlName="billingAddress" 
-                  [class.error]="isFieldInvalid(paymentForm, 'billingAddress', paymentFormSubmitted)"
-                  [disabled]="sameAsShipping"
-                  required>
-                <div *ngIf="isFieldInvalid(paymentForm, 'billingAddress', paymentFormSubmitted)" class="error-message">
-                  {{getFieldError(paymentForm, 'billingAddress')}}
+                <label>Address Line 1 *</label>
+                <input type="text" formControlName="billingAddressLineOne" placeholder="123 Main Street"
+                  [class.error]="isFieldInvalid(paymentForm, 'billingAddressLineOne', paymentFormSubmitted)"
+                  [disabled]="sameAsShipping" required>
+                <div *ngIf="isFieldInvalid(paymentForm, 'billingAddressLineOne', paymentFormSubmitted)"
+                  class="error-message">
+                  {{getFieldError(paymentForm, 'billingAddressLineOne')}}
                 </div>
+              </div>
+
+              <div class="form-group">
+                <label>Address Line 2 (Optional)</label>
+                <input type="text" formControlName="billingAddressLineTwo" placeholder="Apt 4B, Suite 100, Unit 5"
+                  [disabled]="sameAsShipping">
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label>City *</label>
-                  <input 
-                    type="text" 
-                    formControlName="billingCity" 
+                  <input type="text" formControlName="billingCity"
                     [class.error]="isFieldInvalid(paymentForm, 'billingCity', paymentFormSubmitted)"
-                    [disabled]="sameAsShipping"
-                    required>
+                    [disabled]="sameAsShipping" required>
                   <div *ngIf="isFieldInvalid(paymentForm, 'billingCity', paymentFormSubmitted)" class="error-message">
                     {{getFieldError(paymentForm, 'billingCity')}}
                   </div>
                 </div>
                 <div class="form-group">
                   <label>State *</label>
-                  <input 
-                    type="text" 
-                    formControlName="billingState" 
+                  <input type="text" formControlName="billingState"
                     [class.error]="isFieldInvalid(paymentForm, 'billingState', paymentFormSubmitted)"
-                    [disabled]="sameAsShipping"
-                    required>
+                    [disabled]="sameAsShipping" required>
                   <div *ngIf="isFieldInvalid(paymentForm, 'billingState', paymentFormSubmitted)" class="error-message">
                     {{getFieldError(paymentForm, 'billingState')}}
                   </div>
                 </div>
                 <div class="form-group">
                   <label>ZIP Code *</label>
-                  <input 
-                    type="text" 
-                    formControlName="billingZip" 
+                  <input type="text" formControlName="billingZip"
                     [class.error]="isFieldInvalid(paymentForm, 'billingZip', paymentFormSubmitted)"
-                    [disabled]="sameAsShipping"
-                    required>
+                    [disabled]="sameAsShipping" required>
                   <div *ngIf="isFieldInvalid(paymentForm, 'billingZip', paymentFormSubmitted)" class="error-message">
                     {{getFieldError(paymentForm, 'billingZip')}}
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Country *</label>
+                  <input type="text" formControlName="billingCountry" placeholder="United States"
+                    [class.error]="isFieldInvalid(paymentForm, 'billingCountry', paymentFormSubmitted)"
+                    [disabled]="sameAsShipping" required>
+                  <div *ngIf="isFieldInvalid(paymentForm, 'billingCountry', paymentFormSubmitted)"
+                    class="error-message">
+                    {{getFieldError(paymentForm, 'billingCountry')}}
                   </div>
                 </div>
               </div>
             </form>
           </div>
 
-          <!-- Step 3: Order Review -->
+          <!-- Step 2: Order Review -->
           <div *ngIf="currentStep === 3" class="checkout-step">
             <h2 class="section-title">Review Your Order</h2>
             <div class="order-review">
@@ -330,14 +227,24 @@
 
           <!-- Navigation Buttons -->
           <div class="checkout-navigation">
-            <button *ngIf="currentStep > 1" (click)="previousStep()" class="cta-button secondary">
+            <!-- Order Error Display -->
+            <div *ngIf="orderError" class="error-state">
+              <div class="error-icon">⚠️</div>
+              <p>{{ orderError }}</p>
+            </div>
+
+            <button *ngIf="currentStep > 2" (click)="previousStep()" class="cta-button secondary"
+              [disabled]="isPlacingOrder">
               Previous
             </button>
-            <button *ngIf="currentStep < 3" (click)="nextStep()" class="cta-button">
+            <button *ngIf="currentStep < 3" (click)="nextStep()" class="cta-button" [disabled]="isPlacingOrder">
               Next
             </button>
-            <button *ngIf="currentStep === 3" (click)="placeOrder()" class="cta-button">
-              Place Order
+            <button *ngIf="currentStep === 3" (click)="placeOrder()" class="cta-button" type="button"
+              [disabled]="isPlacingOrder || !isReadyToPlaceOrder">
+              <span *ngIf="!isPlacingOrder && isReadyToPlaceOrder">Place Order</span>
+              <span *ngIf="isPlacingOrder">Placing Order...</span>
+              <span *ngIf="!isReadyToPlaceOrder && !isPlacingOrder">Loading...</span>
             </button>
           </div>
         </div>
@@ -346,8 +253,22 @@
         <div class="order-summary">
           <div class="product-card">
             <h3>Order Summary</h3>
-            
-            <div class="cart-items">
+
+            <!-- Loading State -->
+            <div *ngIf="isCartLoading" class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>Loading your cart...</p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="cartError" class="error-state">
+              <div class="error-icon">⚠️</div>
+              <p>{{ cartError }}</p>
+              <button class="btn btn-primary" (click)="refreshCart()">Try Again</button>
+            </div>
+
+            <!-- Cart Items -->
+            <div *ngIf="!isCartLoading && !cartError" class="cart-items">
               <div *ngFor="let item of cartItems" class="cart-item">
                 <img [src]="item.image" [alt]="item.name" class="product-image">
                 <div class="item-details">
@@ -366,19 +287,19 @@
             <div class="summary-totals">
               <div class="summary-line">
                 <span>Subtotal:</span>
-                <span>${{orderSummary.subtotal.toFixed(2)}}</span>
+                <span>${{orderSummary().subtotal.toFixed(2)}}</span>
               </div>
               <div class="summary-line">
                 <span>Standard Shipping:</span>
-                <span>${{orderSummary.shipping.toFixed(2)}}</span>
+                <span>${{orderSummary().shipping.toFixed(2)}}</span>
               </div>
               <div class="summary-line">
                 <span>Tax:</span>
-                <span>${{orderSummary.tax.toFixed(2)}}</span>
+                <span>${{orderSummary().tax.toFixed(2)}}</span>
               </div>
               <div class="summary-line total">
                 <span>Total:</span>
-                <span class="product-price">${{orderSummary.total.toFixed(2)}}</span>
+                <span class="product-price">${{orderSummary().total.toFixed(2)}}</span>
               </div>
             </div>
           </div>

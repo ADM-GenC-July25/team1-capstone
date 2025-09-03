@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ThemeService } from '../services/theme.service';
+import { ProductService, CreateProductRequest } from '../services/product.service';
+import { CategoryService, Category } from '../services/category.service';
 
 @Component({
   selector: 'app-new-product-page',
@@ -18,11 +20,15 @@ export class NewProductPage implements OnInit {
   submitSuccess = signal<string>('');
   imagePreview = signal<string>('');
   imageError = signal<boolean>(false);
+  categories: Category[] = [];
+  selectedCategories: number[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private productService: ProductService,
+    private categoryService: CategoryService
   ) { }
 
   // Theme service integration
@@ -32,6 +38,19 @@ export class NewProductPage implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
+    this.loadCategories();
+  }
+
+  private loadCategories() {
+    this.categoryService.getAllCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.submitError.set('Failed to load categories');
+      }
+    });
   }
 
   private initializeForm() {
@@ -75,30 +94,38 @@ export class NewProductPage implements OnInit {
       this.submitError.set('');
       this.submitSuccess.set('');
 
-      const productData = {
-        name: this.productForm.value.name,
+      const productData: CreateProductRequest = {
+        productName: this.productForm.value.name,
         inventory: parseInt(this.productForm.value.inventory),
         price: parseFloat(this.productForm.value.price),
         description: this.productForm.value.description,
         daysToDeliver: parseInt(this.productForm.value.daysToDeliver),
-        imageLink: this.productForm.value.imageLink || null
+        imageLink: this.productForm.value.imageLink || undefined,
+        categoryIds: this.selectedCategories.length > 0 ? this.selectedCategories : undefined
       };
 
-      // TODO: Replace with actual API call
-      console.log('Product data to submit:', productData);
+      this.productService.createProduct(productData).subscribe({
+        next: (createdProduct) => {
+          this.isLoading.set(false);
+          this.submitSuccess.set('Product created successfully!');
+          console.log('Product created:', createdProduct);
 
-      // Simulate API call
-      setTimeout(() => {
-        this.isLoading.set(false);
-        this.submitSuccess.set('Product created successfully!');
+          // Refresh the products list to include the new product
+          this.productService.refreshProducts();
 
-        // Reset form after successful submission
-        setTimeout(() => {
-          this.productForm.reset();
-          this.imagePreview.set('');
-          this.submitSuccess.set('');
-        }, 2000);
-      }, 1000);
+          // Reset form after successful submission
+          setTimeout(() => {
+            this.resetForm();
+            // Optionally navigate to the product page or product list
+            this.router.navigate(['/']);
+          }, 2000);
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          this.submitError.set(error.message || 'Failed to create product. Please try again.');
+          console.error('Error creating product:', error);
+        }
+      });
 
     } else {
       this.markFormGroupTouched();
@@ -114,7 +141,7 @@ export class NewProductPage implements OnInit {
   }
 
   onCancel() {
-    this.router.navigate(['/products']); // Navigate back to products page
+    this.router.navigate(['/']); // Navigate back to main page
   }
 
   // Helper methods for template
@@ -146,5 +173,30 @@ export class NewProductPage implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.productForm.get(fieldName);
     return !!(field?.invalid && field.touched);
+  }
+
+  // Category selection methods
+  onCategoryChange(categoryId: number, isChecked: boolean) {
+    if (isChecked) {
+      if (!this.selectedCategories.includes(categoryId)) {
+        this.selectedCategories.push(categoryId);
+      }
+    } else {
+      this.selectedCategories = this.selectedCategories.filter(id => id !== categoryId);
+    }
+  }
+
+  isCategorySelected(categoryId: number): boolean {
+    return this.selectedCategories.includes(categoryId);
+  }
+
+  // Reset selected categories when form is reset
+  resetForm() {
+    this.productForm.reset();
+    this.selectedCategories = [];
+    this.imagePreview.set('');
+    this.imageError.set(false);
+    this.submitError.set('');
+    this.submitSuccess.set('');
   }
 }

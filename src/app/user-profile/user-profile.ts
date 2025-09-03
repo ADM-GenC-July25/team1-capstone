@@ -65,7 +65,7 @@ export class UserProfile implements OnInit {
     // Load current user data into the form
     this.isLoading.set(true);
 
-    this.http.get<any>('http://localhost:8080/auth/profile', {
+    this.http.get<any>('http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/profile', {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }

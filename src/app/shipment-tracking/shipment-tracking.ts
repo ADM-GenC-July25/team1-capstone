@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ThemeService } from '../services/theme.service';
+import { ShipmentService, ShipmentTracking } from '../services/shipment.service';
 
 @Component({
   selector: 'app-shipment-tracking',
@@ -8,190 +9,126 @@ import { ThemeService } from '../services/theme.service';
   templateUrl: './shipment-tracking.html',
   styleUrl: './shipment-tracking.css'
 })
-export class ShipmentTracking {
+export class ShipmentTrackingComponent implements OnInit, OnDestroy {
   // Theme service integration
   get isDarkMode() {
     return this.themeService.isDarkMode;
   }
 
   // Overlay state management
-  showDetailsOverlay = false;
-  selectedShipment: any = null;
+  showDetailsOverlay = signal(false);
+  selectedShipment = signal<ShipmentTracking | null>(null);
 
-  // Placeholder for shipment tracking logic
-  // This component will handle the display and management of shipment tracking information
-  shipments = [
-    {
-      id: 'SH001',
-      trackingNumber: 'TN123456789',
-      status: 'In Transit',
-      origin: 'New York, NY',
-      destination: 'Los Angeles, CA',
-      estimatedDelivery: '2025-08-25',
-      carrier: 'FedEx',
-      packageType: 'Electronics',
-      weight: '2.5 lbs',
-      lastUpdate: '2025-08-22 14:30'
-    },
-    {
-      id: 'SH002',
-      trackingNumber: 'TN987654321',
-      status: 'Delivered',
-      origin: 'Chicago, IL',
-      destination: 'Miami, FL',
-      estimatedDelivery: '2025-08-20',
-      carrier: 'UPS',
-      packageType: 'Clothing',
-      weight: '1.2 lbs',
-      lastUpdate: '2025-08-20 16:45'
-    },
-    {
-      id: 'SH003',
-      trackingNumber: 'TN456789123',
-      status: 'Processing',
-      origin: 'Seattle, WA',
-      destination: 'Boston, MA',
-      estimatedDelivery: '2025-08-27',
-      carrier: 'USPS',
-      packageType: 'Books',
-      weight: '3.8 lbs',
-      lastUpdate: '2025-08-22 09:15'
-    },
-    {
-      id: 'SH004',
-      trackingNumber: 'TN789123456',
-      status: 'Out for Delivery',
-      origin: 'Denver, CO',
-      destination: 'Phoenix, AZ',
-      estimatedDelivery: '2025-08-22',
-      carrier: 'DHL',
-      packageType: 'Home & Garden',
-      weight: '5.2 lbs',
-      lastUpdate: '2025-08-22 08:00'
-    },
-    {
-      id: 'SH005',
-      trackingNumber: 'TN321654987',
-      status: 'In Transit',
-      origin: 'Atlanta, GA',
-      destination: 'Portland, OR',
-      estimatedDelivery: '2025-08-26',
-      carrier: 'FedEx',
-      packageType: 'Sports Equipment',
-      weight: '8.7 lbs',
-      lastUpdate: '2025-08-21 20:22'
-    },
-    {
-      id: 'SH006',
-      trackingNumber: 'TN654987321',
-      status: 'Delayed',
-      origin: 'Houston, TX',
-      destination: 'Detroit, MI',
-      estimatedDelivery: '2025-08-28',
-      carrier: 'UPS',
-      packageType: 'Automotive Parts',
-      weight: '12.3 lbs',
-      lastUpdate: '2025-08-22 11:30'
-    },
-    {
-      id: 'SH007',
-      trackingNumber: 'TN147258369',
-      status: 'Delivered',
-      origin: 'San Francisco, CA',
-      destination: 'Nashville, TN',
-      estimatedDelivery: '2025-08-19',
-      carrier: 'USPS',
-      packageType: 'Music Instruments',
-      weight: '6.1 lbs',
-      lastUpdate: '2025-08-19 13:15'
-    },
-    {
-      id: 'SH008',
-      trackingNumber: 'TN963852741',
-      status: 'In Transit',
-      origin: 'Las Vegas, NV',
-      destination: 'Charlotte, NC',
-      estimatedDelivery: '2025-08-24',
-      carrier: 'DHL',
-      packageType: 'Beauty Products',
-      weight: '1.8 lbs',
-      lastUpdate: '2025-08-22 06:45'
-    },
-    {
-      id: 'SH009',
-      trackingNumber: 'TN852741963',
-      status: 'Processing',
-      origin: 'Minneapolis, MN',
-      destination: 'San Diego, CA',
-      estimatedDelivery: '2025-08-29',
-      carrier: 'FedEx',
-      packageType: 'Kitchen Appliances',
-      weight: '15.4 lbs',
-      lastUpdate: '2025-08-22 12:00'
-    },
-    {
-      id: 'SH010',
-      trackingNumber: 'TN741963852',
-      status: 'Out for Delivery',
-      origin: 'Philadelphia, PA',
-      destination: 'Salt Lake City, UT',
-      estimatedDelivery: '2025-08-22',
-      carrier: 'UPS',
-      packageType: 'Pet Supplies',
-      weight: '4.6 lbs',
-      lastUpdate: '2025-08-22 07:30'
-    }
-  ]; // Array to hold shipment data
-  constructor(private themeService: ThemeService) {
+  // Shipments data and loading state
+  shipments = signal<ShipmentTracking[]>([]);
+  isLoading = signal(false);
+  error = signal<string>('');
+
+  constructor(private themeService: ThemeService, private shipmentService: ShipmentService) {
     // Initialize any necessary data or services here
   }
 
-  // Add methods to handle shipment tracking functionality
-  trackShipment(shipmentId: string) {
-    // Logic to track a shipment by its ID
-  }
-
-  viewDetails(shipmentId: string) {
-    // Find the shipment and show details overlay
-    const shipment = this.shipments.find(s => s.id === shipmentId);
-    if (shipment) {
-      this.selectedShipment = shipment;
-      this.showDetailsOverlay = true;
-    }
-  }
-
-  closeDetailsOverlay() {
-    this.showDetailsOverlay = false;
-    this.selectedShipment = null;
-  }
-
-  getShipmentDetails(shipmentId: string) {
-    // Logic to retrieve shipment details
-    return this.shipments.find(s => s.id === shipmentId);
-  }
-
-  cancelShipment(shipmentId: string) {
-    // Logic to cancel a shipment (only if status is 'Processing')
-    const shipment = this.shipments.find(s => s.id === shipmentId);
-    if (shipment && shipment.status === 'Processing') {
-      // Update status to cancelled
-      shipment.status = 'Cancelled';
-      shipment.lastUpdate = new Date().toISOString().slice(0, 16).replace('T', ' ');
-      console.log(`Shipment ${shipmentId} has been cancelled`);
-    }
-  }
-
-  canCancelShipment(shipment: any): boolean {
-    return shipment.status === 'Processing';
-  }
-
-  // Additional methods as needed for shipment tracking
   ngOnInit() {
-    // Logic to run when the component initializes
+    this.loadShipments();
   }
 
   ngOnDestroy() {
     // Cleanup logic when the component is destroyed
+  }
+
+  // Load shipments from backend
+  loadShipments() {
+    this.isLoading.set(true);
+    this.error.set('');
+
+    this.shipmentService.getUserShipments().subscribe({
+      next: (shipments) => {
+        this.shipments.set(shipments);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        this.error.set('Failed to load shipments. Please try again.');
+        this.isLoading.set(false);
+        console.error('Error loading shipments:', error);
+      }
+    });
+  }
+
+  // Add methods to handle shipment tracking functionality
+  trackShipment(shipmentId: number) {
+    // Logic to track a shipment by its ID - could refresh single shipment
+    this.shipmentService.getShipmentDetails(shipmentId).subscribe({
+      next: (shipment) => {
+        // Update the shipment in the list
+        const currentShipments = this.shipments();
+        const index = currentShipments.findIndex(s => s.transactionId === shipmentId);
+        if (index !== -1) {
+          currentShipments[index] = shipment;
+          this.shipments.set([...currentShipments]);
+        }
+      },
+      error: (error) => {
+        console.error('Error tracking shipment:', error);
+      }
+    });
+  }
+
+  viewDetails(shipmentId: number) {
+    // Find the shipment and show details overlay
+    const shipment = this.shipments().find(s => s.transactionId === shipmentId);
+    if (shipment) {
+      this.selectedShipment.set(shipment);
+      this.showDetailsOverlay.set(true);
+    }
+  }
+
+  closeDetailsOverlay() {
+    this.showDetailsOverlay.set(false);
+    this.selectedShipment.set(null);
+  }
+
+  getShipmentDetails(shipmentId: number) {
+    // Logic to retrieve shipment details
+    return this.shipments().find(s => s.transactionId === shipmentId);
+  }
+
+  canCancelShipment(shipment: ShipmentTracking): boolean {
+    return shipment.status === 'Processing';
+  }
+
+  cancelShipment(shipmentId: number) {
+    // Logic to cancel a shipment (only if status is 'Processing')
+    const shipment = this.shipments().find(s => s.transactionId === shipmentId);
+    if (shipment && shipment.status === 'Processing') {
+      // In a real implementation, you'd call a backend API to cancel
+      // For now, we'll just update the local state
+      shipment.status = 'Cancelled';
+      this.shipments.set([...this.shipments()]);
+      console.log(`Shipment ${shipmentId} has been cancelled`);
+    }
+  }
+
+  // Helper methods for status styling
+  getStatusClass(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'processing': return 'status-processing';
+      case 'in transit': return 'status-in-transit';
+      case 'delivered': return 'status-delivered';
+      case 'cancelled': return 'status-cancelled';
+      default: return 'status-default';
+    }
+  }
+
+  // Helper method to format dates
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
 

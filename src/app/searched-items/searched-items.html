@@ -1,4 +1,25 @@
 <div class="searched-items-container">
+
+    <!-- Loading State -->
+    @if (isLoading) {
+    <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading products...</p>
+    </div>
+    }
+
+    <!-- Error State -->
+    @else if (error) {
+    <div class="error-state">
+        <div class="error-icon">⚠️</div>
+        <h2>Error loading products</h2>
+        <p>{{ error }}</p>
+        <button class="retry-btn" (click)="ngOnInit()">Try Again</button>
+    </div>
+    }
+
+    <!-- Products Grid -->
+    @else if (currProducts.length > 0) {
     <div class="search-page-grid-container">
         <div class="products-grid">
             @for (product of currProducts; track product.productId) {
@@ -23,4 +44,15 @@
             }
         </div>
     </div>
+    }
+
+    <!-- No Products Found -->
+    @else {
+    <div class="no-products-state">
+        <div class="no-products-icon">🔍</div>
+        <h2>No products found</h2>
+        <p>Try adjusting your search criteria or browse different categories.</p>
+    </div>
+    }
+
 </div>

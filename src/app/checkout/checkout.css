@@ -353,9 +353,47 @@
 }
 
 .save-method-note {
-  color: #059669 !important;
-  font-size: 0.9rem;
+  color: #059669;
+  font-style: italic;
+  font-size: 0.875rem;
   margin-top: 0.5rem;
+}
+
+/* Additional styles for improved payment method UI */
+.help-text {
+  margin-top: 0.5rem;
+}
+
+.help-text small {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.info-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #dbeafe;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  color: #1e40af;
+  font-size: 0.875rem;
+}
+
+.info-icon {
+  font-size: 1rem;
+}
+
+/* Dark theme adjustments for new elements */
+[data-theme="dark"] .help-text small {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .info-message {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+  color: #bfdbfe;
 }
 
 /* Dark Theme Support */
@@ -481,24 +519,24 @@
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   .step-indicator {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .checkout-navigation {
     flex-direction: column;
   }
-  
+
   .order-summary {
     position: static;
   }
-  
+
   .billing-header {
     flex-direction: column;
     align-items: flex-start;

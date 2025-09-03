@@ -36,7 +36,7 @@ export class Navbar {
 
   protected get userInitials() {
 
-    if(this.authService.userDisplayName !== null) {
+    if (this.authService.userDisplayName !== null) {
       const initials: string = this.authService.userDisplayName.toString();
       return initials[11].toUpperCase() as string;
     }
@@ -48,7 +48,7 @@ export class Navbar {
     private router: Router,
     private themeService: ThemeService,
     private searchService: SearchService,
-    private cartService: CartService,
+    public cartService: CartService,
     private route: ActivatedRoute
   ) {
     this.router.events.subscribe(() => {
