@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../services/search-service';
 
-import { ProductService, Product } from '../services/product-service';
+import { ProductService, Product } from '../services/product.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CartService } from '../services/cart.service';
 import { CategoryService, Category } from '../services/category.service';
@@ -44,36 +44,50 @@ export class SearchedItems implements OnInit {
       }
     });
 
-    // Get all products initially
-    this.featuredProducts = this.productService.getAllProducts();
-    this.currProducts = [...this.featuredProducts];
-
-    // Subscribe to route parameters for category filtering
-    this.route.queryParams.subscribe(params => {
-      const category = params['category'];
-      const searchTerm = this.searchService.getSearchTerm();
-
-      if (category) {
-        // Filter by category using backend API
-        this.productService.getProductsByCategoryName(category).subscribe({
-          next: (products) => {
-            this.currProducts = products;
-            this.applySearchFilter(searchTerm);
-            this.isLoading = false;
-          },
-          error: (error) => {
-            console.error('Error loading products by category:', error);
-            this.error = 'Failed to load products for this category';
-            this.isLoading = false;
-          }
-        });
-      } else {
-        // Use all products if no category specified
-        this.currProducts = [...this.featuredProducts];
-        this.applySearchFilter(searchTerm);
+    // Subscribe to products from the ProductService
+    this.productService.products$.subscribe({
+      next: (products) => {
+        this.featuredProducts = products;
+        this.processRouteParams();
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+        this.error = 'Failed to load products';
         this.isLoading = false;
       }
     });
+
+    // Subscribe to route parameters for category filtering
+    this.route.queryParams.subscribe(params => {
+      this.processRouteParams();
+    });
+  }
+
+  private processRouteParams() {
+    const params = this.route.snapshot.queryParams;
+    const category = params['category'];
+    const searchTerm = this.searchService.getSearchTerm();
+
+    if (category) {
+      // Filter by category using backend API
+      this.productService.getProductsByCategoryName(category).subscribe({
+        next: (products) => {
+          this.currProducts = products;
+          this.applySearchFilter(searchTerm);
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading products by category:', error);
+          this.error = 'Failed to load products for this category';
+          this.isLoading = false;
+        }
+      });
+    } else {
+      // Use all products if no category specified
+      this.currProducts = [...this.featuredProducts];
+      this.applySearchFilter(searchTerm);
+      this.isLoading = false;
+    }
   }
 
   private applySearchFilter(searchTerm: string) {

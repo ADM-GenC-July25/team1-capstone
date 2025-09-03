@@ -11,6 +11,7 @@ interface CartItem {
     quantity: number;
     rating: number; // product rating
     productId: number; // product ID from backend
+    inventory: number; // product inventory from backend
 }
 interface BackendCartItem {
     cartId: number;
@@ -80,7 +81,8 @@ export class CartService {
             price: backendItem.product.price,
             image: backendItem.product.imageLink || 'https://via.placeholder.com/300x300?text=No+Image',
             quantity: backendItem.quantity,
-            rating: 4.5 // Default rating since backend doesn't have this
+            rating: 4.5, // Default rating since backend doesn't have this
+            inventory: backendItem.product.inventory || 0 // Include inventory from backend
         };
     }
 

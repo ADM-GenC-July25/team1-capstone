@@ -17,6 +17,7 @@ interface CartItem {
   quantity: number;
   rating: number;
   productId: number;
+  inventory: number; // product inventory
 }
 
 interface SavedAddress {
