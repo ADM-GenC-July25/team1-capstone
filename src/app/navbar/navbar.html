@@ -36,7 +36,7 @@
                     <a [routerLink]="['/search']" [queryParams]="{category: 'Beauty'}">Beauty</a>
                 </div>
             </div>
-            <a href="#" class="nav-link">Deals</a>
+            <a [routerLink]="['/shipments']" class="nav-link">Shipments</a>
             <a href="#" class="nav-link" (click)="scrollToFooter(); $event.preventDefault();">Contact</a>
             <button class="cart-btn" (click)="onCartClick()">🛒 Cart</button>
             <button class="logout-btn" (click)="onLogout()">Logout</button>

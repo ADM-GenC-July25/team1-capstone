@@ -6,45 +6,54 @@
         </div>
 
         <div class="table-container">
-
-
+            @if (isLoading()) {
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading your shipments...</p>
+            </div>
+            } @else if (error()) {
+            <div class="error-state">
+                <div class="error-icon">⚠️</div>
+                <h3>Error Loading Shipments</h3>
+                <p>{{ error() }}</p>
+                <button class="btn btn-primary" (click)="loadShipments()">Try Again</button>
+            </div>
+            } @else {
             <div class="table-wrapper">
                 <table class="shipments-table">
                     <thead>
                         <tr>
-                            <th>Shipment ID</th>
+                            <th>Transaction ID</th>
                             <th>Tracking Number</th>
-                            <th>Destination</th>
+                            <th>Delivery Address</th>
                             <th>Status</th>
-                            <th>Carrier</th>
+                            <th>Total Price</th>
                             <th>Est. Delivery</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @for(shipment of shipments; track shipment.id) {
-                        <tr class="shipment-row" [class]="'status-' + shipment.status.toLowerCase().replace(' ', '-')">
+                        @for(shipment of shipments(); track shipment.transactionId) {
+                        <tr class="shipment-row" [class]="getStatusClass(shipment.status)">
                             <td class="shipment-id">
-                                <span class="id-text">{{ shipment.id }}</span>
+                                <span class="id-text">#{{ shipment.transactionId }}</span>
                             </td>
                             <td class="tracking-number">
                                 <span class="tracking-text">{{ shipment.trackingNumber }}</span>
                             </td>
                             <td class="route">
                                 <div class="route-container">
-
-                                    <span class="destination">{{ shipment.destination }}</span>
+                                    <span class="destination">{{ shipment.deliveryAddress }}</span>
                                 </div>
                             </td>
                             <td class="status">
-                                <span class="status-badge"
-                                    [class]="'status-' + shipment.status.toLowerCase().replace(' ', '-')">
+                                <span class="status-badge" [class]="getStatusClass(shipment.status)">
                                     {{ shipment.status }}
                                 </span>
                             </td>
-                            <td class="carrier">
-                                <div class="carrier-info">
-                                    <span class="carrier-name">{{ shipment.carrier }}</span>
+                            <td class="price">
+                                <div class="price-info">
+                                    <span class="price-amount">${{ shipment.totalPrice | number:'1.2-2' }}</span>
                                 </div>
                             </td>
                             <td class="delivery-date">
@@ -55,15 +64,15 @@
                             </td>
                             <td class="actions">
                                 <div class="action-buttons">
-                                    <button class="btn btn-secondary btn-sm" (click)="viewDetails(shipment.id)"
-                                        title="View Details">
+                                    <button class="btn btn-secondary btn-sm"
+                                        (click)="viewDetails(shipment.transactionId)" title="View Details">
                                         <span class="btn-icon">👁</span>
                                     </button>
                                     <button class="btn btn-sm cancel-btn"
                                         [class.btn-cancel-active]="canCancelShipment(shipment)"
                                         [class.btn-cancel-disabled]="!canCancelShipment(shipment)"
-                                        [disabled]="!canCancelShipment(shipment)" (click)="cancelShipment(shipment.id)"
-                                        title="Cancel Shipment">
+                                        [disabled]="!canCancelShipment(shipment)"
+                                        (click)="cancelShipment(shipment.transactionId)" title="Cancel Shipment">
                                         <span class="btn-icon">✕</span>
                                     </button>
                                 </div>
@@ -74,19 +83,19 @@
                 </table>
             </div>
 
-            @if (shipments.length === 0) {
+            @if (shipments().length === 0) {
             <div class="empty-state">
                 <div class="empty-icon">📦</div>
                 <h3>No shipments found</h3>
                 <p>You don't have any shipments to track yet.</p>
-                <button class="btn btn-primary">Create Your First Shipment</button>
             </div>
+            }
             }
         </div>
     </div>
 
     <!-- Details Overlay -->
-    @if (showDetailsOverlay && selectedShipment) {
+    @if (showDetailsOverlay() && selectedShipment()) {
     <div class="overlay-backdrop" (click)="closeDetailsOverlay()">
         <div class="details-overlay" (click)="$event.stopPropagation()">
             <div class="overlay-header">
@@ -98,71 +107,77 @@
 
             <div class="overlay-content">
                 <div class="detail-section">
-                    <h3 class="section-title">Basic Information</h3>
+                    <h3 class="section-title">Order Information</h3>
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <label>Shipment ID:</label>
-                            <span>{{ selectedShipment.id }}</span>
+                            <label>Transaction ID:</label>
+                            <span>#{{ selectedShipment()!.transactionId }}</span>
                         </div>
                         <div class="detail-item">
                             <label>Tracking Number:</label>
-                            <span>{{ selectedShipment.trackingNumber }}</span>
+                            <span>{{ selectedShipment()!.trackingNumber }}</span>
                         </div>
                         <div class="detail-item">
                             <label>Status:</label>
-                            <span class="status-badge"
-                                [class]="'status-' + selectedShipment.status.toLowerCase().replace(' ', '-')">
-                                {{ selectedShipment.status }}
+                            <span class="status-badge" [class]="getStatusClass(selectedShipment()!.status)">
+                                {{ selectedShipment()!.status }}
                             </span>
                         </div>
                         <div class="detail-item">
-                            <label>Carrier:</label>
-                            <span>{{ selectedShipment.carrier }}</span>
+                            <label>Total Price:</label>
+                            <span>${{ selectedShipment()!.totalPrice | number:'1.2-2' }}</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="detail-section">
-                    <h3 class="section-title">Route Information</h3>
+                    <h3 class="section-title">Delivery Information</h3>
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <label>Origin:</label>
-                            <span>{{ selectedShipment.origin }}</span>
+                            <label>Delivery Address:</label>
+                            <span>{{ selectedShipment()!.deliveryAddress }}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Destination:</label>
-                            <span>{{ selectedShipment.destination }}</span>
+                            <label>Order Date:</label>
+                            <span>{{ selectedShipment()!.orderDate | date:'MMM dd, yyyy h:mm a' }}</span>
                         </div>
                         <div class="detail-item">
                             <label>Estimated Delivery:</label>
-                            <span>{{ selectedShipment.estimatedDelivery | date:'MMM dd, yyyy' }}</span>
+                            <span>{{ selectedShipment()!.estimatedDelivery | date:'MMM dd, yyyy' }}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Last Update:</label>
-                            <span>{{ selectedShipment.lastUpdate }}</span>
+                            <label>Max Delivery Days:</label>
+                            <span>{{ selectedShipment()!.maxDeliveryDays }} days</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="detail-section">
-                    <h3 class="section-title">Package Information</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Package Type:</label>
-                            <span>{{ selectedShipment.packageType }}</span>
+                    <h3 class="section-title">Items in this Shipment</h3>
+                    <div class="items-list">
+                        @for (item of selectedShipment()!.items; track item.productId) {
+                        <div class="item-card">
+                            <div class="item-info">
+                                <h4 class="item-name">{{ item.productName }}</h4>
+                                <div class="item-details">
+                                    <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                                    <span class="item-price">${{ item.priceAtPurchase | number:'1.2-2' }} each</span>
+                                    <span class="item-delivery">{{ item.daysToDeliver }} days delivery</span>
+                                </div>
+                            </div>
+                            <div class="item-total">
+                                ${{ (item.quantity * item.priceAtPurchase) | number:'1.2-2' }}
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <label>Weight:</label>
-                            <span>{{ selectedShipment.weight }}</span>
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
 
             <div class="overlay-actions">
-                @if (canCancelShipment(selectedShipment)) {
+                @if (canCancelShipment(selectedShipment()!)) {
                 <button class="btn btn-cancel-active"
-                    (click)="cancelShipment(selectedShipment.id); closeDetailsOverlay()">
+                    (click)="cancelShipment(selectedShipment()!.transactionId); closeDetailsOverlay()">
                     Cancel Shipment
                 </button>
                 }

@@ -12,7 +12,7 @@
                 <div class="image-preview-container">
                     @if (imagePreview()) {
                     <img [src]="imagePreview()" [alt]="productForm.get('name')?.value || 'Product preview'"
-                        class="image-preview">
+                        title="Product image preview" class="image-preview">
                     } @else {
                     <div class="image-placeholder">
                         <span class="placeholder-icon">📷</span>

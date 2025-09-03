@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export interface Product {
   productId: number;
@@ -8,6 +9,15 @@ export interface Product {
   inventory: number;
   price: number;
   imageLink: string;
+  description: string;
+  daysToDeliver: number;
+}
+
+export interface CreateProductRequest {
+  productName: string;
+  inventory: number;
+  price: number;
+  imageLink?: string;
   description: string;
   daysToDeliver: number;
 }
@@ -22,6 +32,34 @@ export class ProductService {
 
   constructor(private http: HttpClient) {
     this.loadProducts();
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('authToken');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+
+  private handleError(error: any): Observable<never> {
+    console.error('Product service error:', error);
+    let errorMessage = 'An unknown error occurred';
+
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      if (error.status === 403) {
+        errorMessage = 'Admin access required to create products';
+      } else if (error.status === 401) {
+        errorMessage = 'Please log in to create products';
+      }
+    }
+
+    return throwError(() => new Error(errorMessage));
   }
 
   private loadProducts(): void {
@@ -53,5 +91,16 @@ export class ProductService {
 
   refreshProducts(): void {
     this.loadProducts();
+  }
+
+  /**
+   * Create a new product (Admin only)
+   */
+  createProduct(productData: CreateProductRequest): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, productData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 }

@@ -8,7 +8,7 @@ import { CartComponent } from './cart/cart';
 import { UserProfile } from './user-profile/user-profile';
 import { Register } from './register/register';
 import { SearchedItems } from './searched-items/searched-items';
-import { ShipmentTracking } from './shipment-tracking/shipment-tracking';
+import { ShipmentTrackingComponent } from './shipment-tracking/shipment-tracking';
 import { ProductPage } from './product-page/product-page';
 import { NewProductPage } from './new-product-page/new-product-page';
 import { Checkout } from './checkout/checkout';
@@ -46,7 +46,7 @@ export const routes: Routes = [
     },
     {
         path: 'shipments',
-        component: ShipmentTracking,
+        component: ShipmentTrackingComponent,
         canActivate: [AuthGuard]
     },
     {
