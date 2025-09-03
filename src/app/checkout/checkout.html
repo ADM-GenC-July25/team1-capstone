@@ -39,16 +39,19 @@
               <div *ngIf="isLoadingPaymentMethods" class="loading-message">
                 Loading your saved payment methods...
               </div>
-              
+
               <!-- Saved Payment Methods -->
               <div class="form-group" *ngIf="savedPaymentMethods.length > 0 && !isLoadingPaymentMethods">
                 <label>Use Saved Payment Method</label>
                 <select formControlName="savedPaymentMethodId" (change)="onSavedPaymentMethodChange()">
                   <option value="">Enter new payment method</option>
                   <option *ngFor="let payment of savedPaymentMethods" [value]="payment.id">
-                    {{payment.name}} ({{payment.expiryMonth}}/{{payment.expiryYear}})
+                    {{payment.name}} (Expires {{payment.expiryMonth}}/{{payment.expiryYear}})
                   </option>
                 </select>
+                <div class="help-text">
+                  <small>Select a saved payment method or choose "Enter new payment method" to add a new one</small>
+                </div>
               </div>
 
               <div class="form-group">
@@ -110,12 +113,23 @@
               </div>
 
               <!-- Save Payment Method Toggle -->
-              <div class="form-group">
+              <div class="form-group" *ngIf="!paymentForm.get('savedPaymentMethodId')?.value">
                 <button type="button" class="toggle-button" [class.active]="savePaymentMethod"
                   (click)="toggleSavePaymentMethod()">
                   <span class="checkbox">{{savePaymentMethod ? '✓' : ''}}</span>
                   Save payment method for future purchases
                 </button>
+                <div class="help-text" *ngIf="savePaymentMethod">
+                  <small>✓ This payment method will be saved securely for future orders</small>
+                </div>
+              </div>
+
+              <!-- Message when using saved payment method -->
+              <div class="form-group" *ngIf="paymentForm.get('savedPaymentMethodId')?.value">
+                <div class="info-message">
+                  <span class="info-icon">ℹ️</span>
+                  Using saved payment method. No need to save again.
+                </div>
               </div>
 
               <div class="billing-header">
@@ -132,7 +146,8 @@
                 <input type="text" formControlName="billingAddressLineOne" placeholder="123 Main Street"
                   [class.error]="isFieldInvalid(paymentForm, 'billingAddressLineOne', paymentFormSubmitted)"
                   [disabled]="sameAsShipping" required>
-                <div *ngIf="isFieldInvalid(paymentForm, 'billingAddressLineOne', paymentFormSubmitted)" class="error-message">
+                <div *ngIf="isFieldInvalid(paymentForm, 'billingAddressLineOne', paymentFormSubmitted)"
+                  class="error-message">
                   {{getFieldError(paymentForm, 'billingAddressLineOne')}}
                 </div>
               </div>
@@ -176,7 +191,8 @@
                   <input type="text" formControlName="billingCountry" placeholder="United States"
                     [class.error]="isFieldInvalid(paymentForm, 'billingCountry', paymentFormSubmitted)"
                     [disabled]="sameAsShipping" required>
-                  <div *ngIf="isFieldInvalid(paymentForm, 'billingCountry', paymentFormSubmitted)" class="error-message">
+                  <div *ngIf="isFieldInvalid(paymentForm, 'billingCountry', paymentFormSubmitted)"
+                    class="error-message">
                     {{getFieldError(paymentForm, 'billingCountry')}}
                   </div>
                 </div>
@@ -211,14 +227,24 @@
 
           <!-- Navigation Buttons -->
           <div class="checkout-navigation">
-            <button *ngIf="currentStep > 2" (click)="previousStep()" class="cta-button secondary">
+            <!-- Order Error Display -->
+            <div *ngIf="orderError" class="error-state">
+              <div class="error-icon">⚠️</div>
+              <p>{{ orderError }}</p>
+            </div>
+
+            <button *ngIf="currentStep > 2" (click)="previousStep()" class="cta-button secondary"
+              [disabled]="isPlacingOrder">
               Previous
             </button>
-            <button *ngIf="currentStep < 3" (click)="nextStep()" class="cta-button">
+            <button *ngIf="currentStep < 3" (click)="nextStep()" class="cta-button" [disabled]="isPlacingOrder">
               Next
             </button>
-            <button *ngIf="currentStep === 3" (click)="placeOrder()" class="cta-button" type="button">
-              Place Order
+            <button *ngIf="currentStep === 3" (click)="placeOrder()" class="cta-button" type="button"
+              [disabled]="isPlacingOrder || !isReadyToPlaceOrder">
+              <span *ngIf="!isPlacingOrder && isReadyToPlaceOrder">Place Order</span>
+              <span *ngIf="isPlacingOrder">Placing Order...</span>
+              <span *ngIf="!isReadyToPlaceOrder && !isPlacingOrder">Loading...</span>
             </button>
           </div>
         </div>
