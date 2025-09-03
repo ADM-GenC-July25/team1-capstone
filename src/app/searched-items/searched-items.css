@@ -1,7 +1,7 @@
 /* Searched Items Container */
 .searched-items-container {
     padding: 2rem;
-    min-height: 400px;
+    min-height: calc(100vh - 200px);
 }
 
 /* Loading and Error States */
