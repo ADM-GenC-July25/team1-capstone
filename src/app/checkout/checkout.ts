@@ -2,8 +2,11 @@ import { Component, OnInit, computed, effect } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 import { CartService } from '../services/cart.service';
 import { ThemeService } from '../services/theme.service';
+import { UserService } from '../services/user.service';
+import { PaymentMethodService } from '../services/payment-method.service';
 
 interface CartItem {
   id: number; // cartId from backend
@@ -37,14 +40,14 @@ interface SavedPaymentMethod {
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
   templateUrl: './checkout.html',
   styleUrls: ['../app.css', './checkout.css']
 })
 export class Checkout implements OnInit {
   shippingForm: FormGroup;
   paymentForm: FormGroup;
-  currentStep = 1;
+  currentStep = 2; // Skip shipping, start at payment
   shippingFormSubmitted = false;
   paymentFormSubmitted = false;
 
@@ -59,6 +62,13 @@ export class Checkout implements OnInit {
 
   // Save payment method toggle
   savePaymentMethod = false;
+  
+  // Loading states
+  isLoadingProfile = false;
+  isLoadingPaymentMethods = false;
+  
+  // User profile data
+  userProfile: any = null;
 
   // Month and year options
   months = [
@@ -99,25 +109,8 @@ export class Checkout implements OnInit {
     }
   ];
 
-  // Saved payment methods (mock data - replace with actual user service)
-  savedPaymentMethods: SavedPaymentMethod[] = [
-    {
-      id: 1,
-      name: 'Personal Visa',
-      cardNumber: '4532',
-      expiryMonth: '12',
-      expiryYear: '2027',
-      cardName: 'John Doe'
-    },
-    {
-      id: 2,
-      name: 'Business Card',
-      cardNumber: '5555',
-      expiryMonth: '08',
-      expiryYear: '2026',
-      cardName: 'John Doe'
-    }
-  ];
+  // Saved payment methods from backend
+  savedPaymentMethods: SavedPaymentMethod[] = [];
 
   cartItems: CartItem[] = [];
   orderSummary = computed(() => {
@@ -148,7 +141,9 @@ export class Checkout implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private cartService: CartService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private userService: UserService,
+    private paymentMethodService: PaymentMethodService
   ) {
     // Generate years (current year + 20 years)
     const currentYear = new Date().getFullYear();
@@ -161,11 +156,12 @@ export class Checkout implements OnInit {
       savedAddressId: [''],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      address: ['', Validators.required],
-      apartment: [''], // Optional field
+      addressLineOne: ['', Validators.required],
+      addressLineTwo: [''], // Optional field
       city: ['', Validators.required],
       state: ['', Validators.required],
-      zipCode: ['', Validators.required]
+      zipCode: ['', Validators.required],
+      country: ['', Validators.required]
     });
 
     this.paymentForm = this.fb.group({
@@ -175,10 +171,12 @@ export class Checkout implements OnInit {
       expiryYear: ['', Validators.required],
       cvv: ['', Validators.required],
       cardName: ['', Validators.required],
-      billingAddress: ['', Validators.required],
+      billingAddressLineOne: ['', Validators.required],
+      billingAddressLineTwo: [''],
       billingCity: ['', Validators.required],
       billingState: ['', Validators.required],
-      billingZip: ['', Validators.required]
+      billingZip: ['', Validators.required],
+      billingCountry: ['', Validators.required]
     });
 
     // Effect to update cartItems when cart service data changes
@@ -200,6 +198,73 @@ export class Checkout implements OnInit {
       this.router.navigate(['/cart']);
       return;
     }
+    
+    // Load user profile and auto-populate shipping data
+    this.loadUserProfile();
+    // Load saved payment methods
+    this.loadPaymentMethods();
+  }
+  
+  loadUserProfile() {
+    this.isLoadingProfile = true;
+    this.userService.getUserProfile().subscribe({
+      next: (profile) => {
+        this.userProfile = profile;
+        // Auto-populate shipping form with user profile data (always use saved address)
+        this.shippingForm.patchValue({
+          firstName: profile.firstName || 'John',
+          lastName: profile.lastName || 'Doe',
+          addressLineOne: profile.addressLineOne || '123 Main St',
+          addressLineTwo: profile.addressLineTwo || '',
+          city: profile.city || 'New York',
+          state: profile.state || 'NY',
+          zipCode: profile.zipCode || '10001',
+          country: profile.country || 'United States'
+        });
+        
+        console.log('Profile data loaded:', profile);
+        console.log('Form populated with:', this.shippingForm.value);
+        // Mark shipping form as valid since we're using saved data
+        this.shippingForm.markAllAsTouched();
+        
+        // Update validators to make form valid
+        setTimeout(() => {
+          this.shippingForm.updateValueAndValidity();
+          console.log('Shipping form after profile load:', {
+            valid: this.shippingForm.valid,
+            status: this.shippingForm.status,
+            errors: this.getFormErrors(this.shippingForm),
+            values: this.shippingForm.value
+          });
+        }, 100);
+        this.isLoadingProfile = false;
+      },
+      error: (error) => {
+        console.error('Error loading user profile:', error);
+        this.isLoadingProfile = false;
+      }
+    });
+  }
+  
+  loadPaymentMethods() {
+    this.isLoadingPaymentMethods = true;
+    this.paymentMethodService.getUserPaymentMethods().subscribe({
+      next: (paymentMethods) => {
+        this.savedPaymentMethods = paymentMethods.map(pm => ({
+          id: pm.paymentId,
+          name: `Card ending in ${pm.cardNumber.slice(-4)}`,
+          cardNumber: pm.cardNumber.slice(-4),
+          expiryMonth: pm.cardExpirationMonth.toString().padStart(2, '0'),
+          expiryYear: pm.cardExpirationYear.toString(),
+          cardName: pm.nameOnCard
+        }));
+        this.isLoadingPaymentMethods = false;
+      },
+      error: (error) => {
+        console.error('Error loading payment methods:', error);
+        this.isLoadingPaymentMethods = false;
+      }
+    });
   }
   refreshCart() {
     this.cartService.refreshCart();
@@ -207,13 +272,8 @@ export class Checkout implements OnInit {
   
 
   nextStep() {
-    if (this.currentStep === 1) {
-      this.shippingFormSubmitted = true;
-      if (this.shippingForm.valid) {
-        this.currentStep = 2;
-        this.shippingFormSubmitted = false;
-      }
-    } else if (this.currentStep === 2) {
+    // Skip step 1 (shipping) since we always use saved address
+    if (this.currentStep === 2) {
       this.paymentFormSubmitted = true;
       if (this.paymentForm.valid) {
         this.currentStep = 3;
@@ -223,16 +283,33 @@ export class Checkout implements OnInit {
   }
 
   previousStep() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-      this.shippingFormSubmitted = false;
+    // Only allow going back to payment (step 2), skip shipping step
+    if (this.currentStep > 2) {
+      this.currentStep = 2;
       this.paymentFormSubmitted = false;
     }
   }
 
   placeOrder() {
     this.paymentFormSubmitted = true;
-    if (this.shippingForm.valid && this.paymentForm.valid) {
+    
+    // Check form validity (disabled fields don't affect validity)
+    const isPaymentValid = this.sameAsShipping ? 
+      this.isPaymentFormValidWithDisabledFields() : 
+      this.paymentForm.valid;
+    
+    console.log('Form validation:', {
+      shippingValid: this.shippingForm.valid,
+      shippingStatus: this.shippingForm.status,
+      shippingErrors: this.getFormErrors(this.shippingForm),
+      shippingValues: this.shippingForm.value,
+      paymentValid: isPaymentValid,
+      sameAsShipping: this.sameAsShipping,
+      paymentFormStatus: this.paymentForm.status,
+      paymentFormErrors: this.getFormErrors(this.paymentForm)
+    });
+    
+    if (this.shippingForm.valid && isPaymentValid) {
       console.log('Order placed:', {
         shipping: this.shippingForm.value,
         payment: {
@@ -245,10 +322,19 @@ export class Checkout implements OnInit {
         savePaymentMethod: this.savePaymentMethod
       });
 
-      // TODO: Save payment method to user profile if savePaymentMethod is true
+      // Save payment method to backend if requested
       if (this.savePaymentMethod) {
-        console.log('Saving payment method to user profile...');
-        // Implement save payment method logic here
+        const paymentMethodData = {
+          cardNumber: this.actualCardNumber,
+          cardExpirationMonth: parseInt(this.paymentForm.value.expiryMonth),
+          cardExpirationYear: parseInt(this.paymentForm.value.expiryYear),
+          nameOnCard: this.paymentForm.value.cardName
+        };
+
+        this.paymentMethodService.addPaymentMethod(paymentMethodData).subscribe({
+          next: () => console.log('Payment method saved successfully'),
+          error: (error) => console.error('Error saving payment method:', error)
+        });
       }
 
       // Clear cart after successful order
@@ -370,37 +456,42 @@ export class Checkout implements OnInit {
     this.sameAsShipping = !this.sameAsShipping;
 
     if (this.sameAsShipping) {
-      // Copy shipping address to billing address (including apartment)
-      const apartment = this.shippingForm.get('apartment')?.value;
-      const fullAddress = apartment ?
-        `${this.shippingForm.get('address')?.value}, ${apartment}` :
-        this.shippingForm.get('address')?.value;
-
-      this.paymentForm.patchValue({
-        billingAddress: fullAddress,
-        billingCity: this.shippingForm.get('city')?.value,
-        billingState: this.shippingForm.get('state')?.value,
-        billingZip: this.shippingForm.get('zipCode')?.value
-      });
+      // Use address from user profile (same as shipping)
+      if (this.userProfile) {
+        this.paymentForm.patchValue({
+          billingAddressLineOne: this.userProfile.addressLineOne,
+          billingAddressLineTwo: this.userProfile.addressLineTwo || '',
+          billingCity: this.userProfile.city,
+          billingState: this.userProfile.state,
+          billingZip: this.userProfile.zipCode,
+          billingCountry: this.userProfile.country
+        });
+      }
 
       // Disable billing address fields
-      this.paymentForm.get('billingAddress')?.disable();
+      this.paymentForm.get('billingAddressLineOne')?.disable();
+      this.paymentForm.get('billingAddressLineTwo')?.disable();
       this.paymentForm.get('billingCity')?.disable();
       this.paymentForm.get('billingState')?.disable();
       this.paymentForm.get('billingZip')?.disable();
+      this.paymentForm.get('billingCountry')?.disable();
     } else {
       // Enable billing address fields
-      this.paymentForm.get('billingAddress')?.enable();
+      this.paymentForm.get('billingAddressLineOne')?.enable();
+      this.paymentForm.get('billingAddressLineTwo')?.enable();
       this.paymentForm.get('billingCity')?.enable();
       this.paymentForm.get('billingState')?.enable();
       this.paymentForm.get('billingZip')?.enable();
+      this.paymentForm.get('billingCountry')?.enable();
 
       // Clear billing address fields
       this.paymentForm.patchValue({
-        billingAddress: '',
+        billingAddressLineOne: '',
+        billingAddressLineTwo: '',
         billingCity: '',
         billingState: '',
-        billingZip: ''
+        billingZip: '',
+        billingCountry: ''
       });
     }
   }
@@ -427,5 +518,26 @@ export class Checkout implements OnInit {
       }
     }
     return '';
+  }
+  
+  // Check if payment form is valid when billing fields are disabled
+  isPaymentFormValidWithDisabledFields(): boolean {
+    const requiredFields = ['cardNumber', 'expiryMonth', 'expiryYear', 'cvv', 'cardName'];
+    return requiredFields.every(field => {
+      const control = this.paymentForm.get(field);
+      return control && control.valid;
+    });
+  }
+  
+  // Get form errors for debugging
+  getFormErrors(form: FormGroup): any {
+    const errors: any = {};
+    Object.keys(form.controls).forEach(key => {
+      const control = form.get(key);
+      if (control && control.errors) {
+        errors[key] = control.errors;
+      }
+    });
+    return errors;
   }
 }
