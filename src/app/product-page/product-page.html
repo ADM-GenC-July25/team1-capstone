@@ -33,9 +33,9 @@
     
     <ng-template #productNotFound>
         <div class="product-form" 
-             [style.background]="isDarkMode() ? 'hsla(220, 22%, 17%, 1)' : '#fff'">
-            <h2>Product Not Found</h2>
-            <p>The product with the given ID could not be found.</p>
+             [style.background]="isDarkMode() ? 'hsla(220, 22%, 25%, 1)' : 'hsla(0, 0%, 90%, 1)'">
+            <h2 [style.color]="isDarkMode() ? 'white' : 'black'">Product Not Found</h2>
+            <p [style.color]="isDarkMode() ? 'white' : 'black'">The product with the given ID could not be found.</p>
         </div>
     </ng-template>
 </div>
