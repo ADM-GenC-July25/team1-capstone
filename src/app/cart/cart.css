@@ -77,6 +77,26 @@
     margin-bottom: 0.5rem;
 }
 
+/* Inventory info display */
+.item-inventory-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.inventory-label {
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.inventory-count {
+    color: hsla(0, 0%, 30%, 1);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
 /* Cart product links */
 .item-image-link {
     display: block;
@@ -320,6 +340,15 @@
 [data-theme="dark"] .item-name,
 [data-theme="dark"] .empty-cart h2 {
     color: #f9fafb;
+}
+
+/* Dark theme inventory info */
+.inventory-label {
+    color: #9ca3af;
+}
+
+[data-theme="dark"] .inventory-count {
+    color: hsla(0, 0%, 85%, 1);
 }
 
 /* Dark mode cart product links */

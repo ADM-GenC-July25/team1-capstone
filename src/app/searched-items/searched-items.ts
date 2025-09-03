@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { SearchService } from '../services/search-service';
 import { ProductService } from '../services/product-service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-searched-items',
-  imports: [],
+  imports: [CommonModule, RouterLink],
   templateUrl: './searched-items.html',
   styleUrl: './searched-items.css'
 })
@@ -40,5 +41,9 @@ export class SearchedItems implements OnInit {
 
   addToCart(productId: number) {
     console.log('Added product to cart:', productId);
+  }
+
+  isDarkMode(): boolean {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
   }
 }
