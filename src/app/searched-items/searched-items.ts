@@ -6,6 +6,7 @@ import { ProductService, Product } from '../services/product.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CartService } from '../services/cart.service';
 import { CategoryService, Category } from '../services/category.service';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-searched-items',
@@ -26,7 +27,8 @@ export class SearchedItems implements OnInit {
     private route: ActivatedRoute,
     private searchService: SearchService,
     private cartService: CartService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private themeService: ThemeService
   ) { }
 
   ngOnInit() {
@@ -119,6 +121,6 @@ export class SearchedItems implements OnInit {
   }
 
   isDarkMode(): boolean {
-    return document.documentElement.getAttribute('data-theme') === 'dark';
+    return this.themeService.isDarkMode();
   }
 }

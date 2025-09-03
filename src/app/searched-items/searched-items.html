@@ -1,4 +1,4 @@
-<div class="searched-items-container">
+<div class="searched-items-container" [attr.data-theme]="isDarkMode() ? 'dark' : null">
 
     <!-- Loading State -->
     @if (isLoading) {
@@ -23,13 +23,14 @@
     <div class="search-page-grid-container">
         <div class="products-grid">
             @for (product of currProducts; track product.productId) {
-                <div class="product-card">
-                    <a [routerLink]="['/product', product.productId]" class="product-link">
-                        <img [src]="product.imageLink" [alt]="product.productName" class="product-image">
-                    </a>
-                    <div class="product-info">
+            <div class="product-card">
+                <a [routerLink]="['/product', product.productId]" class="product-link">
+                    <img [src]="product.imageLink" [alt]="product.productName" class="product-image">
+                </a>
+                <div class="product-info">
                     <h3 class="product-name">
-                        <a [routerLink]="['/product', product.productId]" class="product-link">{{ product.productName }}</a>
+                        <a [routerLink]="['/product', product.productId]" class="product-link">{{ product.productName
+                            }}</a>
                     </h3>
                     <div class="product-inventory">
                         <span class="inventory-label">In Stock: </span>
@@ -39,8 +40,8 @@
                     <button class="add-to-cart-btn" (click)="addToCart(product.productId)">
                         Add to Cart
                     </button>
-                    </div>
                 </div>
+            </div>
             }
         </div>
     </div>
