@@ -26,9 +26,9 @@
                   <h3 class="item-name">
                     <a [routerLink]="['/product', item.id]" class="product-link" [style.color]="isDarkMode() ? 'white' : 'black'">{{ item.name }}</a>
                   </h3>
-                  <div class="item-rating">
-                    <span class="stars">⭐⭐⭐⭐⭐</span>
-                    <span class="rating-text">({{ item.rating }})</span>
+                  <div class="item-inventory-info">
+                    <span class="inventory-label">In Stock:</span>
+                    <span class="inventory-count">{{ item.inventory }}</span>
                   </div>
                   <div class="item-price">${{ item.price }}</div>
                 </div>
