@@ -2,7 +2,7 @@
     <div class="nav-container">
         <!-- Logo with dynamic image switching -->
         <div class="nav-logo" [routerLink]="['/']">
-            <img [src]="logoPath" [alt]="title()" class="logo-image">
+            <img [src]="logoPath" alt="ByteBazaar" class="logo-image">
         </div>
 
         <!-- Search Bar -->
@@ -38,7 +38,12 @@
             </div>
             <a [routerLink]="['/shipments']" class="nav-link">Shipments</a>
             <a href="#" class="nav-link" (click)="scrollToFooter(); $event.preventDefault();">Contact</a>
-            <button class="cart-btn" (click)="onCartClick()">🛒 Cart</button>
+            <button class="cart-btn" (click)="onCartClick()">
+                🛒 Cart
+                @if (cartService.itemCount > 0) {
+                <span class="cart-count">{{ cartService.itemCount }}</span>
+                }
+            </button>
             <button class="logout-btn" (click)="onLogout()">Logout</button>
         </div>
     </div>

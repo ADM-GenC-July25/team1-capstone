@@ -2,6 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SearchService } from '../services/search-service';
 import { ThemeService } from '../services/theme.service';
+import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-search-page',
@@ -16,8 +17,8 @@ export class SearchPage implements OnInit, OnDestroy {
   currProducts!: any[];
   searchTerm: string = '';
   sub: any;
-  
-  constructor(private searchService: SearchService, private themeService: ThemeService) {
+
+  constructor(private searchService: SearchService, private themeService: ThemeService, private cartService: CartService) {
     this.sub = this.searchService.searchTerm.subscribe(term => {
       this.searchTerm = term;
       this.currProducts = [];
@@ -36,6 +37,26 @@ export class SearchPage implements OnInit, OnDestroy {
   }
   ngOnDestroy() {
     this.sub.unsubscribe();
+  }
+
+  // Local addToCart method that uses CartService
+  addToCartLocal(productId: number) {
+    console.log('Adding product to cart:', productId);
+
+    // Add item to cart via the CartService
+    this.cartService.addItem(productId, 1).subscribe({
+      next: (response) => {
+        console.log('Product added to cart successfully:', response);
+        // Cart automatically refreshes after successful add
+        // Optionally show a success message to the user
+        // You could add a toast notification service here
+      },
+      error: (error) => {
+        console.error('Error adding product to cart:', error);
+        // Optionally show an error message to the user
+        alert('Failed to add product to cart. Please try again.');
+      }
+    });
   }
 }
 

@@ -38,12 +38,12 @@ export class MainComponent implements OnInit {
     constructor(private themeService: ThemeService, private cartService: CartService, private router: Router, private productService: ProductService, private searchService: SearchService) {
     }
     get isCartOpen() {
-  return this.cartService.isCartOpen;
-}
+        return this.cartService.isCartOpen;
+    }
 
-closeCart() {
-  this.cartService.closeCart();
-}
+    closeCart() {
+        this.cartService.closeCart();
+    }
 
     ngOnInit(): void {
         console.log('MainComponent ngOnInit called');
@@ -57,8 +57,22 @@ closeCart() {
     }
 
     addToCart(productId: number) {
-        console.log('Added product to cart:', productId);
-        // Implement add to cart functionality here
+        console.log('Adding product to cart:', productId);
+
+        // Add item to cart via the CartService
+        this.cartService.addItem(productId, 1).subscribe({
+            next: (response) => {
+                console.log('Product added to cart successfully:', response);
+                // Cart automatically refreshes after successful add
+                // Optionally show a success message to the user
+                // You could add a toast notification service here
+            },
+            error: (error) => {
+                console.error('Error adding product to cart:', error);
+                // Optionally show an error message to the user
+                alert('Failed to add product to cart. Please try again.');
+            }
+        });
     }
 
     toggleTheme() {

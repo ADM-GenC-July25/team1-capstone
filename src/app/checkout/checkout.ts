@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, effect } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -6,12 +6,13 @@ import { CartService } from '../services/cart.service';
 import { ThemeService } from '../services/theme.service';
 
 interface CartItem {
-  id: number;
+  id: number; // cartId from backend
   name: string;
   price: number;
   image: string;
   quantity: number;
   rating: number;
+  productId: number;
 }
 
 interface SavedAddress {
@@ -46,19 +47,19 @@ export class Checkout implements OnInit {
   currentStep = 1;
   shippingFormSubmitted = false;
   paymentFormSubmitted = false;
-  
+
   // Card masking properties
   actualCardNumber = '';
   actualCvv = '';
   isCardNumberFocused = false;
   isCvvFocused = false;
-  
+
   // Billing address toggle
   sameAsShipping = false;
-  
+
   // Save payment method toggle
   savePaymentMethod = false;
-  
+
   // Month and year options
   months = [
     { value: '01', label: '01 - January' },
@@ -74,9 +75,9 @@ export class Checkout implements OnInit {
     { value: '11', label: '11 - November' },
     { value: '12', label: '12 - December' }
   ];
-  
+
   years: { value: string, label: string }[] = [];
-  
+
   // Saved addresses (mock data - replace with actual user service)
   savedAddresses: SavedAddress[] = [
     {
@@ -119,12 +120,29 @@ export class Checkout implements OnInit {
   ];
 
   cartItems: CartItem[] = [];
-  orderSummary = {
-    subtotal: 0,
-    shipping: 9.99, // Fixed standard shipping
-    tax: 0,
-    total: 0
-  };
+  orderSummary = computed(() => {
+    const items = this.cartService.cartItems();
+    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = subtotal * 0.08; // 8% tax
+    const shipping = 9.99; // Fixed standard shipping
+    const total = subtotal + tax + shipping;
+
+    return {
+      subtotal,
+      shipping,
+      tax,
+      total
+    };
+  });
+
+  // Loading and error states from cart service
+  get isCartLoading() {
+    return this.cartService.isLoading();
+  }
+
+  get cartError() {
+    return this.cartService.error();
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -162,6 +180,11 @@ export class Checkout implements OnInit {
       billingState: ['', Validators.required],
       billingZip: ['', Validators.required]
     });
+
+    // Effect to update cartItems when cart service data changes
+    effect(() => {
+      this.cartItems = this.cartService.cartItems();
+    });
   }
 
   protected get isDarkMode() {
@@ -171,24 +194,17 @@ export class Checkout implements OnInit {
   ngOnInit() {
     // Get cart items from cart service
     this.cartItems = this.cartService.cartItems();
-    
-    // Redirect to cart if no items
-    if (this.cartItems.length === 0) {
+
+    // Redirect to cart if no items and not loading
+    if (this.cartItems.length === 0 && !this.isCartLoading) {
       this.router.navigate(['/cart']);
       return;
     }
-    
-    this.calculateOrderSummary();
   }
-
-  calculateOrderSummary() {
-    this.orderSummary.subtotal = this.cartItems.reduce((sum, item) => 
-      sum + (item.price * item.quantity), 0
-    );
-    this.orderSummary.tax = this.orderSummary.subtotal * 0.08; // 8% tax
-    this.orderSummary.shipping = 9.99; // Fixed standard shipping
-    this.orderSummary.total = this.orderSummary.subtotal + this.orderSummary.tax + this.orderSummary.shipping;
+  refreshCart() {
+    this.cartService.refreshCart();
   }
+  
 
   nextStep() {
     if (this.currentStep === 1) {
@@ -219,8 +235,8 @@ export class Checkout implements OnInit {
     if (this.shippingForm.valid && this.paymentForm.valid) {
       console.log('Order placed:', {
         shipping: this.shippingForm.value,
-        payment: { 
-          ...this.paymentForm.value, 
+        payment: {
+          ...this.paymentForm.value,
           cardNumber: this.actualCardNumber,
           cvv: this.actualCvv
         },
@@ -228,16 +244,16 @@ export class Checkout implements OnInit {
         summary: this.orderSummary,
         savePaymentMethod: this.savePaymentMethod
       });
-      
+
       // TODO: Save payment method to user profile if savePaymentMethod is true
       if (this.savePaymentMethod) {
         console.log('Saving payment method to user profile...');
         // Implement save payment method logic here
       }
-      
+
       // Clear cart after successful order
       this.cartService.clearCart();
-      
+
       // Navigate to order confirmation or success page
       alert('Order placed successfully!');
       this.router.navigate(['/']);
@@ -246,21 +262,18 @@ export class Checkout implements OnInit {
 
   updateQuantity(itemId: number, quantity: number) {
     this.cartService.updateQuantity(itemId, quantity);
-    this.cartItems = this.cartService.cartItems();
-    this.calculateOrderSummary();
+    // The computed signal will automatically update the order summary
   }
 
   removeItem(itemId: number) {
     this.cartService.removeItem(itemId);
-    this.cartItems = this.cartService.cartItems();
-    
-    // Redirect to cart if no items left
-    if (this.cartItems.length === 0) {
-      this.router.navigate(['/cart']);
-      return;
-    }
-    
-    this.calculateOrderSummary();
+
+    // Redirect to cart if no items left - check after the service call completes
+    setTimeout(() => {
+      if (this.cartService.cartItems().length === 0) {
+        this.router.navigate(['/cart']);
+      }
+    }, 100);
   }
 
   // Saved address selection
@@ -316,7 +329,7 @@ export class Checkout implements OnInit {
     this.isCardNumberFocused = false;
     const cardNumber = this.paymentForm.get('cardNumber')?.value || '';
     this.actualCardNumber = cardNumber;
-    
+
     if (cardNumber.length > 4) {
       const masked = '**** **** **** ' + cardNumber.slice(-4);
       this.paymentForm.patchValue({ cardNumber: masked });
@@ -339,7 +352,7 @@ export class Checkout implements OnInit {
     this.isCvvFocused = false;
     const cvv = this.paymentForm.get('cvv')?.value || '';
     this.actualCvv = cvv;
-    
+
     if (cvv.length > 0) {
       const masked = '*'.repeat(cvv.length);
       this.paymentForm.patchValue({ cvv: masked });
@@ -355,21 +368,21 @@ export class Checkout implements OnInit {
   // Billing address toggle
   toggleSameAsShipping() {
     this.sameAsShipping = !this.sameAsShipping;
-    
+
     if (this.sameAsShipping) {
       // Copy shipping address to billing address (including apartment)
       const apartment = this.shippingForm.get('apartment')?.value;
-      const fullAddress = apartment ? 
-        `${this.shippingForm.get('address')?.value}, ${apartment}` : 
+      const fullAddress = apartment ?
+        `${this.shippingForm.get('address')?.value}, ${apartment}` :
         this.shippingForm.get('address')?.value;
-        
+
       this.paymentForm.patchValue({
         billingAddress: fullAddress,
         billingCity: this.shippingForm.get('city')?.value,
         billingState: this.shippingForm.get('state')?.value,
         billingZip: this.shippingForm.get('zipCode')?.value
       });
-      
+
       // Disable billing address fields
       this.paymentForm.get('billingAddress')?.disable();
       this.paymentForm.get('billingCity')?.disable();
@@ -381,7 +394,7 @@ export class Checkout implements OnInit {
       this.paymentForm.get('billingCity')?.enable();
       this.paymentForm.get('billingState')?.enable();
       this.paymentForm.get('billingZip')?.enable();
-      
+
       // Clear billing address fields
       this.paymentForm.patchValue({
         billingAddress: '',

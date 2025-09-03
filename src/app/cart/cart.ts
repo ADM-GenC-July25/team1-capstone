@@ -15,10 +15,10 @@ export class CartComponent {
   protected readonly title = signal('ByteBazaar');
 
   constructor(
-    private themeService: ThemeService, 
+    private themeService: ThemeService,
     private cartService: CartService,
     private router: Router
-  ) {}
+  ) { }
 
   protected get isDarkMode() {
     return this.themeService.isDarkMode;
@@ -26,6 +26,14 @@ export class CartComponent {
 
   get cartItems() {
     return this.cartService.cartItems();
+  }
+
+  get isLoading() {
+    return this.cartService.isLoading();
+  }
+
+  get error() {
+    return this.cartService.error();
   }
 
   get subtotal(): number {
@@ -52,12 +60,16 @@ export class CartComponent {
     this.cartService.removeItem(itemId);
   }
 
+  refreshCart(): void {
+    this.cartService.refreshCart();
+  }
+
   checkout(): void {
     if (this.cartItems.length === 0) {
       alert('Your cart is empty!');
       return;
     }
-    
+
     // Close cart modal and navigate to checkout
     this.cartService.closeCart();
     this.router.navigate(['/checkout']);
