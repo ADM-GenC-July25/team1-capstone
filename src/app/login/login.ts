@@ -50,25 +50,18 @@ export class LoginComponent {
             next: (response) => {
                 this.isLoading.set(false);
 
-                // Handle successful login
-                if (response && (response.token || response.user)) {
-                    // Store authentication token if provided
-                    if (response.token) {
-                        localStorage.setItem('authToken', response.token);
-                    }
+                // Handle successful login with backend response
+                if (response && response.token) {
+                    // Use the proper backend login handler
+                    this.authService.handleLoginSuccess({
+                        token: response.token,
+                        username: response.username || this.username,
+                        email: response.email || this.username,
+                        accessLevel: response.accessLevel || 'CUSTOMER'
+                    });
 
-                    // Update auth service with user data
-                    if (this.authService.login(this.username, this.password)) {
-                        // If response includes user data, update it
-                        if (response.user) {
-                            sessionStorage.setItem('currentUser', JSON.stringify(response.user));
-                        }
-
-                        // Navigate to main page
-                        this.router.navigate(['/main']);
-                    } else {
-                        this.loginError.set('Authentication failed');
-                    }
+                    // Navigate to main page
+                    this.router.navigate(['/']);
                 } else {
                     this.loginError.set('Invalid response from server');
                 }

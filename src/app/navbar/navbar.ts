@@ -43,6 +43,12 @@ export class Navbar {
     return 'U';
   }
 
+  protected get canManageProducts() {
+    const user = this.authService.user();
+    const userRoles = user?.roles || [];
+    return userRoles.includes('ADMIN') || userRoles.includes('EMPLOYEE') || userRoles.includes('admin') || userRoles.includes('employee');
+  }
+
   constructor(
     public authService: AuthService,
     private router: Router,

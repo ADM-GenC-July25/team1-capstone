@@ -22,11 +22,11 @@ export class AuthService {
 }
 
 isAdmin(): boolean {
-  return this.hasRole('admin');
+  return this.hasRole('admin') || this.hasRole('ADMIN');
 }
 
 isEmployee(): boolean {
-  return this.hasRole('employee');
+  return this.hasRole('employee') || this.hasRole('EMPLOYEE');
 }
 
 isUser(): boolean {

@@ -37,6 +37,9 @@
                 </div>
             </div>
             <a [routerLink]="['/shipments']" class="nav-link">Shipments</a>
+            @if (canManageProducts) {
+            <a [routerLink]="['/new-product']" class="nav-link">Add Product</a>
+            }
             <a href="#" class="nav-link" (click)="scrollToFooter(); $event.preventDefault();">Contact</a>
             <button class="cart-btn" (click)="onCartClick()">
                 🛒 Cart
