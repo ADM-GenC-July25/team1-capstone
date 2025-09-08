@@ -16,6 +16,27 @@ export class AuthService {
     get user() {
         return this.currentUser.asReadonly();
     }
+       hasRole(role: string): boolean {
+  const user = this.currentUser();
+  return user?.roles.includes(role) || false;
+}
+
+isAdmin(): boolean {
+  return this.hasRole('admin');
+}
+
+isEmployee(): boolean {
+  return this.hasRole('employee');
+}
+
+isUser(): boolean {
+  return this.hasRole('user') || this.hasRole('customer');
+}
+
+getUserRole(): string | null {
+  const user = this.currentUser();
+  return user?.roles[0] || null;
+}
 
     // Computed signal for user's display name (username)
     get userDisplayName() {
