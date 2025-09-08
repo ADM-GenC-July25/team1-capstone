@@ -820,3 +820,11 @@ div {
 .product-inventory {
     font-weight: 400;
 }
+
+.page-container {
+    background-color: hsla(0, 0%, 97%, 1);
+}
+
+[data-theme="dark"] .page-container {
+    background-color: hsla(220, 22%, 17%, 1);
+}

@@ -12,6 +12,10 @@ import { ShipmentTrackingComponent } from './shipment-tracking/shipment-tracking
 import { ProductPage } from './product-page/product-page';
 import { NewProductPage } from './new-product-page/new-product-page';
 import { Checkout } from './checkout/checkout';
+import { AboutComponent } from './about/about';
+import { CustomerServiceComponent } from './customer-service/customer-service';
+import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy';
+import { TermsOfServiceComponent } from './terms-of-service/terms-of-service';
 
 export const routes: Routes = [
     {
@@ -62,6 +66,26 @@ export const routes: Routes = [
     {
         path: 'checkout',
         component: Checkout,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'about',
+        component: AboutComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'customer-service',
+        component: CustomerServiceComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'privacy-policy',
+        component: PrivacyPolicyComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'terms-of-service',
+        component: TermsOfServiceComponent,
         canActivate: [AuthGuard]
     },
     { path: '**', redirectTo: '' }

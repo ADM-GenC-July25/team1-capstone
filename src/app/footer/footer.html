@@ -5,13 +5,13 @@
           <h3>{{ title() }}</h3>
           <p>Your trusted online shopping destination</p>
         </div>
-        <div class="footer-section-links">
+        <div class="footer-section">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Customer Service</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
+            <li><a [routerLink]="['/about']" (click)="scrollToTop()">About Us</a></li>
+            <li><a [routerLink]="['/customer-service']" (click)="scrollToTop()">Customer Service</a></li>
+            <li><a [routerLink]="['/privacy-policy']" (click)="scrollToTop()">Privacy Policy</a></li>
+            <li><a [routerLink]="['/terms-of-service']" (click)="scrollToTop()">Terms of Service</a></li>
           </ul>
         </div>
         <div class="footer-section">

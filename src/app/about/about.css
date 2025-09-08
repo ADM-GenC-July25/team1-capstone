@@ -1,0 +1,140 @@
+.page-container {
+  min-height: calc(100vh - 200px);
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.page-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-content h1 {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.page-content h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #374151;
+  font-weight: 600;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 0.5rem;
+}
+
+.page-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.page-content p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.intro-section,
+.mission-section,
+.values-section,
+.team-section {
+  margin-bottom: 3rem;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.value-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.value-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.value-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #667eea;
+}
+
+.value-card p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 0;
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .page-container {
+  background: #111827;
+  color: white;
+}
+
+[data-theme="dark"] .page-content h1 {
+  color: white;
+}
+
+[data-theme="dark"] .page-content h2 {
+  color: #f9fafb;
+}
+
+[data-theme="dark"] .page-content h3 {
+  color: #d1d5db;
+}
+
+[data-theme="dark"] .page-content p {
+  color: #d1d5db;
+}
+
+[data-theme="dark"] .value-card {
+  background: #374151;
+  color: white;
+}
+
+[data-theme="dark"] .value-card h3 {
+  color: #6366f1;
+}
+
+[data-theme="dark"] .value-card p {
+  color: #d1d5db;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-content h1 {
+    font-size: 2.5rem;
+  }
+  
+  .page-content h2 {
+    font-size: 1.75rem;
+  }
+  
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+}
