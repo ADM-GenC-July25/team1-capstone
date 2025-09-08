@@ -175,7 +175,7 @@ export class UserProfile implements OnInit {
 
       // Send the update to the backend with individual address fields
       this.isLoading.set(true);
-      this.http.put('http://localhost:8080/auth/update', updatedUser, {
+      this.http.put('http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/update', updatedUser, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       }).subscribe({
         next: (response) => {
