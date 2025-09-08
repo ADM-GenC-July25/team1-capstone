@@ -60,6 +60,14 @@ export class ShipmentService {
             catchError(this.handleError)
         );
     }
+    cancelShipmentById(transactionId: number): Observable<string> {
+        return this.http.delete<string>(`${this.apiUrl}/${transactionId}`, {
+            headers: this.getAuthHeaders(),
+            responseType: 'text' as 'json'  // Tell Angular to expect text, not JSON
+        }).pipe(
+            catchError(this.handleError)
+        );
+    }
 
     private handleError(error: any): Observable<never> {
         console.error('Shipment service error:', error);

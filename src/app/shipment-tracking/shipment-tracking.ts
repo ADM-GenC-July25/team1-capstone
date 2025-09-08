@@ -100,11 +100,17 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
     // Logic to cancel a shipment (only if status is 'Processing')
     const shipment = this.shipments().find(s => s.transactionId === shipmentId);
     if (shipment && shipment.status === 'Processing') {
-      // In a real implementation, you'd call a backend API to cancel
-      // For now, we'll just update the local state
-      shipment.status = 'Cancelled';
-      this.shipments.set([...this.shipments()]);
-      console.log(`Shipment ${shipmentId} has been cancelled`);
+      this.shipmentService.cancelShipmentById(shipmentId).subscribe({
+        next: (updatedShipment: string) => {
+          console.log('Shipment cancelled successfully:', updatedShipment);
+          // Refresh the shipments list to reflect the cancellation
+          this.loadShipments();
+          this.closeDetailsOverlay();
+        },
+        error: (error) => {
+          console.error('Error cancelling shipment:', error);
+        }
+      });
     }
   }
 
