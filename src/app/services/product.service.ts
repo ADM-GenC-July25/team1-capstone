@@ -36,7 +36,7 @@ export class ProductService {
   }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -54,9 +54,9 @@ export class ProductService {
       // Server-side error
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
       if (error.status === 403) {
-        errorMessage = 'Admin access required to create products';
+        errorMessage = 'Admin or Employee access required';
       } else if (error.status === 401) {
-        errorMessage = 'Please log in to create products';
+        errorMessage = 'Please log in to manage products';
       }
     }
 
@@ -139,6 +139,28 @@ export class ProductService {
    */
   removeProductFromCategory(productId: number, categoryId: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${productId}/categories/${categoryId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Update product (Admin/Employee only)
+   */
+  updateProduct(productId: number, productData: Partial<Product>): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${productId}`, productData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Delete product (Admin/Employee only)
+   */
+  deleteProduct(productId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${productId}`, {
       headers: this.getAuthHeaders()
     }).pipe(
       catchError(this.handleError)
