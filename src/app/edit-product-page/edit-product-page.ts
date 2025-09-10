@@ -1,19 +1,19 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ThemeService } from '../services/theme.service';
-import { ProductService, CreateProductRequest } from '../services/product.service';
+import { ProductService, Product } from '../services/product.service';
 import { CategoryService, Category } from '../services/category.service';
 
 @Component({
-  selector: 'app-new-product-page',
+  selector: 'app-edit-product-page',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
-  templateUrl: './new-product-page.html',
-  styleUrl: './new-product-page.css'
+  templateUrl: './edit-product-page.html',
+  styleUrl: './edit-product-page.css'
 })
-export class NewProductPage implements OnInit {
+export class EditProductPage implements OnInit {
   productForm!: FormGroup;
   isLoading = signal(false);
   submitError = signal<string>('');
@@ -22,23 +22,35 @@ export class NewProductPage implements OnInit {
   imageError = signal<boolean>(false);
   categories: Category[] = [];
   selectedCategories: number[] = [];
+  productId!: number;
+  product: Product | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private themeService: ThemeService,
     private productService: ProductService,
     private categoryService: CategoryService
   ) { }
 
-  // Theme service integration
   get isDarkMode() {
     return this.themeService.isDarkMode;
   }
 
   ngOnInit() {
-    this.initializeForm();
+    this.productId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadProduct();
     this.loadCategories();
+  }
+
+  private loadProduct() {
+    this.product = this.productService.getProductById(this.productId) || null;
+    if (this.product) {
+      this.initializeForm();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   private loadCategories() {
@@ -48,22 +60,24 @@ export class NewProductPage implements OnInit {
       },
       error: (error) => {
         console.error('Error loading categories:', error);
-        this.submitError.set('Failed to load categories');
       }
     });
   }
 
   private initializeForm() {
+    if (!this.product) return;
+
     this.productForm = this.formBuilder.group({
-      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      inventory: ['', [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
-      price: ['', [Validators.required, Validators.min(0.01), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
-      daysToDeliver: ['', [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern(/^\d+$/)]],
-      imageLink: ['', [Validators.pattern(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i)]]
+      name: [this.product.productName, [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      inventory: [this.product.inventory, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
+      price: [this.product.price, [Validators.required, Validators.min(0.01), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      description: [this.product.description, [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
+      daysToDeliver: [this.product.daysToDeliver, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern(/^\d+$/)]],
+      imageLink: [this.product.imageLink, [Validators.pattern(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i)]]
     });
 
-    // Watch for imageLink changes to update preview
+    this.imagePreview.set(this.product.imageLink);
+
     this.productForm.get('imageLink')?.valueChanges.subscribe(url => {
       this.updateImagePreview(url);
     });
@@ -74,7 +88,6 @@ export class NewProductPage implements OnInit {
     this.imagePreview.set('');
 
     if (url && url.trim()) {
-      // Test if the image can be loaded
       const img = new Image();
       img.onload = () => {
         this.imagePreview.set(url);
@@ -94,42 +107,31 @@ export class NewProductPage implements OnInit {
       this.submitError.set('');
       this.submitSuccess.set('');
 
-      const productData: CreateProductRequest = {
+      const productData: Partial<Product> = {
         productName: this.productForm.value.name,
         inventory: parseInt(this.productForm.value.inventory),
         price: parseFloat(this.productForm.value.price),
         description: this.productForm.value.description,
         daysToDeliver: parseInt(this.productForm.value.daysToDeliver),
-        imageLink: this.productForm.value.imageLink || undefined,
-        categoryIds: this.selectedCategories.length > 0 ? this.selectedCategories : undefined
+        imageLink: this.productForm.value.imageLink || undefined
       };
 
-      console.log('Attempting to create product with token:', sessionStorage.getItem('authToken'));
-      console.log('Current user:', sessionStorage.getItem('currentUser'));
-      
-      this.productService.createProduct(productData).subscribe({
-        next: (createdProduct) => {
+      this.productService.updateProduct(this.productId, productData).subscribe({
+        next: (updatedProduct) => {
           this.isLoading.set(false);
-          this.submitSuccess.set('Product created successfully!');
-          console.log('Product created:', createdProduct);
-
-          // Refresh the products list to include the new product
+          this.submitSuccess.set('Product updated successfully!');
           this.productService.refreshProducts();
-
-          // Reset form after successful submission
+          
           setTimeout(() => {
-            this.resetForm();
-            // Optionally navigate to the product page or product list
             this.router.navigate(['/']);
           }, 2000);
         },
         error: (error) => {
           this.isLoading.set(false);
-          console.error('Full error details:', error);
-          this.submitError.set(error.message || 'Failed to create product. Please try again.');
+          this.submitError.set(error.message || 'Failed to update product. Please try again.');
+          console.error('Error updating product:', error);
         }
       });
-
     } else {
       this.markFormGroupTouched();
       this.submitError.set('Please fill in all required fields correctly.');
@@ -144,10 +146,32 @@ export class NewProductPage implements OnInit {
   }
 
   onCancel() {
-    this.router.navigate(['/']); // Navigate back to main page
+    this.router.navigate(['/']);
   }
 
-  // Helper methods for template
+  onDelete() {
+    if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+      this.isLoading.set(true);
+      this.submitError.set('');
+      
+      console.log('Attempting to delete product ID:', this.productId);
+      
+      this.productService.deleteProduct(this.productId).subscribe({
+        next: () => {
+          console.log('Product deleted successfully');
+          this.isLoading.set(false);
+          this.productService.refreshProducts();
+          this.router.navigate(['/']);
+        },
+        error: (error) => {
+          console.error('Delete error details:', error);
+          this.isLoading.set(false);
+          this.submitError.set(error.message || 'Failed to delete product. Please try again.');
+        }
+      });
+    }
+  }
+
   getFieldError(fieldName: string): string {
     const field = this.productForm.get(fieldName);
     if (field?.errors && field.touched) {
@@ -191,15 +215,5 @@ export class NewProductPage implements OnInit {
 
   isCategorySelected(categoryId: number): boolean {
     return this.selectedCategories.includes(categoryId);
-  }
-
-  // Reset selected categories when form is reset
-  resetForm() {
-    this.productForm.reset();
-    this.selectedCategories = [];
-    this.imagePreview.set('');
-    this.imageError.set(false);
-    this.submitError.set('');
-    this.submitSuccess.set('');
   }
 }

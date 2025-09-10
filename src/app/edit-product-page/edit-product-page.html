@@ -1,0 +1,157 @@
+<div class="new-product-container" [attr.data-theme]="isDarkMode() ? 'dark' : null">
+    <div class="form-header">
+        <h1 class="form-title">Edit Product</h1>
+        <p class="form-subtitle">Update product information</p>
+    </div>
+
+    <div class="form-wrapper">
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="product-form">
+
+            <!-- Image Preview Section -->
+            <div class="image-section">
+                <div class="image-preview-container">
+                    @if (imagePreview()) {
+                    <img [src]="imagePreview()" [alt]="productForm.get('name')?.value || 'Product preview'"
+                        title="Product image preview" class="image-preview">
+                    } @else {
+                    <div class="image-placeholder">
+                        <span class="placeholder-icon">📷</span>
+                        <span class="placeholder-text">Image Preview</span>
+                    </div>
+                    }
+
+                    @if (imageError()) {
+                    <div class="image-error">
+                        <span class="error-icon">⚠️</span>
+                        <span>Failed to load image</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Form Fields Section -->
+            <div class="form-fields">
+                <!-- Product Name -->
+                <div class="form-group">
+                    <label for="name" class="form-label">Product Name *</label>
+                    <input type="text" id="name" formControlName="name" class="form-input"
+                        [class.error]="isFieldInvalid('name')" placeholder="Enter product name">
+                    @if (getFieldError('name')) {
+                    <span class="error-message">{{ getFieldError('name') }}</span>
+                    }
+                </div>
+
+                <!-- Price and Inventory Row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price" class="form-label">Price ($) *</label>
+                        <input type="number" id="price" formControlName="price" class="form-input"
+                            [class.error]="isFieldInvalid('price')" placeholder="0.00" step="0.01" min="0">
+                        @if (getFieldError('price')) {
+                        <span class="error-message">{{ getFieldError('price') }}</span>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inventory" class="form-label">Inventory *</label>
+                        <input type="number" id="inventory" formControlName="inventory" class="form-input"
+                            [class.error]="isFieldInvalid('inventory')" placeholder="0" min="0">
+                        @if (getFieldError('inventory')) {
+                        <span class="error-message">{{ getFieldError('inventory') }}</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Days to Deliver -->
+                <div class="form-group">
+                    <label for="daysToDeliver" class="form-label">Days to Deliver *</label>
+                    <input type="number" id="daysToDeliver" formControlName="daysToDeliver" class="form-input"
+                        [class.error]="isFieldInvalid('daysToDeliver')" placeholder="7" min="1" max="365">
+                    @if (getFieldError('daysToDeliver')) {
+                    <span class="error-message">{{ getFieldError('daysToDeliver') }}</span>
+                    }
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="description" class="form-label">Description *</label>
+                    <textarea id="description" formControlName="description" class="form-textarea"
+                        [class.error]="isFieldInvalid('description')" placeholder="Enter product description..."
+                        rows="4"></textarea>
+                    @if (getFieldError('description')) {
+                    <span class="error-message">{{ getFieldError('description') }}</span>
+                    }
+                </div>
+
+                <!-- Image Link -->
+                <div class="form-group">
+                    <label for="imageLink" class="form-label">Image Link (Optional)</label>
+                    <input type="url" id="imageLink" formControlName="imageLink" class="form-input"
+                        [class.error]="isFieldInvalid('imageLink')" placeholder="https://example.com/image.jpg">
+                    <small class="form-hint">Enter a URL to an image (jpg, png, gif, webp)</small>
+                    @if (getFieldError('imageLink')) {
+                    <span class="error-message">{{ getFieldError('imageLink') }}</span>
+                    }
+                </div>
+
+                <!-- Categories Selection -->
+                <div class="form-group">
+                    <label class="form-label">Categories (Optional)</label>
+                    <div class="categories-container">
+                        @if (categories.length > 0) {
+                        @for (category of categories; track category.categoryId) {
+                        <label class="checkbox-label">
+                            <input type="checkbox" [checked]="isCategorySelected(category.categoryId)"
+                                (change)="onCategoryChange(category.categoryId, $any($event.target).checked)"
+                                class="checkbox-input">
+                            <span class="checkbox-text">{{ category.categoryName }}</span>
+                        </label>
+                        }
+                        } @else {
+                        <p class="no-categories">No categories available. Contact an administrator to add categories.
+                        </p>
+                        }
+                    </div>
+                    <small class="form-hint">Select one or more categories for this product</small>
+                </div>
+
+                <!-- Success/Error Messages -->
+                @if (submitError()) {
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    {{ submitError() }}
+                </div>
+                }
+
+                @if (submitSuccess()) {
+                <div class="alert alert-success">
+                    <span class="alert-icon">✅</span>
+                    {{ submitSuccess() }}
+                </div>
+                }
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" (click)="onDelete()" [disabled]="isLoading()">
+                        Delete Product
+                    </button>
+                    
+                    <div class="action-buttons-right">
+                        <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="isLoading()">
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="btn btn-primary" [disabled]="isLoading() || productForm.invalid">
+                            @if (isLoading()) {
+                            <span class="btn-spinner">⏳</span>
+                            Updating...
+                            } @else {
+                            Update Product
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

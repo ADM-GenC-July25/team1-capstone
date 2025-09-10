@@ -38,9 +38,16 @@
               <span class="inventory-count">{{ product.inventory }}</span>
             </div>
             <div class="product-price">${{ product.price }}</div>
-            <button class="add-to-cart-btn" (click)="addToCart(product.productId)">
-              Add to Cart
-            </button>
+            <div class="product-actions">
+              <button class="add-to-cart-btn" (click)="addToCart(product.productId)">
+                Add to Cart
+              </button>
+              @if (canManageProducts) {
+              <button class="edit-icon-btn" (click)="editProduct(product.productId)" title="Edit Product">
+                ✏️
+              </button>
+              }
+            </div>
           </div>
         </div>
         }

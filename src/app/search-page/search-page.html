@@ -24,9 +24,16 @@
               <span class="inventory-count" [style.color]="isDarkMode() ? 'hsla(0, 0%, 87%, 1)' : 'hsla(220, 22%, 5%, 1)'">{{ product.inventory }}</span>
             </div>
             <div class="product-price">${{ product.price }}</div>
-            <button class="add-to-cart-btn" (click)="addToCart(product.productId)">
-              Add to Cart
-            </button>
+            <div class="product-actions">
+              <button class="add-to-cart-btn" (click)="addToCart(product.productId)">
+                Add to Cart
+              </button>
+              @if (canManageProducts) {
+              <button class="edit-icon-btn" (click)="editProduct(product.productId)" title="Edit Product">
+                ✏️
+              </button>
+              }
+            </div>
           </div>
         </div>
       }

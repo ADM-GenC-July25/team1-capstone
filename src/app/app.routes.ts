@@ -11,6 +11,7 @@ import { SearchedItems } from './searched-items/searched-items';
 import { ShipmentTrackingComponent } from './shipment-tracking/shipment-tracking';
 import { ProductPage } from './product-page/product-page';
 import { NewProductPage } from './new-product-page/new-product-page';
+import { EditProductPage } from './edit-product-page/edit-product-page';
 import { Checkout } from './checkout/checkout';
 
 export const routes: Routes = [
@@ -57,6 +58,11 @@ export const routes: Routes = [
     {
         path: 'new-product',
         component: NewProductPage,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'edit-product/:id',
+        component: EditProductPage,
         canActivate: [AuthGuard]
     },
     {
