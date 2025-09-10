@@ -60,7 +60,7 @@ export class NewProductPage implements OnInit {
       price: ['', [Validators.required, Validators.min(0.01), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
       daysToDeliver: ['', [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern(/^\d+$/)]],
-      imageLink: ['', [Validators.pattern(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i)]]
+      imageLink: ['', [Validators.pattern(/^https?:\/\/.+/)]]
     });
 
     // Watch for imageLink changes to update preview
