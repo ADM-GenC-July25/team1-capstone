@@ -91,6 +91,9 @@ getUserRole(): string | null {
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('currentUser', JSON.stringify(authUser));
         sessionStorage.setItem('authToken', loginResponse.token);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('currentUser', JSON.stringify(authUser));
+        localStorage.setItem('authToken', loginResponse.token);
 
         console.log('Login successful:', authUser);
     }

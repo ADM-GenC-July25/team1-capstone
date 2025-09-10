@@ -47,7 +47,7 @@ export class CartService {
 
     private getAuthHeaders(): HttpHeaders {
         // Check both session storage and local storage for the token
-        const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+        const token = localStorage.getItem('authToken') || localStorage.getItem('authToken');
         console.log('DEBUG: Auth token found:', token ? 'Yes' : 'No');
         return new HttpHeaders({
             'Authorization': `Bearer ${token}`,
