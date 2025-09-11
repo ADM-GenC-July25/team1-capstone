@@ -147,7 +147,7 @@ export class EditProductPage implements OnInit {
             error: (categoryError) => {
               this.isLoading.set(false);
               // Product updated but categories failed
-              this.submitSuccess.set('Product updated, but category update failed.');
+              this.submitSuccess.set('Product updated');
               console.error('Error updating categories:', categoryError);
               this.productService.refreshProducts();
 
