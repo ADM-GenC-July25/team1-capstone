@@ -42,6 +42,7 @@ export class EditProductPage implements OnInit {
     this.productId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadProduct();
     this.loadCategories();
+    this.loadProductCategories();
   }
 
   private loadProduct() {
@@ -60,6 +61,19 @@ export class EditProductPage implements OnInit {
       },
       error: (error) => {
         console.error('Error loading categories:', error);
+      }
+    });
+  }
+
+  private loadProductCategories() {
+    this.productService.getCategoriesForProduct(this.productId).subscribe({
+      next: (categories) => {
+        this.selectedCategories = categories.map(cat => cat.categoryId);
+      },
+      error: (error) => {
+        console.error('Error loading product categories:', error);
+        // Not critical, continue with empty selection
+        this.selectedCategories = [];
       }
     });
   }
@@ -116,15 +130,32 @@ export class EditProductPage implements OnInit {
         imageLink: this.productForm.value.imageLink || undefined
       };
 
+      // Update product first
       this.productService.updateProduct(this.productId, productData).subscribe({
         next: (updatedProduct) => {
-          this.isLoading.set(false);
-          this.submitSuccess.set('Product updated successfully!');
-          this.productService.refreshProducts();
-          
-          setTimeout(() => {
-            this.router.navigate(['/']);
-          }, 2000);
+          // Then update categories
+          this.productService.updateProductCategories(this.productId, this.selectedCategories).subscribe({
+            next: () => {
+              this.isLoading.set(false);
+              this.submitSuccess.set('Product updated successfully!');
+              this.productService.refreshProducts();
+
+              setTimeout(() => {
+                this.router.navigate(['/']);
+              }, 2000);
+            },
+            error: (categoryError) => {
+              this.isLoading.set(false);
+              // Product updated but categories failed
+              this.submitSuccess.set('Product updated, but category update failed.');
+              console.error('Error updating categories:', categoryError);
+              this.productService.refreshProducts();
+
+              setTimeout(() => {
+                this.router.navigate(['/']);
+              }, 2000);
+            }
+          });
         },
         error: (error) => {
           this.isLoading.set(false);
@@ -153,9 +184,9 @@ export class EditProductPage implements OnInit {
     if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
       this.isLoading.set(true);
       this.submitError.set('');
-      
+
       console.log('Attempting to delete product ID:', this.productId);
-      
+
       this.productService.deleteProduct(this.productId).subscribe({
         next: () => {
           console.log('Product deleted successfully');

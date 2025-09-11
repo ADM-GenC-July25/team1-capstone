@@ -27,7 +27,8 @@ export interface CreateProductRequest {
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/products';
+  private apiUrl = 'http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/products';
+  private categoryUrl = 'http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/categories';
   private productsSubject = new BehaviorSubject<Product[]>([]);
   public products$ = this.productsSubject.asObservable();
 
@@ -127,7 +128,7 @@ export class ProductService {
    * Add product to category (Admin only)
    */
   addProductToCategory(productId: number, categoryId: number): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${productId}/categories/${categoryId}`, {}, {
+    return this.http.post<any>(`${this.categoryUrl}/${categoryId}/products/${productId}`, {}, {
       headers: this.getAuthHeaders()
     }).pipe(
       catchError(this.handleError)
@@ -138,7 +139,7 @@ export class ProductService {
    * Remove product from category (Admin only)
    */
   removeProductFromCategory(productId: number, categoryId: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${productId}/categories/${categoryId}`, {
+    return this.http.delete<any>(`${this.categoryUrl}/${categoryId}/products/${productId}`, {
       headers: this.getAuthHeaders()
     }).pipe(
       catchError(this.handleError)
@@ -150,6 +151,26 @@ export class ProductService {
    */
   updateProduct(productId: number, productData: Partial<Product>): Observable<Product> {
     return this.http.put<Product>(`${this.apiUrl}/${productId}`, productData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Get categories for a specific product
+   */
+  getCategoriesForProduct(productId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${productId}/categories`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Update product categories (Admin only)
+   */
+  updateProductCategories(productId: number, categoryIds: number[]): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${productId}/categories`, { categoryIds }, {
       headers: this.getAuthHeaders()
     }).pipe(
       catchError(this.handleError)

@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { CartService, CartItem } from './cart.service';
+
+export interface CheckoutItem {
+    productId: number;
+    quantity: number;
+    price: number;
+}
 
 export interface OrderRequest {
-    // The backend expects the order to be created from cart items
-    // No additional data needed as cart items are already in the backend
-    // But we can optionally include shipping information for completeness
+    userId: number;
+    items: CheckoutItem[];
 }
 
 export interface OrderResponse {
@@ -20,9 +26,45 @@ export interface OrderResponse {
     providedIn: 'root'
 })
 export class OrderService {
-    private apiUrl = 'http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com';
+    private apiUrl = 'http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com';
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private cartService: CartService) { }
+
+    /**
+     * Get user ID from JWT token
+     */
+    private getUserIdFromToken(): number | null {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            return null;
+        }
+
+        try {
+            // JWT tokens have 3 parts separated by dots: header.payload.signature
+            const payload = token.split('.')[1];
+
+            // Decode base64 payload
+            const decodedPayload = atob(payload);
+            const parsedPayload = JSON.parse(decodedPayload);
+
+            // Extract user ID (common claims: 'sub', 'userId', 'id', 'user_id')
+            return parsedPayload.userId || null;
+        } catch (error) {
+            console.error('Error decoding JWT token:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Convert cart items to checkout items format
+     */
+    private convertCartItemsToCheckoutItems(cartItems: CartItem[]): CheckoutItem[] {
+        return cartItems.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price
+        }));
+    }
 
     /**
      * Get authentication headers with JWT token
@@ -40,18 +82,42 @@ export class OrderService {
 
     /**
      * Places an order by calling the backend checkout endpoint
-     * The backend will create the order from existing cart items,
-     * check inventory, update stock, and clear the cart
+     * First fetches cart items, then sends them to the checkout endpoint
      */
     placeOrder(): Observable<OrderResponse> {
-        const headers = this.getAuthHeaders();
-        console.log('Placing order with headers:', headers);
-        console.log('Making request to:', `${this.apiUrl}/api/transactions/checkout`);
+        const userId = this.getUserIdFromToken();
+        if (!userId) {
+            return throwError(() => new Error('No authentication token found. Please log in and try again.'));
+        }
 
-        return this.http.post<OrderResponse>(`${this.apiUrl}/api/transactions/checkout`, {}, { headers })
-            .pipe(
-                catchError(this.handleError)
-            );
+        console.log('Starting order placement for user:', userId);
+
+        // First, get cart items from the cart service
+        return this.cartService.getCartItems().pipe(
+            map(cartItems => {
+                console.log('Cart items retrieved:', cartItems);
+
+                if (!cartItems || cartItems.length === 0) {
+                    throw new Error('Your cart is empty. Please add items before placing an order.');
+                }
+
+                // Convert cart items to checkout format
+                const checkoutItems = this.convertCartItemsToCheckoutItems(cartItems);
+                console.log('Checkout items prepared:', checkoutItems);
+
+                return {
+                    userId: userId,
+                    items: checkoutItems
+                } as OrderRequest;
+            }),
+            switchMap(orderRequest => {
+                console.log('Sending checkout request:', orderRequest);
+                const headers = this.getAuthHeaders();
+
+                return this.http.post<OrderResponse>(`${this.apiUrl}/api/transactions/checkout`, orderRequest, { headers });
+            }),
+            catchError(this.handleError)
+        );
     }
 
     /**

@@ -3,22 +3,11 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { CartService } from '../services/cart.service';
+import { CartService, CartItem } from '../services/cart.service';
 import { ThemeService } from '../services/theme.service';
 import { UserService } from '../services/user.service';
 import { PaymentMethodService } from '../services/payment-method.service';
 import { OrderService } from '../services/order.service';
-
-interface CartItem {
-  id: number; // cartId from backend
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  rating: number;
-  productId: number;
-  inventory: number; // product inventory
-}
 
 interface SavedAddress {
   id: number;

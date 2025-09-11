@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-interface UserProfile {
+export interface UserProfile {
   userId: number;
   firstName: string;
   lastName: string;
@@ -20,11 +20,34 @@ interface UserProfile {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com';
+  private apiUrl = 'http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('authToken');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
 
   getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${this.apiUrl}/auth/profile`);
+    return this.http.get<UserProfile>(`${this.apiUrl}/api/user/profile`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  getDeliveryAddress(): Observable<string> {
+    return new Observable(observer => {
+      this.getUserProfile().subscribe({
+        next: (profile) => {
+          const address = `${profile.addressLineOne}${profile.addressLineTwo ? ', ' + profile.addressLineTwo : ''}, ${profile.city}, ${profile.state} ${profile.zipCode}, ${profile.country}`;
+          observer.next(address);
+          observer.complete();
+        },
+        error: (error) => observer.error(error)
+      });
+    });
   }
 }

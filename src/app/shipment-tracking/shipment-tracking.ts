@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ThemeService } from '../services/theme.service';
 import { ShipmentService, ShipmentTracking } from '../services/shipment.service';
+import { UserService } from '../services/user.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-shipment-tracking',
@@ -23,13 +25,32 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
   shipments = signal<ShipmentTracking[]>([]);
   isLoading = signal(false);
   error = signal<string>('');
+  userAddress = signal<string>('');
 
-  constructor(private themeService: ThemeService, private shipmentService: ShipmentService) {
+  constructor(
+    private themeService: ThemeService,
+    private shipmentService: ShipmentService,
+    private userService: UserService
+  ) {
     // Initialize any necessary data or services here
   }
 
   ngOnInit() {
+    this.loadUserAddress();
     this.loadShipments();
+  }
+
+  // Load user delivery address
+  loadUserAddress() {
+    this.userService.getDeliveryAddress().subscribe({
+      next: (address) => {
+        this.userAddress.set(address);
+      },
+      error: (error) => {
+        console.error('Error loading user address:', error);
+        this.userAddress.set('Address not available');
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -43,8 +64,47 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
 
     this.shipmentService.getUserShipments().subscribe({
       next: (shipments) => {
-        this.shipments.set(shipments);
-        this.isLoading.set(false);
+        // For each shipment, get the transaction details to calculate delivery date
+        const shipmentRequests = shipments.map(shipment =>
+          this.shipmentService.getTransactionDetails(shipment.transactionId)
+        );
+
+        forkJoin(shipmentRequests).subscribe({
+          next: (transactionDetails) => {
+            // Merge shipment data with transaction details
+            const enhancedShipments = shipments.map((shipment, index) => {
+              const details = transactionDetails[index];
+              const enhanced = {
+                ...shipment,
+                deliveryAddress: this.userAddress(),
+                estimatedDelivery: this.calculateDeliveryDate(shipment.transactionDate, details?.items || [])
+              };
+              // Calculate and set the status
+              enhanced.status = this.getDisplayStatus(enhanced);
+              console.log('Enhanced shipment:', enhanced);
+              return enhanced;
+            });
+            this.shipments.set(enhancedShipments);
+            this.isLoading.set(false);
+          },
+          error: (error) => {
+            console.error('Error loading transaction details:', error);
+            // Fallback: use shipments without detailed delivery calculation
+            const fallbackShipments = shipments.map(shipment => {
+              const fallback = {
+                ...shipment,
+                deliveryAddress: this.userAddress(),
+                estimatedDelivery: this.getEstimatedDelivery(shipment)
+              };
+              // Calculate and set the status for fallback too
+              fallback.status = this.getDisplayStatus(fallback);
+              console.log('Fallback shipment:', fallback);
+              return fallback;
+            });
+            this.shipments.set(fallbackShipments);
+            this.isLoading.set(false);
+          }
+        });
       },
       error: (error) => {
         this.error.set('Failed to load shipments. Please try again.');
@@ -93,13 +153,17 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
   }
 
   canCancelShipment(shipment: ShipmentTracking): boolean {
-    return shipment.status === 'Processing';
+    // Since we don't have status from backend yet, assume newer orders can be cancelled
+    const orderDate = new Date(shipment.transactionDate);
+    const now = new Date();
+    const hoursSinceOrder = (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60);
+    return hoursSinceOrder < 24; // Can cancel within 24 hours
   }
 
   cancelShipment(shipmentId: number) {
-    // Logic to cancel a shipment (only if status is 'Processing')
+    // Logic to cancel a shipment
     const shipment = this.shipments().find(s => s.transactionId === shipmentId);
-    if (shipment && shipment.status === 'Processing') {
+    if (shipment && this.canCancelShipment(shipment)) {
       this.shipmentService.cancelShipmentById(shipmentId).subscribe({
         next: (updatedShipment: string) => {
           console.log('Shipment cancelled successfully:', updatedShipment);
@@ -116,17 +180,56 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
 
   // Helper methods for status styling
   getStatusClass(status: string): string {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'processing': return 'status-processing';
       case 'in transit': return 'status-in-transit';
       case 'delivered': return 'status-delivered';
       case 'cancelled': return 'status-cancelled';
-      default: return 'status-default';
+      default: return 'status-processing'; // Default to processing for orders
     }
+  }
+
+  // Get display status for orders without status
+  getDisplayStatus(shipment: ShipmentTracking): string {
+    if (shipment.status) {
+      return shipment.status;
+    }
+
+    // Calculate status based on order age and delivery date
+    const orderDate = new Date(shipment.transactionDate);
+    const now = new Date();
+    const hoursSinceOrder = (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60);
+
+    // Get the estimated delivery date
+    const estimatedDeliveryDate = new Date(shipment.estimatedDelivery || this.getEstimatedDelivery(shipment));
+
+    // Debug logging
+    console.log('Status calculation for shipment:', shipment.transactionId);
+    console.log('Order date:', orderDate);
+    console.log('Current time:', now);
+    console.log('Hours since order:', hoursSinceOrder);
+    console.log('Estimated delivery:', estimatedDeliveryDate);
+
+    // If the estimated delivery date has passed, mark as delivered
+    if (now >= estimatedDeliveryDate) {
+      console.log('Status: Delivered');
+      return 'Delivered';
+    }
+
+    // If the order was placed in the last 24 hours, it's still processing
+    if (hoursSinceOrder < 24) {
+      console.log('Status: Processing');
+      return 'Processing';
+    }
+
+    // If it's been more than a day but delivery date hasn't passed, it's in transit
+    console.log('Status: In Transit');
+    return 'In Transit';
   }
 
   // Helper method to format dates
   formatDate(dateString: string): string {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -137,5 +240,64 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Get tracking number or generate one
+  getTrackingNumber(shipment: ShipmentTracking): string {
+    return shipment.trackingNumber || `TRK${shipment.transactionId.toString().padStart(8, '0')}`;
+  }
 
+  // Get estimated delivery date
+  getEstimatedDelivery(shipment: ShipmentTracking): string {
+    if (shipment.estimatedDelivery) {
+      return shipment.estimatedDelivery;
+    }
+    // Generate estimated delivery (5 business days from order)
+    const orderDate = new Date(shipment.transactionDate);
+    const deliveryDate = new Date(orderDate);
+    deliveryDate.setDate(deliveryDate.getDate() + 5);
+    return deliveryDate.toISOString();
+  }
+
+  // Calculate delivery date based on the longest delivery time from order items
+  calculateDeliveryDate(transactionDate: string, items: any[]): string {
+    if (!items || items.length === 0) {
+      // Fallback to default 5 days if no items
+      const orderDate = new Date(transactionDate);
+      const deliveryDate = new Date(orderDate);
+      deliveryDate.setDate(deliveryDate.getDate() + 5);
+      return deliveryDate.toISOString();
+    }
+
+    // Find the maximum delivery days from all items
+    const maxDeliveryDays = Math.max(...items.map(item => item.daysToDeliver || 5));
+
+    // Add the maximum delivery days to the transaction date
+    const orderDate = new Date(transactionDate);
+    const deliveryDate = new Date(orderDate);
+    deliveryDate.setDate(deliveryDate.getDate() + maxDeliveryDays);
+
+    return deliveryDate.toISOString();
+  }
+
+  // Get delivery address from user profile
+  getDeliveryAddress(): string {
+    return this.userAddress() || 'Address not available';
+  }
+
+  // Get formatted delivery address for a specific shipment
+  getShipmentDeliveryAddress(shipment: ShipmentTracking): string {
+    return shipment.deliveryAddress || this.getDeliveryAddress();
+  }
+
+  // Get formatted estimated delivery date for display
+  getFormattedEstimatedDelivery(shipment: ShipmentTracking): string {
+    const deliveryDate = shipment.estimatedDelivery || this.getEstimatedDelivery(shipment);
+    return this.formatDate(deliveryDate);
+  }
+
+  // Check if shipment has been delivered based on estimated delivery date
+  isDelivered(shipment: ShipmentTracking): boolean {
+    const estimatedDelivery = new Date(shipment.estimatedDelivery || this.getEstimatedDelivery(shipment));
+    const now = new Date();
+    return now >= estimatedDelivery;
+  }
 }
