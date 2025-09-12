@@ -68,6 +68,13 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
 
     this.shipmentService.getUserShipments().subscribe({
       next: (shipments) => {
+        // Handle empty shipments array immediately
+        if (shipments.length === 0) {
+          this.shipments.set([]);
+          this.isLoading.set(false);
+          return;
+        }
+
         // For each shipment, get the transaction details to calculate delivery date
         const shipmentRequests = shipments.map(shipment =>
           this.shipmentService.getTransactionItems(shipment.transactionId)

@@ -79,7 +79,7 @@
                 </table>
             </div>
 
-            @if (shipments().length === 0) {
+            @if (shipments().length == 0 || shipments() == null) {
             <div class="empty-state">
                 <div class="empty-icon">📦</div>
                 <h3>No shipments found</h3>
