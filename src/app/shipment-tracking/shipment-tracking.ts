@@ -148,7 +148,6 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
     // Find the shipment and get full details with items
     const shipment = this.shipments().find(s => s.transactionId === shipmentId);
     if (shipment) {
-      this.isLoading.set(true);
 
       // Get the transaction items (products)
       this.shipmentService.getTransactionItems(shipmentId).subscribe({
