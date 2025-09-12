@@ -114,7 +114,7 @@ export class ShipmentService {
      * Cancel shipment by transaction ID
      */
     cancelShipmentById(transactionId: number): Observable<string> {
-        return this.http.delete<string>(`${this.baseApiUrl}/${transactionId}`, {
+        return this.http.delete<string>(`${this.baseApiUrl}/admin/${transactionId}`, {
             headers: this.getAuthHeaders(),
             responseType: 'text' as 'json'  // Tell Angular to expect text, not JSON
         }).pipe(
