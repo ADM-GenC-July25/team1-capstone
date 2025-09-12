@@ -107,7 +107,7 @@ export class Register implements OnInit {
             lastName: this.Person.get('lastName')?.value || '',
             phoneNumber: this.Person.get('phone')?.value || '',
             addressLineOne: this.Person.get('shippingAddress')?.get('addressLine1')?.value || '',
-            addressLine2: this.Person.get('shippingAddress')?.get('addressLine2')?.value || '',
+            addressLineTwo: this.Person.get('shippingAddress')?.get('addressLine2')?.value || '',
             city: this.Person.get('shippingAddress')?.get('city')?.value || '',
             state: this.Person.get('shippingAddress')?.get('state')?.value || '',
             zipCode: this.Person.get('shippingAddress')?.get('postalCode')?.value || '',
@@ -118,7 +118,7 @@ export class Register implements OnInit {
 
         // Send login request to backend
         
-          this.http.post<any>('http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/register', registrationData, { observe: 'response' })
+          this.http.post<any>('http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/register', registrationData, { observe: 'response' })
           .subscribe({
 
             next: (response:HttpResponse<any>) => {
@@ -129,7 +129,7 @@ export class Register implements OnInit {
                 this.isLoading.set(false);
 
                 // Handle successful login
-                if (response && (response.status == 201)) {
+                if (response && (response.status == 200 || response.status == 201)) {
                     // Store authentication token if provided
                     this.router.navigate(['/login'])
                 } else {
