@@ -58,8 +58,9 @@ export class ManageUser implements OnInit {
     }).subscribe({
       next: (users) => {
         console.log(users);
+        let arr: AuthUser[] = [];
         users.forEach(element => {
-          let tmp: AuthUser = {
+          arr.push({
             id: element['userId'],
             email: element['email'],
             firstName: element['firstName'],
@@ -68,10 +69,9 @@ export class ManageUser implements OnInit {
             roles: [String(element['accessLevel']).toLowerCase()],
             token: '',
             permissions: []
-          };
-          this.users.set([...this.users(), tmp]);
+          });
         });
-        console.log(this.users());
+        this.users.set(arr);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -155,7 +155,7 @@ export class ManageUser implements OnInit {
   deleteUser(userId: string) {
     if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       this.isLoading.set(true);
-      this.http.delete(`http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/users/${userId}`, {
+      this.http.get(`http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/users/delete/${userId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
@@ -190,26 +190,6 @@ export class ManageUser implements OnInit {
         this.errorMessage.set('Failed to update user role. Please try again.');
         this.isLoading.set(false);
         console.error('Error updating user role:', error);
-      }
-    });
-  }
-
-  toggleUserStatus(userId: string, isActive: boolean) {
-    this.isLoading.set(true);
-    this.http.put(`http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/users/${userId}/status`, { isActive }, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      }
-    }).subscribe({
-      next: () => {
-        this.successMessage.set(`User ${isActive ? 'activated' : 'deactivated'} successfully!`);
-        this.loadUsers();
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        this.errorMessage.set('Failed to update user status. Please try again.');
-        this.isLoading.set(false);
-        console.error('Error updating user status:', error);
       }
     });
   }

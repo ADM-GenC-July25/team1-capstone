@@ -198,6 +198,80 @@ label {
     gap: 0.5rem;
 }
 
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--background-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    z-index: 1001;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.close-button:hover {
+    color: var(--danger-color);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.btn-secondary {
+    background-color: var(--disabled-color);
+    color: var(--text-color);
+}
+
 /* Dark mode specific styles */
 [data-theme='dark'] {
     --background-color: hsla(220, 22%, 22%, 1);
@@ -212,6 +286,7 @@ label {
     --disabled-color: #666666;
     --success-background: rgba(76, 175, 80, 0.1);
     --primary-color-dark: #3672b4;
+    --modal-backdrop: rgba(0, 0, 0, 0.7);
 }
 
 /* Light mode styles */
@@ -228,4 +303,5 @@ label {
     --disabled-color: #cccccc;
     --success-background: rgba(40, 167, 69, 0.1);
     --primary-color-dark: #357abd;
+    --modal-backdrop: rgba(0, 0, 0, 0.5);
 }
