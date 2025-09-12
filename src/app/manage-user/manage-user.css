@@ -19,7 +19,7 @@
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 h2 {
@@ -200,11 +200,11 @@ label {
 
 /* Dark mode specific styles */
 [data-theme='dark'] {
-    --background-color: #1a1a1a;
+    --background-color: hsla(220, 22%, 22%, 1);
     --text-color: #ffffff;
     --border-color: #333333;
-    --input-background: #2d2d2d;
-    --table-header-background: #2d2d2d;
+    --input-background: hsla(220, 22%, 29%, 1);
+    --table-header-background: hsla(220, 22%, 25%, 1);
     --hover-background: #333333;
     --primary-color: #4a90e2;
     --danger-color: #e25c5c;
