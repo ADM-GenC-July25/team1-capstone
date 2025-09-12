@@ -16,6 +16,27 @@ export class AuthService {
     get user() {
         return this.currentUser.asReadonly();
     }
+       hasRole(role: string): boolean {
+  const user = this.currentUser();
+  return user?.roles.includes(role) || false;
+}
+
+isAdmin(): boolean {
+  return this.hasRole('admin') || this.hasRole('ADMIN');
+}
+
+isEmployee(): boolean {
+  return this.hasRole('employee') || this.hasRole('EMPLOYEE');
+}
+
+isUser(): boolean {
+  return this.hasRole('user') || this.hasRole('customer');
+}
+
+getUserRole(): string | null {
+  const user = this.currentUser();
+  return user?.roles[0] || null;
+}
 
     // Computed signal for user's display name (username)
     get userDisplayName() {
@@ -70,6 +91,9 @@ export class AuthService {
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('currentUser', JSON.stringify(authUser));
         sessionStorage.setItem('authToken', loginResponse.token);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('currentUser', JSON.stringify(authUser));
+        localStorage.setItem('authToken', loginResponse.token);
 
         console.log('Login successful:', authUser);
     }

@@ -9,10 +9,10 @@
     <div class="container">
       <h2 class="section-title">Shop by Category</h2>
       <div class="categories-grid">
-        @for (category of categories(); track category) {
-        <div class="category-card" (click)="categoryClicked(category)">
-          <div class="category-icon">📦</div>
-          <h3>{{ category }}</h3>
+        @for (category of categories(); track category.name) {
+        <div class="category-card" (click)="categoryClicked(category.name)">
+          <div class="category-icon">{{ category.picture }}</div>
+          <h3>{{ category.name }}</h3>
         </div>
         }
       </div>
@@ -33,14 +33,21 @@
             <h3 class="product-name">
               <a [routerLink]="['/product', product.productId]" class="product-link" [style.color]="isDarkMode() ? 'white' : 'black'">{{ product.productName }}</a>
             </h3>
-            <div class="product-rating">
-              <span class="stars">⭐⭐⭐⭐⭐</span>
-              <span class="rating-text">(4.5)</span>
+            <div class="product-inventory">
+              <span class="inventory-label">In Stock:</span>
+              <span class="inventory-count">{{ product.inventory }}</span>
             </div>
             <div class="product-price">${{ product.price }}</div>
-            <button class="add-to-cart-btn" (click)="addToCart(product.productId)">
-              Add to Cart
-            </button>
+            <div class="product-actions">
+              <button class="add-to-cart-btn" (click)="addToCart(product.productId)">
+                Add to Cart
+              </button>
+              @if (canManageProducts) {
+              <button class="edit-icon-btn" (click)="editProduct(product.productId)" title="Edit Product">
+                ✏️
+              </button>
+              }
+            </div>
           </div>
         </div>
         }

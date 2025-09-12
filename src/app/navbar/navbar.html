@@ -2,7 +2,7 @@
     <div class="nav-container">
         <!-- Logo with dynamic image switching -->
         <div class="nav-logo" [routerLink]="['/']">
-            <img [src]="logoPath" [alt]="title()" class="logo-image">
+            <img [src]="logoPath" alt="ByteBazaar" class="logo-image">
         </div>
 
         <!-- Search Bar -->
@@ -26,19 +26,27 @@
 
             <a href="#" class="nav-link">Home</a>
             <div class="dropdown">
-                <a href="#" class="nav-link">Dropdown</a>
+                <a href="#" class="nav-link">Categories</a>
                 <div class="dropdown-content">
                     <a [routerLink]="['/search']" [queryParams]="{category: 'Electronics'}">Electronics</a>
-                    <a [routerLink]="['/search']" [queryParams]="{category: 'Clothing'}">Clothing</a>
-                    <a [routerLink]="['/search']" [queryParams]="{category: 'Home & Garden'}">Home & Garden</a>
+                    <a [routerLink]="['/search']" [queryParams]="{category: 'Accessory'}">Accessory</a>
+                    <a [routerLink]="['/search']" [queryParams]="{category: 'Smart Home'}">Smart Home</a>
                     <a [routerLink]="['/search']" [queryParams]="{category: 'Sports'}">Sports</a>
-                    <a [routerLink]="['/search']" [queryParams]="{category: 'Books'}">Books</a>
-                    <a [routerLink]="['/search']" [queryParams]="{category: 'Beauty'}">Beauty</a>
+                    <a [routerLink]="['/search']" [queryParams]="{category: 'TV & Home Theater'}">TV & Home Theater</a>
                 </div>
             </div>
             <a href="#" class="nav-link" [routerLink]="['/manage-user']">Users</a>
+            <a [routerLink]="['/shipments']" class="nav-link">Shipments</a>
+            @if (canManageProducts) {
+            <a [routerLink]="['/new-product']" class="nav-link">Add Product</a>
+            }
             <a href="#" class="nav-link" (click)="scrollToFooter(); $event.preventDefault();">Contact</a>
-            <button class="cart-btn" (click)="onCartClick()">🛒 Cart</button>
+            <button class="cart-btn" (click)="onCartClick()">
+                🛒 Cart
+                @if (cartService.itemCount > 0) {
+                <span class="cart-count">{{ cartService.itemCount }}</span>
+                }
+            </button>
             <button class="logout-btn" (click)="onLogout()">Logout</button>
         </div>
     </div>

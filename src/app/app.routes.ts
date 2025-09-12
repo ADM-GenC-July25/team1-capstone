@@ -8,10 +8,16 @@ import { CartComponent } from './cart/cart';
 import { UserProfile } from './user-profile/user-profile';
 import { Register } from './register/register';
 import { SearchedItems } from './searched-items/searched-items';
-import { ShipmentTracking } from './shipment-tracking/shipment-tracking';
+import { ShipmentTrackingComponent } from './shipment-tracking/shipment-tracking';
 import { ProductPage } from './product-page/product-page';
 import { NewProductPage } from './new-product-page/new-product-page';
 import { ManageUser } from './manage-user/manage-user';
+import { EditProductPage } from './edit-product-page/edit-product-page';
+import { Checkout } from './checkout/checkout';
+import { AboutComponent } from './about/about';
+import { CustomerServiceComponent } from './customer-service/customer-service';
+import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy';
+import { TermsOfServiceComponent } from './terms-of-service/terms-of-service';
 
 export const routes: Routes = [
     {
@@ -46,7 +52,7 @@ export const routes: Routes = [
     },
     {
         path: 'shipments',
-        component: ShipmentTracking,
+        component: ShipmentTrackingComponent,
         canActivate: [AuthGuard]
     },
     {
@@ -62,6 +68,36 @@ export const routes: Routes = [
     {
         path: 'manage-user',
         component: ManageUser,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'edit-product/:id',
+        component: EditProductPage,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'checkout',
+        component: Checkout,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'about',
+        component: AboutComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'customer-service',
+        component: CustomerServiceComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'privacy-policy',
+        component: PrivacyPolicyComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'terms-of-service',
+        component: TermsOfServiceComponent,
         canActivate: [AuthGuard]
     },
     { path: '**', redirectTo: '' }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export interface Product {
   productId: number;
@@ -12,16 +13,55 @@ export interface Product {
   daysToDeliver: number;
 }
 
+export interface CreateProductRequest {
+  productName: string;
+  inventory: number;
+  price: number;
+  imageLink?: string;
+  description: string;
+  daysToDeliver: number;
+  categoryIds?: number[]; // Optional array of category IDs
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/products';
+  private apiUrl = 'http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/products';
+  private categoryUrl = 'http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/categories';
   private productsSubject = new BehaviorSubject<Product[]>([]);
   public products$ = this.productsSubject.asObservable();
 
   constructor(private http: HttpClient) {
     this.loadProducts();
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+
+  private handleError(error: any): Observable<never> {
+    console.error('Product service error:', error);
+    let errorMessage = 'An unknown error occurred';
+
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      if (error.status === 403) {
+        errorMessage = 'Admin or Employee access required';
+      } else if (error.status === 401) {
+        errorMessage = 'Please log in to manage products';
+      }
+    }
+
+    return throwError(() => new Error(errorMessage));
   }
 
   private loadProducts(): void {
@@ -53,5 +93,98 @@ export class ProductService {
 
   refreshProducts(): void {
     this.loadProducts();
+  }
+
+  /**
+   * Create a new product (Admin only)
+   */
+  createProduct(productData: CreateProductRequest): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, productData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Get products by category ID
+   */
+  getProductsByCategory(categoryId: number): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/category/${categoryId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Get products by category name
+   */
+  getProductsByCategoryName(categoryName: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/category/name/${categoryName}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Add product to category (Admin only)
+   */
+  addProductToCategory(productId: number, categoryId: number): Observable<any> {
+    return this.http.post<any>(`${this.categoryUrl}/${categoryId}/products/${productId}`, {}, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Remove product from category (Admin only)
+   */
+  removeProductFromCategory(productId: number, categoryId: number): Observable<any> {
+    return this.http.delete<any>(`${this.categoryUrl}/${categoryId}/products/${productId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Update product (Admin/Employee only)
+   */
+  updateProduct(productId: number, productData: Partial<Product>): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${productId}`, productData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Get categories for a specific product
+   */
+  getCategoriesForProduct(productId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${productId}/categories`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Update product categories (Admin only)
+   */
+  updateProductCategories(productId: number, categoryIds: number[]): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${productId}/categories`, { categoryIds }, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Delete product (Admin/Employee only)
+   */
+  deleteProduct(productId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${productId}`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 }

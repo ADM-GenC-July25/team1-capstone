@@ -52,6 +52,9 @@ body,.app-container{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
 .product-info{padding:1.5rem}
 .product-name{font-size:1.25rem;font-weight:600;color:#1f2937;margin-bottom:.5rem}
 .product-rating{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
+.product-inventory{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
+.inventory-label{color:hsla(0, 0%, 30%, 1);font-size:.9rem;font-weight:500}
+.inventory-count{color:hsla(0, 0%, 20%, 1);font-weight:600;font-size:.9rem}
 .stars{color:#fbbf24}
 .rating-text{color:#6b7280;font-size:.9rem}
 .product-price{font-size:1.5rem;font-weight:bold;color:#059669;margin-bottom:1rem}
@@ -97,6 +100,8 @@ body,.app-container{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
 [data-theme="dark"] .theme-toggle{background:#6366f1}
 [data-theme="dark"] .theme-toggle:hover{background:#5b56e8}
 [data-theme="dark"] .product-rating .rating-text{color:#d6d6d6}
+[data-theme="dark"] .inventory-label{color:hsla(0, 0%, 70%, 1)}
+[data-theme="dark"] .inventory-count{color:hsla(0, 0%, 85%, 1)}
 
 /* Additional */
 .theme-toggle-floating{position:fixed;right:2rem;bottom:2rem;z-index:2000;background:#6366f1;color:#fff;border:none;border-radius:2rem;padding:.75rem 1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.15);cursor:pointer;display:flex;align-items:center;gap:.5rem;font-size:1rem;transition:background .2s}

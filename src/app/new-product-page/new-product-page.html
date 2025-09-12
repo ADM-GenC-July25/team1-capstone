@@ -12,7 +12,7 @@
                 <div class="image-preview-container">
                     @if (imagePreview()) {
                     <img [src]="imagePreview()" [alt]="productForm.get('name')?.value || 'Product preview'"
-                        class="image-preview">
+                        title="Product image preview" class="image-preview">
                     } @else {
                     <div class="image-placeholder">
                         <span class="placeholder-icon">📷</span>
@@ -92,6 +92,27 @@
                     @if (getFieldError('imageLink')) {
                     <span class="error-message">{{ getFieldError('imageLink') }}</span>
                     }
+                </div>
+
+                <!-- Categories Selection -->
+                <div class="form-group">
+                    <label class="form-label">Categories (Optional)</label>
+                    <div class="categories-container">
+                        @if (categories.length > 0) {
+                        @for (category of categories; track category.categoryId) {
+                        <label class="checkbox-label">
+                            <input type="checkbox" [checked]="isCategorySelected(category.categoryId)"
+                                (change)="onCategoryChange(category.categoryId, $any($event.target).checked)"
+                                class="checkbox-input">
+                            <span class="checkbox-text">{{ category.categoryName }}</span>
+                        </label>
+                        }
+                        } @else {
+                        <p class="no-categories">No categories available. Contact an administrator to add categories.
+                        </p>
+                        }
+                    </div>
+                    <small class="form-hint">Select one or more categories for this product</small>
                 </div>
 
                 <!-- Success/Error Messages -->

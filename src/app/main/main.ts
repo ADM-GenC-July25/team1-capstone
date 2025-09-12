@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { SearchService } from '../services/search-service';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-main',
@@ -27,23 +28,33 @@ export class MainComponent implements OnInit {
     }
 
     protected categories = signal([
-        'Electronics',
-        'Clothing',
-        'Home & Garden',
-        'Sports',
-        'Books',
-        'Beauty'
+        {"name": 'Electronics',
+            "picture": "💻"},
+        {"name": 'Accessory',
+            "picture": "👜"},
+        {"name": 'Smart Home',
+            "picture": "🏠"},
+        {"name": 'Sports',
+            "picture": "⚽"},
+        {"name": 'TV & Home Theater',
+            "picture": "📺"}
     ]);
 
-    constructor(private themeService: ThemeService, private cartService: CartService, private router: Router, private productService: ProductService, private searchService: SearchService) {
+    constructor(private themeService: ThemeService, private cartService: CartService, private router: Router, private productService: ProductService, private searchService: SearchService, private authService: AuthService) {
+    }
+
+    get canManageProducts() {
+        const user = this.authService.user();
+        const userRoles = user?.roles || [];
+        return userRoles.includes('ADMIN') || userRoles.includes('EMPLOYEE') || userRoles.includes('admin') || userRoles.includes('employee');
     }
     get isCartOpen() {
-  return this.cartService.isCartOpen;
-}
+        return this.cartService.isCartOpen;
+    }
 
-closeCart() {
-  this.cartService.closeCart();
-}
+    closeCart() {
+        this.cartService.closeCart();
+    }
 
     ngOnInit(): void {
         console.log('MainComponent ngOnInit called');
@@ -57,8 +68,22 @@ closeCart() {
     }
 
     addToCart(productId: number) {
-        console.log('Added product to cart:', productId);
-        // Implement add to cart functionality here
+        console.log('Adding product to cart:', productId);
+
+        // Add item to cart via the CartService
+        this.cartService.addItem(productId, 1).subscribe({
+            next: (response) => {
+                console.log('Product added to cart successfully:', response);
+                // Cart automatically refreshes after successful add
+                // Optionally show a success message to the user
+                // You could add a toast notification service here
+            },
+            error: (error) => {
+                console.error('Error adding product to cart:', error);
+                // Optionally show an error message to the user
+                alert('Failed to add product to cart. Please try again.');
+            }
+        });
     }
 
     toggleTheme() {
@@ -67,5 +92,27 @@ closeCart() {
 
     categoryClicked(category: string) {
         this.router.navigate(['/search'], { queryParams: { category } });
+    }
+
+    editProduct(productId: number) {
+        this.router.navigate(['/edit-product', productId]);
+    }
+
+    deleteProduct(productId: number) {
+        if (confirm('Are you sure you want to delete this product?')) {
+            this.productService.deleteProduct(productId).subscribe({
+                next: () => {
+                    this.productService.refreshProducts();
+                    setTimeout(() => {
+                        const products = this.productService.getAllProducts();
+                        this.featuredProducts.set(products);
+                    }, 500);
+                },
+                error: (error) => {
+                    console.error('Error deleting product:', error);
+                    alert('Failed to delete product. Please try again.');
+                }
+            });
+        }
     }
 }
