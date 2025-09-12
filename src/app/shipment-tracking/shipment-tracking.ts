@@ -42,6 +42,9 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadUserAddress();
     this.loadShipments();
+
+    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // Load user delivery address
