@@ -24,6 +24,10 @@ export class ProductPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Scroll to top of page on load
+    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.scrollTo({ top: 0, behavior: 'smooth' });
+    
     // Combine route params and products observable to ensure products are loaded
     const combinedSubscription = combineLatest([
       this.route.paramMap,
