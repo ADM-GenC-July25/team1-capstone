@@ -28,11 +28,16 @@ export class MainComponent implements OnInit {
     }
 
     protected categories = signal([
-        'Electronics',
-        'Accessory',
-        'Smart Home',
-        'Sports',
-        'TV & Home Theater'
+        {"name": 'Electronics',
+            "picture": "💻"},
+        {"name": 'Accessory',
+            "picture": "👜"},
+        {"name": 'Smart Home',
+            "picture": "🏠"},
+        {"name": 'Sports',
+            "picture": "⚽"},
+        {"name": 'TV & Home Theater',
+            "picture": "📺"}
     ]);
 
     constructor(private themeService: ThemeService, private cartService: CartService, private router: Router, private productService: ProductService, private searchService: SearchService, private authService: AuthService) {

@@ -9,10 +9,10 @@
     <div class="container">
       <h2 class="section-title">Shop by Category</h2>
       <div class="categories-grid">
-        @for (category of categories(); track category) {
-        <div class="category-card" (click)="categoryClicked(category)">
-          <div class="category-icon">📦</div>
-          <h3>{{ category }}</h3>
+        @for (category of categories(); track category.name) {
+        <div class="category-card" (click)="categoryClicked(category.name)">
+          <div class="category-icon">{{ category.picture }}</div>
+          <h3>{{ category.name }}</h3>
         </div>
         }
       </div>
