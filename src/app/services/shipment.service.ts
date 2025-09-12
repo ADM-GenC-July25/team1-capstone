@@ -49,7 +49,7 @@ export class ShipmentService {
      * Decode JWT token to extract user ID
      */
     private getUserIdFromToken(): number | null {
-        const token = localStorage.getItem('authToken');
+        const token = sessionStorage.getItem('authToken');
         if (!token) {
             return null;
         }

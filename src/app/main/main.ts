@@ -32,7 +32,7 @@ export class MainComponent implements OnInit {
         'Accessory',
         'Smart Home',
         'Sports',
-        'TV/Home Theater'
+        'TV & Home Theater'
     ]);
 
     constructor(private themeService: ThemeService, private cartService: CartService, private router: Router, private productService: ProductService, private searchService: SearchService, private authService: AuthService) {

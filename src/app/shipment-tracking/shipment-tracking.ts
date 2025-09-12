@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { ThemeService } from '../services/theme.service';
 import { ShipmentService, ShipmentTracking } from '../services/shipment.service';
 import { UserService } from '../services/user.service';
@@ -32,7 +33,8 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
     private themeService: ThemeService,
     private shipmentService: ShipmentService,
     private userService: UserService,
-    private productService: ProductService
+    private productService: ProductService,
+    private router: Router
   ) {
     // Initialize any necessary data or services here
   }
@@ -355,5 +357,10 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
     const estimatedDelivery = new Date(shipment.estimatedDelivery || this.getEstimatedDelivery(shipment));
     const now = new Date();
     return now >= estimatedDelivery;
+  }
+
+  // Navigate to shopping page for users with no shipments
+  navigateToShopping() {
+    this.router.navigate(['/home']);
   }
 }
