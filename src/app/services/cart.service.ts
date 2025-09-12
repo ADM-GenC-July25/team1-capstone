@@ -324,10 +324,18 @@ export class CartService {
             return;
         }
 
-        const requestBody = { quantity: newQuantity };
-        const apiUrl = this.getApiUrl();
+        // Find the cart item to get the productId
+        const cartItem = this._cartItems().find(item => item.id === cartId);
+        if (!cartItem) {
+            console.error('Cart item not found for cartId:', cartId);
+            return;
+        }
 
-        this.http.put<any>(`${apiUrl}/items/${cartId}`, requestBody, {
+        const requestBody = { quantity: newQuantity };
+        const currentUser = this.getUserIdFromToken();
+        const apiUrl = `${this.baseApiUrl}/user/${currentUser}/product/${cartItem.productId}`;
+
+        this.http.put<any>(apiUrl, requestBody, {
             headers: this.getAuthHeaders()
         }).pipe(
             catchError(this.handleError.bind(this))
@@ -342,9 +350,17 @@ export class CartService {
     }
 
     removeItem(cartId: number): void {
-        const apiUrl = this.getApiUrl();
+        // Find the cart item to get the productId
+        const cartItem = this._cartItems().find(item => item.id === cartId);
+        if (!cartItem) {
+            console.error('Cart item not found for cartId:', cartId);
+            return;
+        }
 
-        this.http.delete(`${apiUrl}/items/${cartId}`, {
+        const currentUser = this.getUserIdFromToken();
+        const apiUrl = `${this.baseApiUrl}/user/${currentUser}/product/${cartItem.productId}`;
+
+        this.http.delete(apiUrl, {
             headers: this.getAuthHeaders()
         }).pipe(
             catchError(this.handleError.bind(this))
