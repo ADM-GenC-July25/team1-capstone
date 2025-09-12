@@ -4,11 +4,15 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 export interface ShipmentItem {
+    orderedItemId?: number;
+    transactionId: number;
     productId: number;
-    productName: string;
+    productName?: string;
+    productImage?: string;
     quantity: number;
-    priceAtPurchase: number;
-    daysToDeliver: number;
+    price: number; // price at purchase from backend
+    priceAtPurchase?: number; // for compatibility
+    daysToDeliver?: number; // might need to be fetched from product service
 }
 
 export interface ShipmentTracking {
@@ -104,6 +108,17 @@ export class ShipmentService {
      */
     getTransactionDetails(transactionId: number): Observable<any> {
         return this.http.get<any>(`${this.baseApiUrl}/${transactionId}`, {
+            headers: this.getAuthHeaders()
+        }).pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    /**
+     * Get transaction items (products) for a specific transaction
+     */
+    getTransactionItems(transactionId: number): Observable<ShipmentItem[]> {
+        return this.http.get<ShipmentItem[]>(`${this.baseApiUrl}/${transactionId}/items`, {
             headers: this.getAuthHeaders()
         }).pipe(
             catchError(this.handleError)

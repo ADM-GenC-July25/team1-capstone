@@ -110,10 +110,6 @@
                             <span>#{{ selectedShipment()!.transactionId }}</span>
                         </div>
                         <div class="detail-item">
-                            <label>Tracking Number:</label>
-                            <span>{{ selectedShipment()!.trackingNumber }}</span>
-                        </div>
-                        <div class="detail-item">
                             <label>Status:</label>
                             <span class="status-badge" [class]="getStatusClass(selectedShipment()!.status ?? '')">
                                 {{ selectedShipment()!.status }}
@@ -141,29 +137,37 @@
                             <label>Estimated Delivery:</label>
                             <span>{{ selectedShipment()!.estimatedDelivery | date:'MMM dd, yyyy' }}</span>
                         </div>
-                        <div class="detail-item">
-                            <label>Max Delivery Days:</label>
-                            <span>{{ selectedShipment()!.maxDeliveryDays }} days</span>
-                        </div>
                     </div>
                 </div>
 
                 <div class="detail-section">
                     <h3 class="section-title">Items in this Shipment</h3>
                     <div class="items-list">
+                        @if (isLoading()) {
+                        <div class="loading-items">
+                            <div class="loading-spinner"></div>
+                            <p>Loading items...</p>
+                        </div>
+                        } @else if (selectedShipment()!.items) {
                         @for (item of selectedShipment()!.items; track item.productId) {
                         <div class="item-card">
                             <div class="item-info">
-                                <h4 class="item-name">{{ item.productName }}</h4>
+                                <h4 class="item-name">{{ item.productName || 'Product #' + item.productId }}</h4>
                                 <div class="item-details">
                                     <span class="item-quantity">Qty: {{ item.quantity }}</span>
-                                    <span class="item-price">${{ item.priceAtPurchase | number:'1.2-2' }} each</span>
-                                    <span class="item-delivery">{{ item.daysToDeliver }} days delivery</span>
+                                    <span class="item-price">${{ (item.priceAtPurchase || item.price) | number:'1.2-2'
+                                        }} each</span>
+                                    <span class="item-delivery">{{ item.daysToDeliver || 5 }} days delivery</span>
                                 </div>
                             </div>
                             <div class="item-total">
-                                ${{ (item.quantity * item.priceAtPurchase) | number:'1.2-2' }}
+                                ${{ (item.quantity * (item.priceAtPurchase || item.price)) | number:'1.2-2' }}
                             </div>
+                        </div>
+                        }
+                        } @else {
+                        <div class="empty-items">
+                            <p>No items found for this shipment.</p>
                         </div>
                         }
                     </div>

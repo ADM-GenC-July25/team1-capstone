@@ -29,11 +29,10 @@ export class MainComponent implements OnInit {
 
     protected categories = signal([
         'Electronics',
-        'Clothing',
-        'Home & Garden',
+        'Accessory',
+        'Smart Home',
         'Sports',
-        'Books',
-        'Beauty'
+        'TV/Home Theater'
     ]);
 
     constructor(private themeService: ThemeService, private cartService: CartService, private router: Router, private productService: ProductService, private searchService: SearchService, private authService: AuthService) {

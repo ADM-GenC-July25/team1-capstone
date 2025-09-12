@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { ThemeService } from '../services/theme.service';
 import { ShipmentService, ShipmentTracking } from '../services/shipment.service';
 import { UserService } from '../services/user.service';
+import { ProductService } from '../services/product.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -30,7 +31,8 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
   constructor(
     private themeService: ThemeService,
     private shipmentService: ShipmentService,
-    private userService: UserService
+    private userService: UserService,
+    private productService: ProductService
   ) {
     // Initialize any necessary data or services here
   }
@@ -66,18 +68,27 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
       next: (shipments) => {
         // For each shipment, get the transaction details to calculate delivery date
         const shipmentRequests = shipments.map(shipment =>
-          this.shipmentService.getTransactionDetails(shipment.transactionId)
+          this.shipmentService.getTransactionItems(shipment.transactionId)
         );
 
         forkJoin(shipmentRequests).subscribe({
-          next: (transactionDetails) => {
-            // Merge shipment data with transaction details
+          next: (transactionItemsResults) => {
+            // Merge shipment data with transaction items for accurate delivery calculation
             const enhancedShipments = shipments.map((shipment, index) => {
-              const details = transactionDetails[index];
+              const items = transactionItemsResults[index] || [];
+
+              // Get actual delivery days from products
+              const maxDeliveryDays = items.length > 0
+                ? Math.max(...items.map(item => {
+                  const productDetails = this.productService.getProductById(item.productId);
+                  return productDetails?.daysToDeliver || 5;
+                }))
+                : 5;
+
               const enhanced = {
                 ...shipment,
                 deliveryAddress: this.userAddress(),
-                estimatedDelivery: this.calculateDeliveryDate(shipment.transactionDate, details?.items || [])
+                estimatedDelivery: this.calculateDeliveryDateWithDays(shipment.transactionDate, maxDeliveryDays)
               };
               // Calculate and set the status
               enhanced.status = this.getDisplayStatus(enhanced);
@@ -134,11 +145,49 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
   }
 
   viewDetails(shipmentId: number) {
-    // Find the shipment and show details overlay
+    // Find the shipment and get full details with items
     const shipment = this.shipments().find(s => s.transactionId === shipmentId);
     if (shipment) {
-      this.selectedShipment.set(shipment);
-      this.showDetailsOverlay.set(true);
+      this.isLoading.set(true);
+
+      // Get the transaction items (products)
+      this.shipmentService.getTransactionItems(shipmentId).subscribe({
+        next: (items) => {
+          // Map the backend items to frontend format with product details
+          const mappedItems = items.map(item => {
+            // Try to get product details from the product service
+            const productDetails = this.productService.getProductById(item.productId);
+
+            return {
+              productId: item.productId,
+              productName: productDetails?.productName || item.productName || `Product #${item.productId}`,
+              quantity: item.quantity,
+              priceAtPurchase: item.price,
+              price: item.price,
+              daysToDeliver: productDetails?.daysToDeliver || 5, // Use actual delivery days from product or default to 5
+              orderedItemId: item.orderedItemId,
+              transactionId: item.transactionId,
+              productImage: productDetails?.imageLink || item.productImage
+            };
+          });
+
+          // Merge shipment with items
+          const enhancedShipment = {
+            ...shipment,
+            items: mappedItems
+          };
+          this.selectedShipment.set(enhancedShipment);
+          this.showDetailsOverlay.set(true);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading transaction items:', error);
+          // Fallback: show shipment without items
+          this.selectedShipment.set({ ...shipment, items: [] });
+          this.showDetailsOverlay.set(true);
+          this.isLoading.set(false);
+        }
+      });
     }
   }
 
@@ -254,6 +303,14 @@ export class ShipmentTrackingComponent implements OnInit, OnDestroy {
     const orderDate = new Date(shipment.transactionDate);
     const deliveryDate = new Date(orderDate);
     deliveryDate.setDate(deliveryDate.getDate() + 5);
+    return deliveryDate.toISOString();
+  }
+
+  // Calculate delivery date with specific days
+  calculateDeliveryDateWithDays(transactionDate: string, days: number): string {
+    const orderDate = new Date(transactionDate);
+    const deliveryDate = new Date(orderDate);
+    deliveryDate.setDate(deliveryDate.getDate() + days);
     return deliveryDate.toISOString();
   }
 
