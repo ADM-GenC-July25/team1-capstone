@@ -36,7 +36,7 @@ interface PaymentMethodRequest {
   providedIn: 'root'
 })
 export class PaymentMethodService {
-  private apiUrl = 'http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/payment-methods';
+  private apiUrl = 'http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/payment-methods';
 
   constructor(private http: HttpClient) { }
 
