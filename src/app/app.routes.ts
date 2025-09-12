@@ -18,6 +18,7 @@ import { AboutComponent } from './about/about';
 import { CustomerServiceComponent } from './customer-service/customer-service';
 import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy';
 import { TermsOfServiceComponent } from './terms-of-service/terms-of-service';
+import { AdminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
     {
@@ -68,7 +69,7 @@ export const routes: Routes = [
     {
         path: 'manage-user',
         component: ManageUser,
-        canActivate: [AuthGuard]
+        canActivate: [AdminGuard]
     },
     {
         path: 'edit-product/:id',
