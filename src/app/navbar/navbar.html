@@ -35,6 +35,7 @@
                     <a [routerLink]="['/search']" [queryParams]="{category: 'TV & Home Theater'}">TV & Home Theater</a>
                 </div>
             </div>
+            <a href="#" class="nav-link" [routerLink]="['/manage-user']">Users</a>
             <a [routerLink]="['/shipments']" class="nav-link">Shipments</a>
             @if (canManageProducts) {
             <a [routerLink]="['/new-product']" class="nav-link">Add Product</a>
