@@ -11,6 +11,7 @@ import { SearchedItems } from './searched-items/searched-items';
 import { ShipmentTracking } from './shipment-tracking/shipment-tracking';
 import { ProductPage } from './product-page/product-page';
 import { NewProductPage } from './new-product-page/new-product-page';
+import { ManageUser } from './manage-user/manage-user';
 
 export const routes: Routes = [
     {
@@ -56,6 +57,11 @@ export const routes: Routes = [
     {
         path: 'new-product',
         component: NewProductPage,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'manage-user',
+        component: ManageUser,
         canActivate: [AuthGuard]
     },
     { path: '**', redirectTo: '' }
