@@ -40,12 +40,12 @@
                             <div class="error-message">Last name is required</div>
                         }
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input id="password" type="password" formControlName="password" class="form-input">
-                        @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
-                            <div class="error-message">Password must be at least 8 characters long</div>
+                        <label for="birthday">Date of Birth</label>
+                        <input id="birthday" type="date" formControlName="birthday" class="form-input">
+                        @if (userForm.get('birthday')?.invalid && userForm.get('birthday')?.touched) {
+                            <div class="error-message">Date of birth is required</div>
                         }
                     </div>
 
@@ -54,6 +54,14 @@
                         <input id="phone" type="tel" formControlName="phone" class="form-input">
                         @if (userForm.get('phone')?.invalid && userForm.get('phone')?.touched) {
                             <div class="error-message">Phone number is required</div>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input id="password" type="password" formControlName="password" class="form-input">
+                        @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
+                            <div class="error-message">Password is required</div>
                         }
                     </div>
 
@@ -111,14 +119,8 @@
                                     <td>{{ user.username }}</td>
                                     <td>{{ user.email }}</td>
                                     <td>{{ user.firstName }} {{ user.lastName }}</td>
-                                    <td>
-                                        <select 
-                                            class="role-select">
-                                            @for (role of availableRoles; track role) {
-                                                <option [value]="role" [selected]="role === user.roles[0]">{{role | titlecase}}</option>
-                                            }
-                                        </select>
-                                    </td>                                <td class="action-buttons">
+                                    <td>{{ user.roles[0] | titlecase }}</td>                                
+                                    <td class="action-buttons">
                                         <button 
                                             class="btn btn-small btn-edit"
                                             (click)="editUser(user)">
@@ -182,6 +184,14 @@
                 </div>
 
                 <div class="form-group">
+                        <label for="birthday">Date of Birth</label>
+                        <input id="birthday" type="date" formControlName="birthday" class="form-input">
+                        @if (userForm.get('birthday')?.invalid && userForm.get('birthday')?.touched) {
+                            <div class="error-message">Date of birth is required</div>
+                        }
+                    </div>
+
+                <div class="form-group">
                     <label for="phone">Phone</label>
                     <input id="phone" type="tel" formControlName="phone" class="form-input">
                     <div class="error-message" *ngIf="userForm.get('phone')?.invalid && userForm.get('phone')?.touched">
@@ -192,7 +202,7 @@
                 <div class="form-group">
                     <label for="role">Role</label>
                     <select id="role" formControlName="role" class="form-input">
-                        <option *ngFor="let role of availableRoles" [value]="role">{{role | titlecase}}</option>
+                        <option *ngFor="let role of availableRoles" [value]="role" [selected]="role">{{role | titlecase}}</option>
                     </select>
                 </div>
             </div>
