@@ -25,8 +25,9 @@ export class ManageUser implements OnInit {
     username: new FormControl('', [Validators.required]),
     firstName: new FormControl('', [Validators.required]),
     lastName: new FormControl('', [Validators.required]),
-    password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+    password: new FormControl('', [Validators.required]),
     phone: new FormControl('', [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]),
+    birthday: new FormControl('', [Validators.required]),
     role: new FormControl('customer', [Validators.required])
   });
 
@@ -66,6 +67,8 @@ export class ManageUser implements OnInit {
             firstName: element['firstName'],
             lastName: element['lastName'],
             username: element['username'],
+            dateOfBirth: element['dateOfBirth'] ? element['dateOfBirth'] : new Date(),
+            phone: element['phoneNumber'],
             roles: [String(element['accessLevel']).toLowerCase()],
             token: '',
             permissions: []
@@ -83,12 +86,15 @@ export class ManageUser implements OnInit {
   }
 
   editUser(user: AuthUser) {
+    console.log(user);
     this.editingUser.set(user);
     this.userForm.patchValue({
       email: user.email,
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
+      birthday: user.dateOfBirth ? user.dateOfBirth.toString() : '',
+      phone: user.phone,
       role: user.roles[0]
     });
     // Clear password as it's not sent from server
@@ -107,11 +113,20 @@ export class ManageUser implements OnInit {
   onSubmit() {
     if (this.userForm.valid) {
       this.isLoading.set(true);
-      const userData = this.userForm.value;
+      const userData = {
+        username: this.userForm.value.username,
+        email: this.userForm.value.email,
+        password: this.userForm.value.password,
+        firstName: this.userForm.value.firstName,
+        lastName: this.userForm.value.lastName,
+        phoneNumber: this.userForm.value.phone,
+        dateOfBirth: this.userForm.value.birthday,
+        accessLevel: this.userForm.value.role
+      };
       
       if (this.editingUser()) {
         // Update existing user
-        this.http.put(`http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/users/${this.editingUser()?.id}`, userData, {
+        this.http.put('http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/users/profile', userData, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
           }
@@ -131,7 +146,7 @@ export class ManageUser implements OnInit {
         });
       } else {
         // Create new user
-        this.http.post('http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/auth/create-user', userData, {
+        this.http.put('http://978323-api-gateway.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/users/new', userData, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
           }
@@ -172,25 +187,5 @@ export class ManageUser implements OnInit {
         }
       });
     }
-  }
-
-  updateUserRole(userId: string, newRole: string) {
-    this.isLoading.set(true);
-    this.http.put(`http://978358-test-with-taryn-env.eba-ykmz27pv.us-west-2.elasticbeanstalk.com/api/auth/users/${userId}/role`, { role: newRole }, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      }
-    }).subscribe({
-      next: () => {
-        this.successMessage.set('User role updated successfully!');
-        this.loadUsers();
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        this.errorMessage.set('Failed to update user role. Please try again.');
-        this.isLoading.set(false);
-        console.error('Error updating user role:', error);
-      }
-    });
   }
 }
